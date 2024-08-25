@@ -6,11 +6,12 @@ module.exports = {
 		'plugin:react/recommended',
 		'plugin:react/jsx-runtime',
 		'plugin:react-hooks/recommended',
+		'plugin:@typescript-eslint/recommended',
 	],
 	ignorePatterns: ['dist', '.eslintrc.cjs'],
 	parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
 	settings: { react: { version: '18.2' } },
-	plugins: ['react-refresh'],
+	plugins: ['react-refresh', '@typescript-eslint'],
 	rules: {
 		'react/jsx-no-target-blank': 'off',
 		'react-refresh/only-export-components': [
@@ -18,6 +19,7 @@ module.exports = {
 			{ allowConstantExport: true },
 		],
 		'no-unused-vars': 'warn',
+		'@typescript-eslint/no-unused-vars': 'warn',
 		'react/prop-types': 'off',
 	},
 };
