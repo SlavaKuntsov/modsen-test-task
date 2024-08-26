@@ -1,6 +1,8 @@
 using Events.Persistence;
 using Events.Application;
 using Events.Infrastructure;
+using Events.Domain.Interfaces;
+using Events.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 var services  = builder.Services;
@@ -14,6 +16,9 @@ services
 	.AddApplication()
 	.AddInfrastructure()
 	.AddPersistence(configuration);
+
+services
+	.AddScoped<IEventRepository, EventRepository>();
 
 var app = builder.Build();
 

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Reflection.Emit;
+﻿using Events.Persistence.Configurations;
+using Events.Persistence.Entities;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -8,14 +8,17 @@ namespace Events.Persistence;
 public class EventsDBContext(
 	DbContextOptions<EventsDBContext> options) : DbContext(options)
 {
-	public DbSet<CourseEntity> Courses { get; set; }
+	public DbSet<EventEntity> Events { get; set; }
+	public DbSet<ParticipantEntity> ParticipantEntities { get; set; }
+	//public DbSet<EventParticipantConfiguration> EventParticipantConfigurations { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		// Альтернативная запись для всех DBSet
-		//modelBuilder.ApplyConfigurationsFromAssembly(typeof(LearningDbContext).Assembly);
+		modelBuilder.ApplyConfigurationsFromAssembly(typeof(EventsDBContext).Assembly);
 
-		modelBuilder.ApplyConfiguration(new CourseConfiguration());
+		//modelBuilder.ApplyConfiguration(new EventConfiguration());
+		//modelBuilder.ApplyConfiguration(new ParticipantConfiguration());
+		//modelBuilder.ApplyConfiguration(new EventParticipantConfiguration());
 
 		base.OnModelCreating(modelBuilder);
 	}

@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Events.Domain.Interfaces;
+using Events.Persistence.Repositories;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +18,7 @@ public static class PersistenceExtensions
 			options.UseNpgsql(configuration.GetConnectionString(nameof(EventsDBContext)));
 		});
 
-		services.AddScoped<ICourseRepository, CourseRepository>();
+		services.AddScoped<IEventRepository, EventRepository>();
 
 		return services;
 	}
