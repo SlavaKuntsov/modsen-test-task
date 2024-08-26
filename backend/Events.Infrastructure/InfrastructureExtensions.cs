@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Library.Infrastructure;
+namespace Events.Infrastructure;
 
 public static class InfrastructureExtensions
 {

@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Library.Persistence;
+namespace Events.Persistence;
 
 public static class PersistenceExtensions
 {
@@ -10,9 +10,9 @@ public static class PersistenceExtensions
 		this IServiceCollection services,
 		IConfiguration configuration)
 	{
-		services.AddDbContext<LibraryDBContext>(options =>
+		services.AddDbContext<EventsDBContext>(options =>
 		{
-			options.UseNpgsql(configuration.GetConnectionString(nameof(LibraryDBContext)));
+			options.UseNpgsql(configuration.GetConnectionString(nameof(EventsDBContext)));
 		});
 
 		services.AddScoped<ICourseRepository, CourseRepository>();

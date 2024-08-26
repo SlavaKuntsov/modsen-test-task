@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Library.Application;
+namespace Events.Application;
 
 public static class ApplicationExtensions
 {

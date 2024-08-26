@@ -1,9 +1,9 @@
-using Library.Application;
-using Library.Infrastructure;
-using Library.Persistence;
+using Events.Persistence;
+using Events.Application;
+using Events.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
-var services = builder.Services;
+var services  = builder.Services;
 var configuration = builder.Configuration;
 
 services.AddSwaggerGen();
@@ -11,9 +11,9 @@ services.AddControllers();
 //builder.Services.AddEndpointsApiExplorer();
 
 services
-	.AddPersistence(configuration)
 	.AddApplication()
-	.AddInfrastructure();
+	.AddInfrastructure()
+	.AddPersistence(configuration);
 
 var app = builder.Build();
 

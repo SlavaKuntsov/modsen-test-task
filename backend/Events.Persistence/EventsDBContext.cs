@@ -1,9 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using System.Reflection.Emit;
 
-namespace Library.Persistence;
+using Microsoft.EntityFrameworkCore;
 
-public class LibraryDBContext(
-	DbContextOptions<LibraryDBContext> options) : DbContext(options)
+namespace Events.Persistence;
+
+public class EventsDBContext(
+	DbContextOptions<EventsDBContext> options) : DbContext(options)
 {
 	public DbSet<CourseEntity> Courses { get; set; }
 

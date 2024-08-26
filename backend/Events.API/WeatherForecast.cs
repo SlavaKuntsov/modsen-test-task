@@ -1,4 +1,4 @@
-namespace Library.API;
+namespace Events.API;
 
 public class WeatherForecast
 {
