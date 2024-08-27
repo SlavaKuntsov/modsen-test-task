@@ -1,5 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 
+using Events.Application.Auth;
+using Events.Application.Interfaces.Auth;
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
@@ -12,44 +14,64 @@ public class UsersService : IUsersServices
 {
 	private readonly IUsersRepository _usersRepository;
 	private readonly IMapper _mapper;
+	private readonly IPasswordHash _passwordHash;
+	private readonly IJwt _jwt;
 
-	public UsersService(IUsersRepository usersRepository, IMapper mapper)
-    {
+	public UsersService(
+		IUsersRepository usersRepository,
+		IMapper mapper,
+		IPasswordHash passwordHash,
+		IJwt jwt)
+	{
 		_usersRepository = usersRepository;
 		_mapper = mapper;
+		_passwordHash = passwordHash;
+		_jwt = jwt;
 	}
 
-	public async Task<Result<ParticipantModel>> Get(string email)
+	//public async Task<Result<ParticipantModel>> Login(string email)
+	//{
+	//	var participantEntitiy = await _usersRepository.Login(email);
+
+	//	if (participantEntitiy == null)
+	//		return Result.Failure<ParticipantModel>("No user with this email");
+
+	//	var eventsModels = _mapper.Map<ParticipantModel>(participantEntitiy);
+
+	//	return eventsModels;
+	//}
+
+	public async Task<Result<string>> Login(string email, string password)
 	{
-		var participantEntitiy = await _usersRepository.Get(email);
+		var existParticipant = await _usersRepository.Get(email);
 
-		if (participantEntitiy == null)
-			return Result.Failure<ParticipantModel>("No user with this email");
+		if (existParticipant == null)
+			return Result.Failure<string>("User with this email dont exists");
 
-		var eventsModels = _mapper.Map<ParticipantModel>(participantEntitiy);
+		var isCorrectPassword = _passwordHash.Verify(password, existParticipant.Password);
 
-		return eventsModels;
+		if (!isCorrectPassword)
+			return Result.Failure<string>("Failed to login");
+
+		var participant = _mapper.Map<ParticipantModel>(existParticipant);
+
+		string token = _jwt.Generate(participant);
+
+		return token;
 	}
 
-	public async Task<Result<ParticipantModel>> Get(string email, string password)
+	public async Task<Result<Guid>> Register(string email, string password)
 	{
-		var participantEntitiy = await _usersRepository.Get(email, password);
+		var existUser = await _usersRepository.Get(email);
 
-		if (participantEntitiy == null)
-			return Result.Failure<ParticipantModel>("User with this email already exists");
-
-		var eventsModels = _mapper.Map<ParticipantModel>(participantEntitiy);
-
-		return eventsModels;
-	}
-
-	public async Task<Result<Guid>> Create(ParticipantModel user)
-	{
-		var existUser = await _usersRepository.Get(user.Email);
-
-		if (existUser == null)
+		if (existUser != null)
 			return Result.Failure<Guid>("User with this email already exists");
 
-		return await _usersRepository.Create(user);
+		var user = ParticipantModel.Create(Guid.NewGuid(), email, _passwordHash.Generate(password));
+
+		if (user.IsFailure)
+			return Result.Failure<Guid>(user.Error);
+
+		return await _usersRepository.Create(user.Value);
 	}
 }

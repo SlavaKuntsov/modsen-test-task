@@ -19,14 +19,14 @@ public class EventsRepository : IEventsRepository
 		_mapper = mapper;
 	}
 
-	public async Task<ICollection<EventModel>> Get()
+	public async Task<IList<EventModel>> Get()
 	{
-		ICollection<EventEntity> eventsEntities = await _context
+		IList<EventEntity> eventsEntities = await _context
 			.Events
 			.AsNoTracking()
 			.ToListAsync();
 
-		var eventsModels = _mapper.Map<ICollection<EventModel>>(eventsEntities);
+		var eventsModels = _mapper.Map<IList<EventModel>>(eventsEntities);
 
 		return eventsModels;
 	}

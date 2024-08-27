@@ -1,6 +1,4 @@
-﻿using CSharpFunctionalExtensions;
-
-using Events.Domain.Interfaces.Repositories;
+﻿using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
 
@@ -15,7 +13,7 @@ public class EventsService : IEventsServices
 		_eventsRepository = eventsRepository;
     }
 
-	public async Task<ICollection<EventModel>> Get()
+	public async Task<IList<EventModel>> Get()
 	{
 		return await _eventsRepository.Get();
 	}

@@ -1,10 +1,10 @@
 ﻿using Events.API.Contracts.Events;
-using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
 
 using MapsterMapper;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers;
@@ -21,15 +21,17 @@ public class EventsController : BaseController
 	}
 
 	[HttpGet]
+	[Authorize]
 	public async Task<IActionResult> GetEvents()
 	{
 		var events = await _eventsServices.Get();
-		var response = _mapper.Map<ICollection<GetEventResponse>>(events);
+		var response = _mapper.Map<IList<GetEventResponse>>(events);
 
 		return Ok(response);
 	}
 
 	[HttpPost]
+	[Authorize]
 	public async Task<IActionResult> CreateEvent([FromBody] CreateEventRequest request)
 	{
 		var eventModel = EventModel.Create(Guid.NewGuid(), request.Title);

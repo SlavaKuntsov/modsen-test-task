@@ -16,5 +16,5 @@ public class ParticipantEntity
 
 	public string Password { get; set; } = string.Empty;
 
-	public ICollection<EventEntity> Events { get; set; } = [];
+	public IList<EventEntity> Events { get; set; } = [];
 }

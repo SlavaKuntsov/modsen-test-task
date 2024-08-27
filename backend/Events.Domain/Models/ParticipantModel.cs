@@ -18,7 +18,7 @@ public class ParticipantModel
 
 	public string Password { get; set; } = string.Empty;
 
-	public ICollection<EventModel> Events { get; set; } = [];
+	public IList<EventModel> Events { get; set; } = [];
 
 	public ParticipantModel() { }
 

@@ -4,7 +4,7 @@ namespace Events.Domain.Interfaces.Repositories;
 
 public interface IEventsRepository
 {
-    public Task<ICollection<EventModel>> Get();
+    public Task<IList<EventModel>> Get();
 
     public Task<Guid> Create(EventModel eventModel);
 }

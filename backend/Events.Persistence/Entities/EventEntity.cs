@@ -18,5 +18,5 @@ public class EventEntity
 
 	public string ImageUrl { get; set; } = string.Empty; 
 	
-	public ICollection<ParticipantEntity> Participants { get; set; } = [];  
+	public IList<ParticipantEntity> Participants { get; set; } = [];  
 }

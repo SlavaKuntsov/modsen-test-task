@@ -2,6 +2,7 @@ using Events.Persistence;
 using Events.Application;
 using Events.Infrastructure;
 using Events.API;
+using Microsoft.AspNetCore.CookiePolicy;
 
 var builder = WebApplication.CreateBuilder(args);
 var services  = builder.Services;
@@ -9,27 +10,33 @@ var configuration = builder.Configuration;
 
 services.AddSwaggerGen();
 services.AddControllers();
-//builder.Services.AddEndpointsApiExplorer();
 
 services
-	.AddAPI()
+	.AddAPI(configuration)
 	.AddApplication()
 	.AddInfrastructure()
 	.AddPersistence(configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
 
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+	MinimumSameSitePolicy = SameSiteMode.Strict,
+	HttpOnly = HttpOnlyPolicy.Always,
+	Secure = CookieSecurePolicy.Always
+});
+
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.MapControllers();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();

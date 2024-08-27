@@ -21,7 +21,7 @@ public class EventModel
 
 	public string ImageUrl { get; set; } = string.Empty;
 
-	public ICollection<ParticipantModel> Participants { get; set; } = [];
+	public IList<ParticipantModel> Participants { get; set; } = [];
 
 	public EventModel() { }
 
