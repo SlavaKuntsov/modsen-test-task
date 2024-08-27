@@ -9,7 +9,7 @@ public class EventsDBContext(
 	DbContextOptions<EventsDBContext> options) : DbContext(options)
 {
 	public DbSet<EventEntity> Events { get; set; }
-	public DbSet<ParticipantEntity> ParticipantEntities { get; set; }
+	public DbSet<ParticipantEntity> Participants { get; set; }
 	//public DbSet<EventParticipantConfiguration> EventParticipantConfigurations { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)

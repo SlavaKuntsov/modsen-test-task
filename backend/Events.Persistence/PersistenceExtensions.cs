@@ -18,7 +18,8 @@ public static class PersistenceExtensions
 			options.UseNpgsql(configuration.GetConnectionString(nameof(EventsDBContext)));
 		});
 
-		services.AddScoped<IEventRepository, EventRepository>();
+		services.AddScoped<IEventsRepository, EventsRepository>();
+		services.AddScoped<IUsersRepository, UsersRepository>();
 
 		return services;
 	}

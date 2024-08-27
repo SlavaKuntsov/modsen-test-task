@@ -1,4 +1,4 @@
-﻿using Events.API.Contracts;
+﻿using Events.API.Contracts.Events;
 using Events.Domain.Interfaces;
 using Events.Domain.Models;
 
@@ -10,10 +10,10 @@ namespace Events.API.Controllers;
 
 public class EventsController : BaseController
 {
-	private readonly IEventRepository _eventRepository;
+	private readonly IEventsRepository _eventRepository;
 	private readonly IMapper _mapper;
 
-	public EventsController(IEventRepository eventRepository, IMapper mapper)
+	public EventsController(IEventsRepository eventRepository, IMapper mapper)
 	{
 		_eventRepository = eventRepository;
 		_mapper = mapper;
@@ -22,7 +22,7 @@ public class EventsController : BaseController
 	[HttpGet]
 	public async Task<IActionResult> GetEvents()
 	{
-		var eventsModels = await _eventRepository.GetEvents();
+		var eventsModels = await _eventRepository.Get();
 
 		var response = _mapper.Map<ICollection<GetEventResponse>>(eventsModels);
 

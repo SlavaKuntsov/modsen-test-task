@@ -8,24 +8,26 @@ using Events.Domain.Interfaces;
 using Events.Domain.Models;
 using Events.Persistence.Entities;
 
+using Mapster;
+
 using MapsterMapper;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Events.Persistence.Repositories;
 
-public class EventRepository : IEventRepository
+public class EventsRepository : IEventsRepository
 {
 	private readonly EventsDBContext _context;
 	private readonly IMapper _mapper;
 
-	public EventRepository(EventsDBContext context, IMapper mapper)
+	public EventsRepository(EventsDBContext context, IMapper mapper)
 	{
 		_context = context;
 		_mapper = mapper;
 	}
 
-	public async Task<ICollection<EventModel>> GetEvents()
+	public async Task<ICollection<EventModel>> Get()
 	{
 		ICollection<EventEntity> eventsEntities = await _context
 			.Events
@@ -39,11 +41,7 @@ public class EventRepository : IEventRepository
 
 	public async Task<Guid> Create(EventModel eventModel)
 	{
-		EventEntity eventEntity = new()
-		{
-			Id = eventModel.Id,
-			Title = eventModel.Title,
-		};
+		var eventEntity = _mapper.Map<EventEntity>(eventModel);
 
 		await _context.Events.AddAsync(eventEntity);
 		

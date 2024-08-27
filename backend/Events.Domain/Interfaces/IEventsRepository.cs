@@ -8,8 +8,8 @@ using Events.Domain.Models;
 
 namespace Events.Domain.Interfaces;
 
-public interface IEventRepository
+public interface IEventsRepository
 {
-	public Task<ICollection<EventModel>> GetEvents();
+	public Task<ICollection<EventModel>> Get();
 	public Task<Guid> Create(EventModel eventModel);
 }
