@@ -1,5 +1,6 @@
 ﻿using Events.API.Contracts.Events;
-using Events.Domain.Interfaces;
+using Events.Domain.Interfaces.Repositories;
+using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
 
 using MapsterMapper;
@@ -10,21 +11,20 @@ namespace Events.API.Controllers;
 
 public class EventsController : BaseController
 {
-	private readonly IEventsRepository _eventRepository;
+	private readonly IEventsServices _eventsServices;
 	private readonly IMapper _mapper;
 
-	public EventsController(IEventsRepository eventRepository, IMapper mapper)
+	public EventsController(IEventsServices eventsServices, IMapper mapper)
 	{
-		_eventRepository = eventRepository;
+		_eventsServices = eventsServices;
 		_mapper = mapper;
 	}
 
 	[HttpGet]
 	public async Task<IActionResult> GetEvents()
 	{
-		var eventsModels = await _eventRepository.Get();
-
-		var response = _mapper.Map<ICollection<GetEventResponse>>(eventsModels);
+		var events = await _eventsServices.Get();
+		var response = _mapper.Map<ICollection<GetEventResponse>>(events);
 
 		return Ok(response);
 	}
@@ -37,7 +37,7 @@ public class EventsController : BaseController
 		if (eventModel.IsFailure)
 			return BadRequest(eventModel.Error);
 
-		Guid eventId = await _eventRepository.Create(eventModel.Value);
+		Guid eventId = await _eventsServices.Create(eventModel.Value);
 
 		return Ok(eventId);
 	}

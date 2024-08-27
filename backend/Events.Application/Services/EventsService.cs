@@ -1,21 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CSharpFunctionalExtensions;
+
+using Events.Domain.Interfaces.Repositories;
+using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
 
 namespace Events.Application.Services;
 
-public class EventsService
+public class EventsService : IEventsServices
 {
-    public EventsService()
-    {
+	private readonly IEventsRepository _eventsRepository;
 
+    public EventsService(IEventsRepository eventsRepository)
+    {
+		_eventsRepository = eventsRepository;
     }
 
-    //public async Task<ICollection<EventModel>> Get()
-    //{
-    //	return await 
-    //}
+	public async Task<ICollection<EventModel>> Get()
+	{
+		return await _eventsRepository.Get();
+	}
+
+	public async Task<Guid> Create(EventModel eventModel)
+	{
+		return await _eventsRepository.Create(eventModel);
+	}
 }

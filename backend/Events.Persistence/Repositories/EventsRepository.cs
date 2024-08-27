@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Events.Domain.Interfaces;
+﻿using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
 using Events.Persistence.Entities;
-
-using Mapster;
 
 using MapsterMapper;
 

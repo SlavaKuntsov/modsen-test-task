@@ -1,4 +1,4 @@
-﻿using Events.Domain.Interfaces;
+﻿using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
 using Events.Persistence.Entities;
 

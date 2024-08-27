@@ -1,4 +1,4 @@
-﻿using Events.Domain.Interfaces;
+﻿using Events.Domain.Interfaces.Repositories;
 using Events.Persistence.Repositories;
 
 using Microsoft.EntityFrameworkCore;

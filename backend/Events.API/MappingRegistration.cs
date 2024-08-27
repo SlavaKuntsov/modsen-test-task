@@ -1,8 +1,4 @@
-﻿using Events.API.Contracts.Events;
-using Events.Domain.Models;
-using Events.Persistence.Entities;
-
-using Mapster;
+﻿using Mapster;
 
 namespace Events.API;
 
