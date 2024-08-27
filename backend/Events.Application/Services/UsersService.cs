@@ -29,18 +29,6 @@ public class UsersService : IUsersServices
 		_jwt = jwt;
 	}
 
-	//public async Task<Result<ParticipantModel>> Login(string email)
-	//{
-	//	var participantEntitiy = await _usersRepository.Login(email);
-
-	//	if (participantEntitiy == null)
-	//		return Result.Failure<ParticipantModel>("No user with this email");
-
-	//	var eventsModels = _mapper.Map<ParticipantModel>(participantEntitiy);
-
-	//	return eventsModels;
-	//}
-
 	public async Task<Result<string>> Login(string email, string password)
 	{
 		var existParticipant = await _usersRepository.Get(email);
