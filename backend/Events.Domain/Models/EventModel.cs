@@ -23,6 +23,11 @@ public class EventModel
 
 	public ICollection<ParticipantModel> Participants { get; set; } = [];
 
+	public EventModel()
+	{
+
+	}
+
 	private EventModel(Guid id, string title)
 	{
 		Id = id;

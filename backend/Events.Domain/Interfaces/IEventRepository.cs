@@ -10,6 +10,6 @@ namespace Events.Domain.Interfaces;
 
 public interface IEventRepository
 {
-	public Task<ICollection<string>> GetEvents();
+	public Task<ICollection<EventModel>> GetEvents();
 	public Task<Guid> Create(EventModel eventModel);
 }
