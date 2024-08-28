@@ -34,5 +34,11 @@ public partial class ParticipantConfiguration : IEntityTypeConfiguration<Partici
 			.Property(e => e.Email)
 			.HasMaxLength(100)
 			.IsRequired();
+
+		builder
+			.HasMany(p => p.RefreshTokens)
+			.WithOne(rt => rt.User)
+			.HasForeignKey(rt => rt.UserId)
+			.OnDelete(DeleteBehavior.Cascade); // Удаляем токены, если удаляется пользователь
 	}
 }

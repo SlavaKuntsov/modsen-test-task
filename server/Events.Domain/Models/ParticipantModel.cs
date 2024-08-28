@@ -6,6 +6,12 @@ public class ParticipantModel
 {
 	public Guid Id { get; set; }
 
+	public string Email { get; set; } = string.Empty;
+
+	public string Password { get; set; } = string.Empty;
+
+	public string RefreshToken { get; set; } = string.Empty;
+
 	public string FirstName { get; set; } = string.Empty;
 
 	public string LastName { get; set; } = string.Empty;
@@ -13,10 +19,6 @@ public class ParticipantModel
 	public DateTime DateOfBirth { get; set; }
 
 	public DateTime? EventRegistrationDate { get; set; } = null;
-
-	public string Email { get; set; } = string.Empty;
-
-	public string Password { get; set; } = string.Empty;
 
 	public IList<EventModel> Events { get; set; } = [];
 

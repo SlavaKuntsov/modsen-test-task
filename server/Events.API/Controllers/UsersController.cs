@@ -22,14 +22,19 @@ public class UsersController : BaseController
 	[HttpPost($"{nameof(Login)}")]
 	public async Task<IActionResult> Login([FromBody] CreateLoginRequest request)
 	{
-		var token = await _usersServices.Login(request.Email, request.Password);
+		var authResult  = await _usersServices.Login(request.Email, request.Password);
 
-		if (token.IsFailure)
-			return Unauthorized(token.Error);
+		if (authResult.IsFailure)
+			return Unauthorized(authResult.Error);
 
-		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, token.Value);
+		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
 
-		return Ok(token.Value);
+		// return GetAuthResponse
+		return Ok(new GetAuthResultResponse
+		{
+			AccessToken = authResult.Value.AccessToken,
+			RefreshToken = authResult.Value.RefreshToken
+		});
 	}
 
 	[HttpPost($"{nameof(Registration)}")]

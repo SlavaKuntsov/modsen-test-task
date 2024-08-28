@@ -4,6 +4,10 @@ public class ParticipantEntity
 {
 	public Guid Id { get; set; }
 
+	public string Email { get; set; } = string.Empty;
+
+	public string Password { get; set; } = string.Empty;
+
 	public string FirstName { get; set; } = string.Empty;
 
 	public string LastName { get; set; } = string.Empty;
@@ -12,9 +16,7 @@ public class ParticipantEntity
 
 	public DateTime? EventRegistrationDate { get; set; } = null;
 
-	public string Email { get; set; } = string.Empty;
-
-	public string Password { get; set; } = string.Empty;
-
 	public IList<EventEntity> Events { get; set; } = [];
+
+	public IList<RefreshTokenEntity> RefreshTokens { get; set; } = []; // Связь с RefreshTokenEntity
 }
