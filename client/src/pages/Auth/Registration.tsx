@@ -4,17 +4,18 @@ import { Link } from 'react-router-dom';
 import * as Yup from 'yup';
 import Button from '../../components/Button';
 import FormBlock from '../../components/FormBlock';
+import { registration, User } from '../../utils/api/userApi';
 
 const RegistrationSchema = Yup.object().shape({
 	password: Yup.string()
 		.required('Please Enter your Password')
 		.matches(
-			'^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,}$',
-			'Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character'
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{3,})/,
+			'Must Contain 7 Characters, One Uppercase, One Lowercase, One Number'
 		),
 	confirmPassword: Yup.string()
 		.required('Please Enter your Confirm Password')
-		.oneOf([Yup.ref('password'), null], 'Passwords must match'),
+		.oneOf([Yup.ref('password')], 'Passwords must match'),
 	email: Yup.string()
 		.email('Invalid email')
 		.required('Please Enter your Email'),
@@ -22,6 +23,16 @@ const RegistrationSchema = Yup.object().shape({
 
 export default function Registration() {
 	document.title = 'Registration';
+
+	const handleRegistration = async (values: User) => {
+		try {
+			console.log(values);
+			await registration(values);
+		} catch (error) {
+			console.error('Error creating user:', error);
+			throw error;
+		}
+	};
 
 	return (
 		<FormBlock
@@ -37,7 +48,7 @@ export default function Registration() {
 				validationSchema={RegistrationSchema}
 				onSubmit={(values, { setSubmitting }) => {
 					setTimeout(() => {
-						alert(JSON.stringify(values, null, 2));
+						handleRegistration(values);
 						setSubmitting(false);
 					}, 400);
 					console.log(values);
@@ -46,7 +57,7 @@ export default function Registration() {
 				{({ errors, touched, handleSubmit, isSubmitting }) => (
 					<Form
 						onSubmit={handleSubmit}
-						className='flex flex-col items-start gap-1'
+						className='flex flex-col items-start gap-1 max-w-80'
 					>
 						<Field
 							placeholder='Еmail'
@@ -104,7 +115,7 @@ export default function Registration() {
 						<ErrorMessage
 							name='confirmPassword'
 							component='span'
-							className='text-red-400 text-base leading-3 text-start pt-1'
+							className='text-red-400 text-base leading-4 text-start pt-1'
 						/>
 
 						<Button
