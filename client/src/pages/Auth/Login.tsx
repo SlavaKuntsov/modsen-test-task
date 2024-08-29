@@ -4,13 +4,15 @@ import { Link } from 'react-router-dom';
 import * as Yup from 'yup';
 import Button from '../../components/Button';
 import FormBlock from '../../components/FormBlock';
+import { login, User } from '../../utils/api/userApi';
+import { checkAccessToken } from '../../utils/api/authApi';
 
 const LoginSchema = Yup.object().shape({
 	password: Yup.string()
 		.required('Please Enter your password')
 		.matches(
-			'^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,}$',
-			'Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character'
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{3,})/,
+			'Must Contain 7 Characters, One Uppercase, One Lowercase, One Number'
 		),
 	email: Yup.string()
 		.email('Invalid email')
@@ -18,6 +20,29 @@ const LoginSchema = Yup.object().shape({
 });
 export default function Login() {
 	document.title = 'Login';
+
+	// const [events, setEvents] = useState<Event[]>([]);
+
+	// const handleCreateUser = async () => {
+	// 	try {
+	// 		const createdUser = await getEvents();
+	// 		setEvents([...events, createdUser]);
+	// 	} catch (error) {
+	// 		console.error('Error creating user:', error);
+	// 	}
+	// };
+
+	const handleLogin = async (values: User) => {
+		try {
+			console.log(values);
+			await login(values).then(() => {
+				checkAccessToken()
+			});
+		} catch (error) {
+			console.error('Error creating user:', error);
+			throw error;
+		}
+	};
 
 	return (
 		<FormBlock
@@ -32,8 +57,8 @@ export default function Login() {
 				validationSchema={LoginSchema}
 				onSubmit={(values, { setSubmitting }) => {
 					setTimeout(() => {
-						alert(JSON.stringify(values, null, 2));
 						setSubmitting(false);
+						handleLogin(values);
 					}, 400);
 					console.log(values);
 				}}
@@ -41,7 +66,7 @@ export default function Login() {
 				{({ errors, touched, handleSubmit, isSubmitting }) => (
 					<Form
 						onSubmit={handleSubmit}
-						className='flex flex-col items-start gap-1'
+						className='flex flex-col items-start gap-1 max-w-80'
 					>
 						<Field
 							placeholder='Еmail'
@@ -78,7 +103,7 @@ export default function Login() {
 						<ErrorMessage
 							name='password'
 							component='span'
-							className='text-red-400 text-base leading-3 text-start pt-1'
+							className='text-red-400 text-base leading-4 text-start pt-1'
 						/>
 
 						<Button

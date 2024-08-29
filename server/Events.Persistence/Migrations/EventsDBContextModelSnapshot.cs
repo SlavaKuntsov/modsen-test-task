@@ -71,7 +71,7 @@ namespace Events.Persistence.Migrations
 
                     b.HasIndex("ParticipantId");
 
-                    b.ToTable("EventParticipantEntity");
+                    b.ToTable("EventParticipant", (string)null);
                 });
 
             modelBuilder.Entity("Events.Persistence.Entities.ParticipantEntity", b =>
@@ -110,6 +110,36 @@ namespace Events.Persistence.Migrations
                     b.ToTable("Participant", (string)null);
                 });
 
+            modelBuilder.Entity("Events.Persistence.Entities.RefreshTokenEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Token")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshToken", (string)null);
+                });
+
             modelBuilder.Entity("Events.Persistence.Entities.EventParticipantEntity", b =>
                 {
                     b.HasOne("Events.Persistence.Entities.EventEntity", null)
@@ -123,6 +153,22 @@ namespace Events.Persistence.Migrations
                         .HasForeignKey("ParticipantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Events.Persistence.Entities.RefreshTokenEntity", b =>
+                {
+                    b.HasOne("Events.Persistence.Entities.ParticipantEntity", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Events.Persistence.Entities.ParticipantEntity", b =>
+                {
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

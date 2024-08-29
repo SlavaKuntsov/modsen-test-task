@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 
 using Events.Infrastructure.Auth;
@@ -51,9 +52,19 @@ public static class ApiExtensions
 				};
 				options.Events = new JwtBearerEvents
 				{
+					OnAuthenticationFailed = context =>
+					{
+						Debug.WriteLine("Authentication failed: " + context.Exception.Message);
+						return Task.CompletedTask;
+					},
+					OnTokenValidated = context =>
+					{
+						Debug.WriteLine("Token is valid.");
+						return Task.CompletedTask;
+					},
 					OnMessageReceived = context =>
 					{
-						context.Token = context.Request.Cookies[COOKIE_NAME];
+						context.Token = context.Request.Cookies[COOKIE_NAME]; // если токен передается в cookie
 						return Task.CompletedTask;
 					}
 				};
@@ -61,6 +72,17 @@ public static class ApiExtensions
 
 		services.Configure<JwtModel>(configuration.GetSection(nameof(JwtModel)));
 		services.Configure<AuthorizationOptions>(configuration.GetSection(nameof(AuthorizationOptions)));
+
+		services.AddCors(options =>
+		{
+			options.AddDefaultPolicy(policy =>
+			{
+				policy.WithOrigins("http://localhost:5173");
+				policy.AllowAnyHeader();
+				policy.AllowAnyMethod();
+				policy.AllowCredentials();
+			});
+		});
 
 		return services;
 	}
