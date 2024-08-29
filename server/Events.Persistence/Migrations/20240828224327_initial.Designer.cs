@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.Persistence.Migrations
 {
     [DbContext(typeof(EventsDBContext))]
-    [Migration("20240828004608_AddRefreshToken")]
-    partial class AddRefreshToken
+    [Migration("20240828224327_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

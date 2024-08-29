@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Events.Persistence.Configurations;
 
-public partial class RefreshTokenEntityConfiguration : IEntityTypeConfiguration<RefreshTokenEntity>
+public partial class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshTokenEntity>
 {
 	public void Configure(EntityTypeBuilder<RefreshTokenEntity> builder)
 	{

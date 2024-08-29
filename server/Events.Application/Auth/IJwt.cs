@@ -1,4 +1,6 @@
-﻿using Events.Domain.Models;
+﻿using CSharpFunctionalExtensions;
+
+using Events.Domain.Models;
 
 namespace Events.Application.Auth;
 

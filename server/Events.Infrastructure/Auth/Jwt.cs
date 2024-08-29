@@ -23,6 +23,7 @@ public class Jwt : IJwt
 		_usersRepository = usersRepository;
 	}
 
+	// TODO - в будующем убрать
 	public string Generate(ParticipantModel user)
 	{
 		Claim[] claims =
@@ -49,9 +50,7 @@ public class Jwt : IJwt
 	{
 		var claims = new[]
 		{
-			new Claim(JwtRegisteredClaimNames.Sub, participant.Id.ToString()),
-			new Claim(JwtRegisteredClaimNames.Email, participant.Email),
-            // Другие необходимые клеймы
+			new Claim("Id", participant.Id.ToString())
         };
 
 		var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
@@ -76,13 +75,12 @@ public class Jwt : IJwt
 
 	public async Task<Guid> ValidateRefreshToken(string refreshToken)
 	{
-		// Логика проверки токена (например, поиск в БД и валидация)
-		var token = await _usersRepository.GetRefreshToken(refreshToken);
+		var storedToken = await _usersRepository.GetRefreshToken(refreshToken);
 
-		if(token == null)
+		if (storedToken == null || storedToken.IsRevoked || storedToken.ExpiresAt < DateTime.UtcNow)
 			return Guid.Empty;
 
-		return token.UserId;
+		return storedToken.UserId;
 	}
 
 	public int GetRefreshTokenExpirationDays()

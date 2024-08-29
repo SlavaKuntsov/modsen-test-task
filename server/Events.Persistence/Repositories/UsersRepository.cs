@@ -13,15 +13,11 @@ public class UsersRepository : IUsersRepository
 {
 	private readonly EventsDBContext _context;
 	private readonly IMapper _mapper;
-	//private readonly IJwt _jwt;
 
-	public UsersRepository(EventsDBContext context, IMapper mapper
-		//,IJwt jwt
-		)
+	public UsersRepository(EventsDBContext context, IMapper mapper)
 	{
 		_context = context;
 		_mapper = mapper;
-		//_jwt = jwt;
 	}
 
 	public async Task<ParticipantModel?> Get(Guid id)
@@ -34,9 +30,9 @@ public class UsersRepository : IUsersRepository
 		if (participantEntitiy == null)
 			return null;
 
-		var eventsModels = _mapper.Map<ParticipantModel>(participantEntitiy);
+		var model = _mapper.Map<ParticipantModel>(participantEntitiy);
 
-		return eventsModels;
+		return model;
 	}
 
 	public async Task<ParticipantModel?> Get(string email)
@@ -49,9 +45,9 @@ public class UsersRepository : IUsersRepository
 		if (participantEntitiy == null)
 			return null;
 
-		var eventsModels = _mapper.Map<ParticipantModel>(participantEntitiy);
+		var model = _mapper.Map<ParticipantModel>(participantEntitiy);
 
-		return eventsModels;
+		return model;
 	}
 
 	public async Task<ParticipantModel?> Get(string email, string password)
@@ -64,9 +60,9 @@ public class UsersRepository : IUsersRepository
 		if (participantEntitiy == null)
 			return null;
 
-		var eventsModels = _mapper.Map<ParticipantModel>(participantEntitiy);
+		var model = _mapper.Map<ParticipantModel>(participantEntitiy);
 
-		return eventsModels;
+		return model;
 	}
 
 	public async Task<Guid> Create(ParticipantModel user)
@@ -94,6 +90,7 @@ public class UsersRepository : IUsersRepository
 		return model;
 	}
 
+	// TODO - где применять??
 	public async Task SaveRefreshToken(RefreshTokenModel refreshToken)
 	{
 		var entity = _mapper.Map<RefreshTokenEntity>(refreshToken);

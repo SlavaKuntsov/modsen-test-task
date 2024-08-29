@@ -6,9 +6,11 @@ namespace Events.Domain.Interfaces.Services;
 
 public interface IUsersServices
 {
-	public Task<Result<AuthResult>> Login(string email, string password);
+	public Task<Result<AuthResultModel>> Login(string email, string password);
 
-	public Task<Result<Guid>> Register(string email, string passwordHash);
+	public Task<Result<AuthResultModel>> Registration(string email, string password);
 
-	public Task<Result<AuthResult>> RefreshToken(string refreshToken);
+	public Task<Result<AuthResultModel>> RefreshToken(string refreshToken);
+
+	public Task<Result<ParticipantModel>> Authorize(Guid id);
 }

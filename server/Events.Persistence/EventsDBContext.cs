@@ -1,4 +1,5 @@
-﻿using Events.Persistence.Entities;
+﻿using Events.Persistence.Configurations;
+using Events.Persistence.Entities;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,10 @@ public class EventsDBContext(
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		modelBuilder.ApplyConfigurationsFromAssembly(typeof(EventsDBContext).Assembly);
+
+		modelBuilder.ApplyConfiguration(new EventConfiguration());
+		modelBuilder.ApplyConfiguration(new EventParticipantConfiguration());
+		modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
 
 		base.OnModelCreating(modelBuilder);
 	}

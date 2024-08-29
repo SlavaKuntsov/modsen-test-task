@@ -1,4 +1,8 @@
-﻿using Events.API.Contracts.Users;
+﻿using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+
+using Events.API.Contracts.Users;
 using Events.Domain.Interfaces.Services;
 
 using MapsterMapper;
@@ -29,21 +33,61 @@ public class UsersController : BaseController
 
 		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
 
-		// return GetAuthResponse
-		return Ok(new GetAuthResultResponse
-		{
-			AccessToken = authResult.Value.AccessToken,
-			RefreshToken = authResult.Value.RefreshToken
-		});
+		var result = _mapper.Map<GetAuthResultResponse>(authResult.Value);
+
+		return Ok(result);
 	}
 
 	[HttpPost($"{nameof(Registration)}")]
 	public async Task<IActionResult> Registration([FromBody] CreateUserRequest request)
 	{
-		var user = await _usersServices.Register(request.Email, request.Password);
+		var authResult = await _usersServices.Registration(request.Email, request.Password);
+
+		if (authResult.IsFailure)
+			return Unauthorized(authResult.Error);
+
+		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
+
+		var result = _mapper.Map<GetAuthResultResponse>(authResult.Value);
+
+		return Ok(result);
+	}
+
+	[HttpPost($"{nameof(RefreshToken)}")]
+	public async Task<IActionResult> RefreshToken()
+	{
+		string? refreshToken = HttpContext.Request.Cookies[ApiExtensions.COOKIE_NAME];
+
+		if (string.IsNullOrEmpty(refreshToken))
+			return Unauthorized("Refresh token is missing.");
+
+		var authResult = await _usersServices.RefreshToken(refreshToken);
+
+		if (authResult.IsFailure)
+			return Unauthorized(authResult.Error);
+
+		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
+
+		var result = _mapper.Map<GetAuthResultResponse>(authResult.Value);
+
+		return Ok(result);
+	}
+
+	[HttpGet($"{nameof(Authorize)}")]
+	[Authorize]
+	public async Task<IActionResult> Authorize()
+	{
+		var userIdClaim = User.FindFirst("Id");
+
+		if (userIdClaim == null)
+			return Unauthorized("User ID not found in claims.");
+
+		Guid userId = Guid.Parse(userIdClaim.Value);
+
+		var user = await _usersServices.Authorize(userId);
 
 		if (user.IsFailure)
-			return BadRequest(user.Error);
+			return Unauthorized(user.Error);
 
 		return Ok(user.Value);
 	}
