@@ -1,13 +1,14 @@
 import Cookies from 'js-cookie';
-import { redirectTo } from '../../hooks/UseGlobalNavigate';
 import kyCore from '../core/kyCore';
-import { AuthResult, User } from './userApi';
+import { IAuthResult, IUser } from '../types/types';
 
 const getAccessToken = (): string | null => localStorage.getItem('accessToken');
 const getRefreshToken = (): undefined | null | string =>
 	Cookies.get('yummy-cackes');
 
-export const checkAccessToken = async () => {
+export const checkAccessToken = async (): Promise<IUser | null> => {
+	// UseGlobalNavigate();
+
 	const accessToken = getAccessToken();
 	const refreshToken = getRefreshToken();
 
@@ -18,11 +19,8 @@ export const checkAccessToken = async () => {
 					Authorization: `Bearer ${accessToken}`,
 				},
 			});
-
 			if (response.ok) {
-				const userData = await response.json<User>();
-				localStorage.setItem('user', JSON.stringify(userData));
-				return userData; // Успешная авторизация
+				return await response.json<IUser>();
 			}
 		} catch (error) {
 			console.error('Access token invalid, trying to refresh token...');
@@ -32,32 +30,43 @@ export const checkAccessToken = async () => {
 
 	// undefined === наличие токена
 	if (refreshToken === undefined) {
-		await handleRefreshToken();
+		return await handleRefreshToken();
 	} else {
-		// redirectTo('login');
-		localStorage.setItem('user', JSON.stringify(null));
+		return null;
 	}
-	return null;
 };
 
-export const handleRefreshToken = async () => {
+export const handleRefreshToken = async (): Promise<IUser | null> => {
 	try {
 		const response = await kyCore.post('Users/RefreshToken', {
 			credentials: 'include',
 		});
 
 		if (response.ok) {
-			const { accessToken: newAccessToken }: AuthResult = await response.json();
+			const { accessToken: newAccessToken }: IAuthResult =
+				await response.json();
+
 			localStorage.setItem('accessToken', newAccessToken);
 
-			await checkAccessToken(); // Проверяем access token снова
-		} else {
-			redirectTo('login');
-			localStorage.setItem('user', JSON.stringify(null));
+			return await checkAccessToken(); // Проверяем access token снова
 		}
 	} catch (error) {
 		console.error('Error refreshing token:', error);
-		redirectTo('login');
-		localStorage.setItem('user', JSON.stringify(null));
+	}
+
+	return null;
+};
+
+export const unauthorize = async () => {
+	try {
+		const response = await kyCore.get('Users/Unauthorize', {
+			credentials: 'include',
+		});
+		if (response.ok) {
+			localStorage.removeItem('accessToken');
+		}
+	} catch (error) {
+		console.error('Failed to login:', error);
+		throw error;
 	}
 };

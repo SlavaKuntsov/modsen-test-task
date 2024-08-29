@@ -4,7 +4,9 @@ import { Link } from 'react-router-dom';
 import * as Yup from 'yup';
 import Button from '../../components/Button';
 import FormBlock from '../../components/FormBlock';
-import { registration, User } from '../../utils/api/userApi';
+import { registration } from '../../utils/api/userApi';
+import { userStore } from '../../utils/store/userStore';
+import { IUser } from '../../utils/types/types';
 
 const RegistrationSchema = Yup.object().shape({
 	password: Yup.string()
@@ -24,10 +26,13 @@ const RegistrationSchema = Yup.object().shape({
 export default function Registration() {
 	document.title = 'Registration';
 
-	const handleRegistration = async (values: User) => {
+	const { setAuth } = userStore;
+
+	const handleRegistration = async (values: IUser) => {
 		try {
 			console.log(values);
 			await registration(values);
+			setAuth(true);
 		} catch (error) {
 			console.error('Error creating user:', error);
 			throw error;

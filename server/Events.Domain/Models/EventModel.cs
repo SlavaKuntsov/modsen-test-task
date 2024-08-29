@@ -19,6 +19,9 @@ public class EventModel
 
 	public int MaxParticipants { get; set; }
 
+	// при изменении IList<ParticipantModel> Participants менять количество зарегистрированных участников
+	public int ParticipantsCount { get; set; }
+
 	public string ImageUrl { get; set; } = string.Empty;
 
 	public IList<ParticipantModel> Participants { get; set; } = [];

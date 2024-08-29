@@ -1,61 +1,41 @@
 import kyCore from '../core/kyCore';
+import { IAuthResult, IUser } from '../types/types';
 
-// Типизация данных пользователя
-export interface User {
-	email: string;
-	password: string;
-}
-
-export interface AuthResult {
-	accessToken: string;
-	refreshToken: string;
-}
-
-export interface Event {
-	id: string;
-	name: string;
-}
-
-// Функция для получения списка пользователей
 export const getEvents = async (): Promise<Event> => {
 	try {
-		const response = await kyCore.get('events').json<Event>();
-		console.log('response: ', response);
-		return response;
+		return await kyCore.get('events').json<Event>();
 	} catch (error) {
 		console.error('Failed to fetch users:', error);
 		throw error;
 	}
 };
 
-export const login = async (userData: User): Promise<AuthResult> => {
+export const login = async (userData: IUser): Promise<boolean> => {
 	try {
 		const response = await kyCore
 			.post('Users/Login', {
 				json: userData,
 				credentials: 'include',
 			})
-			.json<AuthResult>();
+			.json<IAuthResult>();
 
 		localStorage.setItem('accessToken', response.accessToken);
 
-		console.log('response: ', response);
-		return response;
+		return true;
 	} catch (error) {
 		console.error('Failed to login:', error);
-		throw error;
+		return false;
 	}
 };
 
-export const registration = async (userData: User): Promise<AuthResult> => {
+export const registration = async (userData: IUser): Promise<IAuthResult> => {
 	try {
 		const response = await kyCore
 			.post('Users/Registration', { json: userData })
-			.json<AuthResult>();
+			.json<IAuthResult>();
 
 		localStorage.setItem('accessToken', response.accessToken);
 
-		console.log('response: ', response);
 		return response;
 	} catch (error) {
 		console.error('Failed to login:', error);

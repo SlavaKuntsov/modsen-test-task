@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import * as Yup from 'yup';
 import Button from '../../components/Button';
 import FormBlock from '../../components/FormBlock';
-import { login, User } from '../../utils/api/userApi';
-import { checkAccessToken } from '../../utils/api/authApi';
+import { login } from '../../utils/api/userApi';
+import { useUserStore } from '../../utils/store/UserStoreContext';
+import { IUser } from '../../utils/types/types';
 
 const LoginSchema = Yup.object().shape({
 	password: Yup.string()
@@ -21,6 +22,9 @@ const LoginSchema = Yup.object().shape({
 export default function Login() {
 	document.title = 'Login';
 
+	const userStore = useUserStore();
+	const { setAuth } = userStore;
+
 	// const [events, setEvents] = useState<Event[]>([]);
 
 	// const handleCreateUser = async () => {
@@ -32,12 +36,10 @@ export default function Login() {
 	// 	}
 	// };
 
-	const handleLogin = async (values: User) => {
+	const handleLogin = async (values: IUser) => {
 		try {
-			console.log(values);
-			await login(values).then(() => {
-				checkAccessToken()
-			});
+			const result = await login(values);
+			if (result) setAuth(true);
 		} catch (error) {
 			console.error('Error creating user:', error);
 			throw error;

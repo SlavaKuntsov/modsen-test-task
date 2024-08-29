@@ -91,4 +91,13 @@ public class UsersController : BaseController
 
 		return Ok(user.Value);
 	}
+
+	[HttpGet($"{nameof(Unauthorize)}")]
+	//[Authorize]
+	public IActionResult Unauthorize()
+	{
+		HttpContext.Response.Cookies.Delete(ApiExtensions.COOKIE_NAME);
+
+		return Ok();
+	}
 }

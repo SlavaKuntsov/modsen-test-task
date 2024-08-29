@@ -1,38 +1,57 @@
-import { useEffect, useState } from 'react';
+import { observer } from 'mobx-react-lite';
+import { useLayoutEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import AuthGuard from './components/Routes/AuthGuard';
-import UnAuthGuard from './components/Routes/UnAuthGuard';
-import UseGlobalNavigate, { redirectTo } from './hooks/UseGlobalNavigate';
+import { AuthGuard, UnAuthGuard } from './components/Routes/Guards';
 import Layout from './layouts/Layout';
 import Login from './pages/Auth/Login';
 import Registration from './pages/Auth/Registration';
 import Home from './pages/Home';
 import NotFoundPage from './pages/NotFoundPage';
-import { User } from './utils/api/userApi';
 import { checkAccessToken } from './utils/api/authApi';
+import { userStore } from './utils/store/userStore';
 
-export default function App() {
-	UseGlobalNavigate();
+const App = observer(() => {
+	// const navigate = useNavigate();
 
-	const [user, setUser] = useState<User | null>(() => {
-		const userData = localStorage.getItem('user');
-		return userData ? (JSON.parse(userData) as User) : null;
-	});
+	const { user, isLoggedIn, setUser, isAuth, setAuth, isAuth2, setAuth2 } =
+		userStore;
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
-	checkAccessToken();
+	useLayoutEffect(() => {
+		const fetchUserData = async () => {
+			// Проверяем, авторизован ли пользователь
+			console.log('isAuth: ', isAuth);
+			if (!isAuth2) {
+				const userData = await checkAccessToken();
+				console.log('userData: ', userData);
+				if (userData) {
+					setUser(userData);
+					setAuth2(true);
+					// redirectTo('/main');
+				} else {
+					// redirectTo('/login');
+				}
+			} else {
+				console.log('to /main');
+				// navigate('/main')
+			}
+			setIsLoading(false);
+		};
 
-	useEffect(() => {
-		console.log(user);
+		fetchUserData();
+	}, [isAuth, setAuth, isAuth2, setAuth2]);
 
-		if (user !== null) redirectTo('/');
-
-		// else redirectTo('/login');
-	}, [user]);
-
+	if (isLoading) {
+		return <h1>Загрузка...</h1>; // Отображаем загрузку пока проверяем аутентификацию
+	}
 	return (
 		<Routes>
 			<Route path='/' element={<Layout />}>
-				<Route index element={<AuthGuard user={user} component={<Home />} />} />
+				<Route
+					index
+					path='/'
+					element={<AuthGuard user={user} component={<Home />} />}
+				/>
 				<Route
 					path='/login'
 					element={<UnAuthGuard user={user} component={<Login />} />}
@@ -45,4 +64,6 @@ export default function App() {
 			</Route>
 		</Routes>
 	);
-}
+});
+
+export default App;
