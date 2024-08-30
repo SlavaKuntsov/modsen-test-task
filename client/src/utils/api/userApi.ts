@@ -10,25 +10,35 @@ export const getEvents = async (): Promise<Event> => {
 	}
 };
 
-export const login = async (userData: IUser): Promise<boolean> => {
+export const login = async (userData: IUser): Promise<boolean | string> => {
 	try {
-		const response = await kyCore
-			.post('Users/Login', {
-				json: userData,
-				credentials: 'include',
-			})
-			.json<IAuthResult>();
+		const response = await kyCore.post('Users/Login', {
+			json: userData,
+			credentials: 'include',
+		});
 
-		localStorage.setItem('accessToken', response.accessToken);
+		// Проверяем, успешен ли ответ
+		if (!response.ok) {
+			// Если ответ не успешный, извлекаем текст ошибки
+			const errorResponse = await response.json();
+			console.error('Login failed:', errorResponse);
+			// return errorResponse; // Возвращаем текст ошибки
+		}
+
+		const responseData = await response.json<IAuthResult>();
+		localStorage.setItem('accessToken', responseData.accessToken);
 
 		return true;
 	} catch (error) {
 		console.error('Failed to login:', error);
-		return false;
+		console.log(error);
+		return 'Incorrect password';
 	}
 };
 
-export const registration = async (userData: IUser): Promise<IAuthResult> => {
+export const registration = async (
+	userData: IUser
+): Promise<boolean | string> => {
 	try {
 		const response = await kyCore
 			.post('Users/Registration', { json: userData })
@@ -36,10 +46,10 @@ export const registration = async (userData: IUser): Promise<IAuthResult> => {
 
 		localStorage.setItem('accessToken', response.accessToken);
 
-		return response;
+		return true;
 	} catch (error) {
 		console.error('Failed to login:', error);
-		throw error;
+		return 'User with this email already exists';
 	}
 };
 

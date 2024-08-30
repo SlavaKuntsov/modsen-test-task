@@ -12,3 +12,5 @@ export interface IEvent {
 	id: string;
 	name: string;
 }
+
+export type StatusType = 'success' | 'error' | 'warning' | 'info';

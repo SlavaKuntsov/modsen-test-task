@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import * as Yup from 'yup';
 import Button from '../../components/Button';
 import FormBlock from '../../components/FormBlock';
+import useCustomToast from '../../components/Toast';
 import { registration } from '../../utils/api/userApi';
-import { userStore } from '../../utils/store/userStore';
+import { useUserStore } from '../../utils/store/UserStoreContext';
 import { IUser } from '../../utils/types/types';
 
 const RegistrationSchema = Yup.object().shape({
@@ -26,13 +27,28 @@ const RegistrationSchema = Yup.object().shape({
 export default function Registration() {
 	document.title = 'Registration';
 
+	const userStore = useUserStore();
 	const { setAuth } = userStore;
+
+	const { showToast } = useCustomToast();
 
 	const handleRegistration = async (values: IUser) => {
 		try {
-			console.log(values);
-			await registration(values);
-			setAuth(true);
+			const result = await registration(values);
+
+			if (result === true) {
+				showToast({
+					title: 'Успешно!', // Используем строку в качестве заголовка
+					status: 'success', // В данном случае ошибка
+				});
+				setAuth(true);
+			} else if (typeof result === 'string') {
+				// Если результат - это строка, отображаем её с помощью Toast
+				showToast({
+					title: result, // Используем строку в качестве заголовка
+					status: 'error', // В данном случае ошибка
+				});
+			}
 		} catch (error) {
 			console.error('Error creating user:', error);
 			throw error;

@@ -39,7 +39,7 @@ public class UsersService : IUsersServices
 		var isCorrectPassword = _passwordHash.Verify(password, existParticipant.Password);
 
 		if (!isCorrectPassword)
-			return Result.Failure<AuthResultModel>("Failed to login");
+			return Result.Failure<AuthResultModel>("Incorrect password");
 
 		var participant = _mapper.Map<ParticipantModel>(existParticipant);
 

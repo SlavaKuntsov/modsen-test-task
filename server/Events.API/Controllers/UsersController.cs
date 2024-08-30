@@ -29,7 +29,7 @@ public class UsersController : BaseController
 		var authResult  = await _usersServices.Login(request.Email, request.Password);
 
 		if (authResult.IsFailure)
-			return Unauthorized(authResult.Error);
+			return Ok(authResult.Error);
 
 		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
 

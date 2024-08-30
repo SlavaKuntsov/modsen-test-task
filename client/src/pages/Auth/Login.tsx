@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import * as Yup from 'yup';
 import Button from '../../components/Button';
 import FormBlock from '../../components/FormBlock';
+import useCustomToast from '../../components/Toast';
 import { login } from '../../utils/api/userApi';
 import { useUserStore } from '../../utils/store/UserStoreContext';
 import { IUser } from '../../utils/types/types';
@@ -24,22 +25,26 @@ export default function Login() {
 
 	const userStore = useUserStore();
 	const { setAuth } = userStore;
-
-	// const [events, setEvents] = useState<Event[]>([]);
-
-	// const handleCreateUser = async () => {
-	// 	try {
-	// 		const createdUser = await getEvents();
-	// 		setEvents([...events, createdUser]);
-	// 	} catch (error) {
-	// 		console.error('Error creating user:', error);
-	// 	}
-	// };
+	
+	const { showToast } = useCustomToast();
 
 	const handleLogin = async (values: IUser) => {
 		try {
 			const result = await login(values);
-			if (result) setAuth(true);
+
+			if (result === true) {
+				showToast({
+					title: 'Успешно!', // Используем строку в качестве заголовка
+					status: 'success', // В данном случае ошибка
+				});
+				setAuth(true);
+			} else if (typeof result === 'string') {
+				// Если результат - это строка, отображаем её с помощью Toast
+				showToast({
+					title: result, // Используем строку в качестве заголовка
+					status: 'error', // В данном случае ошибка
+				});
+			}
 		} catch (error) {
 			console.error('Error creating user:', error);
 			throw error;
