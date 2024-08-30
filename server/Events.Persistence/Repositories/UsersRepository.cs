@@ -1,5 +1,4 @@
-﻿using Events.Application.Auth;
-using Events.Domain.Interfaces.Repositories;
+﻿using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
 using Events.Persistence.Entities;
 
@@ -99,21 +98,25 @@ public class UsersRepository : IUsersRepository
 		await _context.SaveChangesAsync();
 	}
 
-	public async Task UpdateRefreshToken(Guid userId, string newRefreshToken)
+	public async Task UpdateRefreshToken(Guid userId, RefreshTokenModel newRefreshToken)
 	{
 		// Получаем существующий refresh token для данного пользователя
 		var existingToken = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserId == userId);
 
+		Console.WriteLine(existingToken);
+
 		if (existingToken != null)
 		{
 			// Обновляем токен и время его создания
-			existingToken.Token = newRefreshToken;
+			existingToken.Token = newRefreshToken.Token;
 			existingToken.CreatedAt = DateTime.UtcNow;
 			existingToken.ExpiresAt = DateTime.UtcNow.AddDays(30);
 
 			_context.RefreshTokens.Update(existingToken);
 			await _context.SaveChangesAsync();
 		}
+		else
+			await SaveRefreshToken(newRefreshToken);
 	}
 
 	public async Task DeleteRefreshToken(string refreshToken)

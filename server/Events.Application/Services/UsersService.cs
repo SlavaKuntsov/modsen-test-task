@@ -51,7 +51,7 @@ public class UsersService : IUsersServices
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
 
-		await _usersRepository.SaveRefreshToken(refreshTokenModel.Value);
+		await _usersRepository.UpdateRefreshToken(participant.Id, refreshTokenModel.Value);
 
 		return new AuthResultModel
 		{
@@ -109,8 +109,13 @@ public class UsersService : IUsersServices
 		var accessToken = _jwt.GenerateAccessToken(user);
 		var newRefreshToken = _jwt.GenerateRefreshToken();
 
+		var refreshTokenModel = RefreshTokenModel.Create(userId, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+
+		if (refreshTokenModel.IsFailure)
+			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
+
 		// Обновление refresh-токена в хранилище
-		await _usersRepository.UpdateRefreshToken(userId, newRefreshToken);
+		await _usersRepository.UpdateRefreshToken(userId, refreshTokenModel.Value);
 
 		return new AuthResultModel
 		{

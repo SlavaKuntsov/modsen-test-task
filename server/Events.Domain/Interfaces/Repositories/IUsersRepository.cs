@@ -14,7 +14,7 @@ public interface IUsersRepository
 
 	public Task SaveRefreshToken(RefreshTokenModel refreshToken);
 
-	public Task UpdateRefreshToken(Guid userId, string newRefreshToken);
+	public Task UpdateRefreshToken(Guid userId, RefreshTokenModel newRefreshToken);
 
 	public Task DeleteRefreshToken(string refreshToken);
 }
