@@ -45,7 +45,7 @@ public class UsersService : IUsersServices
 
 		var user = _mapper.Map<ParticipantModel>(existUser);
 
-		string accessToken = _jwt.GenerateAccessToken(user.Id);
+		string accessToken = _jwt.GenerateAccessToken(user.Id, user.Role);
 		string refreshToken = _jwt.GenerateRefreshToken();
 
 		var refreshTokenModel = RefreshTokenModel.Create(user.Id, user.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());
@@ -78,7 +78,7 @@ public class UsersService : IUsersServices
 		var createdUserId = await _usersRepository.Create(user.Value);
 
 		// Если регистрация прошла успешно, создаём токены
-		var accessToken = _jwt.GenerateAccessToken(user.Value.Id);
+		var accessToken = _jwt.GenerateAccessToken(user.Value.Id, user.Value.Role);
 		var refreshToken = _jwt.GenerateRefreshToken();
 
 		var refreshTokenModel = RefreshTokenModel.Create(createdUserId, Role.User, refreshToken, _jwt.GetRefreshTokenExpirationDays());
@@ -111,7 +111,7 @@ public class UsersService : IUsersServices
 		var createdUserId = await _usersRepository.Create(user.Value);
 
 		// Если регистрация прошла успешно, создаём токены
-		var accessToken = _jwt.GenerateAccessToken(user.Value.Id);
+		var accessToken = _jwt.GenerateAccessToken(user.Value.Id, user.Value.Role);
 		var refreshToken = _jwt.GenerateRefreshToken();
 
 		var refreshTokenModel = RefreshTokenModel.Create(createdUserId, Role.Admin, refreshToken, _jwt.GetRefreshTokenExpirationDays());
@@ -142,7 +142,7 @@ public class UsersService : IUsersServices
 		if (user == null)
 			return Result.Failure<AuthResultModel>("User not found");
 
-		var accessToken = _jwt.GenerateAccessToken(user.Id);
+		var accessToken = _jwt.GenerateAccessToken(user.Id, user.Role);
 		var newRefreshToken = _jwt.GenerateRefreshToken();
 
 		var refreshTokenModel = RefreshTokenModel.Create(user.Id, user.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());

@@ -4,8 +4,8 @@ using System.Security.Cryptography;
 using System.Text;
 
 using Events.Application.Auth;
+using Events.Domain.Enums;
 using Events.Domain.Interfaces.Repositories;
-using Events.Domain.Models.Users;
 
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -23,11 +23,12 @@ public class Jwt : IJwt
 		_usersRepository = usersRepository;
 	}
 
-	public string GenerateAccessToken(Guid id)
+	public string GenerateAccessToken(Guid id, Role role)
 	{
 		var claims = new[]
 		{
-			new Claim("Id", id.ToString())
+			new Claim("Id", id.ToString()),
+			new Claim(ClaimTypes.Role, role.ToString())
 		};
 
 		var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));

@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 using Events.API.Contracts.Users;
 using Events.Domain.Enums;
@@ -27,10 +25,11 @@ public class UsersController : BaseController
 	[HttpPost($"{nameof(Login)}")]
 	public async Task<IActionResult> Login([FromBody] CreateLoginRequest request)
 	{
+
 		var authResult  = await _usersServices.Login(request.Email, request.Password);
 
 		if (authResult.IsFailure)
-			return Ok(authResult.Error);
+			return Unauthorized(authResult.Error);
 
 		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
 

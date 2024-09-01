@@ -1,4 +1,6 @@
-﻿using Events.API.Contracts.Events;
+﻿using System.Diagnostics;
+
+using Events.API.Contracts.Events;
 using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
 
@@ -20,10 +22,46 @@ public class EventsController : BaseController
 		_mapper = mapper;
 	}
 
-	[HttpGet]
-	[Authorize]
+	[HttpGet($"{nameof(GetEvents)}")]
+	[Authorize(Policy = "UserOnly")]
 	public async Task<IActionResult> GetEvents()
 	{
+		//if (!User.Identity.IsAuthenticated)
+		//{
+		//	return Unauthorized("User is not authenticated");
+		//}
+		var claims = User.Claims.ToList();
+		// Проверка, действительно ли пользователь авторизован
+		Debug.WriteLine($"IsAuthenticated: {User.Identity.IsAuthenticated}");
+		// Вывод всех claims
+		foreach (var claim in claims)
+		{
+			Debug.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
+		}
+
+		var events = await _eventsServices.Get();
+		var response = _mapper.Map<IList<GetEventResponse>>(events);
+
+		return Ok(response);
+	}
+
+	[HttpGet($"{nameof(GetEventsAdmin)}")]
+	[Authorize(Policy = "AdminOnly")]
+	public async Task<IActionResult> GetEventsAdmin()
+	{
+		//if (!User.Identity.IsAuthenticated)
+		//{
+		//	return Unauthorized("User is not authenticated");
+		//}
+		var claims = User.Claims.ToList();
+		// Проверка, действительно ли пользователь авторизован
+		Debug.WriteLine($"IsAuthenticated: {User.Identity.IsAuthenticated}");
+		// Вывод всех claims
+		foreach (var claim in claims)
+		{
+			Debug.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
+		}
+
 		var events = await _eventsServices.Get();
 		var response = _mapper.Map<IList<GetEventResponse>>(events);
 
@@ -31,9 +69,22 @@ public class EventsController : BaseController
 	}
 
 	[HttpPost]
-	[Authorize]
+	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> CreateEvent([FromBody] CreateEventRequest request)
 	{
+		if (!User.Identity.IsAuthenticated)
+		{
+			return Unauthorized("User is not authenticated");
+		}
+		var claims = User.Claims.ToList();
+		// Проверка, действительно ли пользователь авторизован
+		Debug.WriteLine($"IsAuthenticated: {User.Identity.IsAuthenticated}");
+		// Вывод всех claims
+		foreach (var claim in claims)
+		{
+			Debug.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
+		}
+
 		var eventModel = EventModel.Create(Guid.NewGuid(), request.Title);
 
 		if (eventModel.IsFailure)
