@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { userStore } from '../utils/store/userStore';
+import Nav from '../components/Nav/Nav';
 
 export default function Home() {
 	document.title = 'Home';
@@ -7,7 +8,8 @@ export default function Home() {
 	const { logout } = userStore;
 
 	return (
-		<div className='flex flex-col items-center'>
+		<div className='flex flex-col items-center w-full h-full'>
+			<Nav/>
 			<h1 className='text-3xl'>Hello Modsen!</h1>
 			<Link to='/login'>
 				<button

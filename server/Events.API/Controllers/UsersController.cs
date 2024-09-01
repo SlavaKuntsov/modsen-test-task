@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 using Events.API.Contracts.Users;
+using Events.Domain.Enums;
 using Events.Domain.Interfaces.Services;
 
 using MapsterMapper;
@@ -38,10 +39,37 @@ public class UsersController : BaseController
 		return Ok(result);
 	}
 
-	[HttpPost($"{nameof(Registration)}")]
-	public async Task<IActionResult> Registration([FromBody] CreateUserRequest request)
+	[HttpPost($"{nameof(ParticipantRegistration)}")]
+	public async Task<IActionResult> ParticipantRegistration([FromBody] CreateParticipantRequest request)
 	{
-		var authResult = await _usersServices.Registration(request.Email, request.Password);
+		if (!Enum.TryParse<Role>(request.Role, out var role))
+			return BadRequest("Such role does not exist");
+
+		if (role != Role.User)
+			return (BadRequest("Role does not equal the necessary one"));
+
+		var authResult = await _usersServices.ParticipantRegistration(request.Email, request.Password, role, request.FirstName, request.LastName, request.DateOfBirth);
+
+		if (authResult.IsFailure)
+			return Unauthorized(authResult.Error);
+
+		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
+
+		var result = _mapper.Map<GetAuthResultResponse>(authResult.Value);
+
+		return Ok(result);
+	}
+
+	[HttpPost($"{nameof(AdminRegistration)}")]
+	public async Task<IActionResult> AdminRegistration([FromBody] CreateAdminRequest request)
+	{
+		if (!Enum.TryParse<Role>(request.Role, out var role))
+			return BadRequest("Such role does not exist");
+
+		if (role != Role.Admin)
+			return (BadRequest("Role does not equal the necessary one"));
+
+		var authResult = await _usersServices.AdminRegistration(request.Email, request.Password, role);
 
 		if (authResult.IsFailure)
 			return Unauthorized(authResult.Error);

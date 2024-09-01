@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { unauthorize } from '../api/authApi';
-import { IUser } from '../types/types';
+import { IUser } from '../types';
 
 class UserStore {
 	user: IUser | null = null;

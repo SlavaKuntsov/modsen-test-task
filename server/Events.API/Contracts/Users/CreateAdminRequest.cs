@@ -2,7 +2,7 @@
 
 namespace Events.API.Contracts.Users;
 
-public class CreateUserRequest
+public class CreateAdminRequest
 {
 	[Required]
 	[EmailAddress]
@@ -11,7 +11,10 @@ public class CreateUserRequest
 	[Required]
 	public string Password { get; set; }
 
-	//[Required]
-	//[Compare(nameof(Password))]
-	//public string ConfirmPassword { get; set; }
+	[Required]
+	[Compare(nameof(Password))]
+	public string PasswordConfirmation { get; set; }
+
+	[Required]
+	public string Role { get; set; }
 }

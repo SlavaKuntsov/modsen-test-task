@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { IUser } from '../../utils/types/types';
+import { IUser } from '../../utils/types';
 
 export function AuthGuard({
 	component,
@@ -9,7 +9,7 @@ export function AuthGuard({
 	user: IUser | null;
 }) {
 	if (!user) {
-		console.log('AuthGuard to login')
+		console.log('AuthGuard to login');
 		return <Navigate to='/login' replace />;
 	}
 	return component;
@@ -23,7 +23,7 @@ export function UnAuthGuard({
 	user: IUser | null;
 }) {
 	if (user) {
-		console.log('UnAuthGuard to main')
+		console.log('UnAuthGuard to main');
 		return <Navigate to='/' replace />;
 	}
 	return component;

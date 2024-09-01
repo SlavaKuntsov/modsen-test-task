@@ -5,7 +5,7 @@ using System.Text;
 
 using Events.Application.Auth;
 using Events.Domain.Interfaces.Repositories;
-using Events.Domain.Models;
+using Events.Domain.Models.Users;
 
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -23,35 +23,12 @@ public class Jwt : IJwt
 		_usersRepository = usersRepository;
 	}
 
-	// TODO - в будующем убрать
-	public string Generate(ParticipantModel user)
-	{
-		Claim[] claims =
-		[
-			new ("Id", user.Id.ToString()),
-			new ("Admin", "true")
-		];
-
-		var signingCredentials = new SigningCredentials(
-			new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey)),
-			SecurityAlgorithms.HmacSha256);
-
-		var token = new JwtSecurityToken(
-			claims: claims,
-			expires:DateTime.UtcNow.AddHours(_jwtOptions.ExpiresHours),
-			signingCredentials: signingCredentials);
-
-		var tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
-
-		return tokenValue;
-	}
-
-	public string GenerateAccessToken(ParticipantModel participant)
+	public string GenerateAccessToken(Guid id)
 	{
 		var claims = new[]
 		{
-			new Claim("Id", participant.Id.ToString())
-        };
+			new Claim("Id", id.ToString())
+		};
 
 		var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
 		var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -80,7 +57,16 @@ public class Jwt : IJwt
 		if (storedToken == null || storedToken.IsRevoked || storedToken.ExpiresAt < DateTime.UtcNow)
 			return Guid.Empty;
 
-		return storedToken.UserId;
+		if (storedToken.AdminId.HasValue && storedToken.AdminId.Value != Guid.Empty)
+		{
+			return storedToken.AdminId.Value;
+		}
+		else if (storedToken.UserId.HasValue && storedToken.UserId.Value != Guid.Empty)
+		{
+			return storedToken.UserId.Value;
+		}
+
+		return Guid.Empty;
 	}
 
 	public int GetRefreshTokenExpirationDays()

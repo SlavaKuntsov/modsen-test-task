@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 import kyCore from '../core/kyCore';
-import { IAuthResult, IUser } from '../types/types';
+import { IAuthResult, IUser } from '../types';
 
 const getAccessToken = (): string | null => localStorage.getItem('accessToken');
 const getRefreshToken = (): undefined | null | string =>

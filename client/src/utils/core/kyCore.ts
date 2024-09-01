@@ -1,7 +1,8 @@
 import ky from 'ky';
+import { API_URL } from '../constants';
 
 const kyCore = ky.create({
-	prefixUrl: 'https://localhost:7119',
+	prefixUrl: API_URL,
 	headers: {
 		'Content-Type': 'application/json',
 	},

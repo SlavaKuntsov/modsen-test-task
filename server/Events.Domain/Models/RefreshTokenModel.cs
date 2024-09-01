@@ -1,5 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 
+using Events.Domain.Enums;
+
 namespace Events.Domain.Models;
 
 public class RefreshTokenModel
@@ -14,19 +16,22 @@ public class RefreshTokenModel
 
 	public DateTime CreatedAt { get; set; }
 
-	public Guid UserId { get; set; }
+	public Guid? AdminId { get; set; } // Идентификатор администратора, к которому привязан токен
 
-	public RefreshTokenModel(Guid id, string token, DateTime expiresAt, bool isRevoked, DateTime createdAt, Guid userId)
+	public Guid? UserId { get; set; } // Идентификатор участника, к которому привязан токен
+
+	public RefreshTokenModel(Guid id, string token, DateTime expiresAt, bool isRevoked, DateTime createdAt, Guid? adminId, Guid? participantId)
 	{
 		Id = id;
 		Token = token;
 		ExpiresAt = expiresAt;
 		IsRevoked = isRevoked;
 		CreatedAt = createdAt;
-		UserId = userId;
+		AdminId = adminId;
+		UserId = participantId;
 	}
 
-	public static Result<RefreshTokenModel> Create(Guid userId, string token, int refreshTokenExpirationDays)
+	public static Result<RefreshTokenModel> Create(Guid userId, Role role, string token, int refreshTokenExpirationDays)
 	{
 		if (string.IsNullOrWhiteSpace(token))
 			return Result.Failure<RefreshTokenModel>("Token cannot be empty");
@@ -41,7 +46,8 @@ public class RefreshTokenModel
 			DateTime.UtcNow.Add(TimeSpan.FromDays(refreshTokenExpirationDays)),
 			false,
 			DateTime.UtcNow,
-			userId
+			role == Role.Admin ? userId : null,
+			role == Role.User ? userId : null
 		);
 
 		return Result.Success(refreshToken);

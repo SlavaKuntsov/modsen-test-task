@@ -2,9 +2,11 @@
 
 using Events.Application.Auth;
 using Events.Application.Interfaces.Auth;
+using Events.Domain.Enums;
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
+using Events.Domain.Models.Users;
 
 using MapsterMapper;
 
@@ -31,27 +33,27 @@ public class UsersService : IUsersServices
 
 	public async Task<Result<AuthResultModel>> Login(string email, string password)
 	{
-		var existParticipant = await _usersRepository.Get(email);
+		var existUser = await _usersRepository.Get(email);
 
-		if (existParticipant == null)
+		if (existUser == null)
 			return Result.Failure<AuthResultModel>("User with this email doesn't exists");
 
-		var isCorrectPassword = _passwordHash.Verify(password, existParticipant.Password);
+		var isCorrectPassword = _passwordHash.Verify(password, existUser.Password);
 
 		if (!isCorrectPassword)
 			return Result.Failure<AuthResultModel>("Incorrect password");
 
-		var participant = _mapper.Map<ParticipantModel>(existParticipant);
+		var user = _mapper.Map<ParticipantModel>(existUser);
 
-		string accessToken = _jwt.GenerateAccessToken(participant);
+		string accessToken = _jwt.GenerateAccessToken(user.Id);
 		string refreshToken = _jwt.GenerateRefreshToken();
 
-		var refreshTokenModel = RefreshTokenModel.Create(participant.Id, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+		var refreshTokenModel = RefreshTokenModel.Create(user.Id, user.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());
 
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
 
-		await _usersRepository.UpdateRefreshToken(participant.Id, refreshTokenModel.Value);
+		await _usersRepository.UpdateRefreshToken(user.Id, user.Role, refreshTokenModel.Value);
 
 		return new AuthResultModel
 		{
@@ -60,14 +62,48 @@ public class UsersService : IUsersServices
 		};
 	}
 
-	public async Task<Result<AuthResultModel>> Registration(string email, string password)
+	public async Task<Result<AuthResultModel>> ParticipantRegistration(string email, string password, Role role, string firstName, string lastName, string dateOfBirth)
 	{
 		var existUser = await _usersRepository.Get(email);
 
 		if (existUser != null)
 			return Result.Failure<AuthResultModel>("User with this email already exists");
 
-		var user = ParticipantModel.Create(Guid.NewGuid(), email, _passwordHash.Generate(password));
+		var user = ParticipantModel.Create(Guid.NewGuid(), email, _passwordHash.Generate(password), role, firstName, lastName, dateOfBirth);
+
+		if (user.IsFailure)
+			return Result.Failure<AuthResultModel>(user.Error);
+
+		// TODO - добавить транзакцию на создание юзера и токена
+		var createdUserId = await _usersRepository.Create(user.Value);
+
+		// Если регистрация прошла успешно, создаём токены
+		var accessToken = _jwt.GenerateAccessToken(user.Value.Id);
+		var refreshToken = _jwt.GenerateRefreshToken();
+
+		var refreshTokenModel = RefreshTokenModel.Create(createdUserId, Role.User, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+
+		if (refreshTokenModel.IsFailure)
+			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
+
+		await _usersRepository.SaveRefreshToken(refreshTokenModel.Value);
+
+		// Возвращаем AuthResultModel с токенами
+		return new AuthResultModel
+		{
+			AccessToken = accessToken,
+			RefreshToken = refreshToken
+		};
+	}
+
+	public async Task<Result<AuthResultModel>> AdminRegistration(string email, string password, Role role)
+	{
+		var existUser = await _usersRepository.Get(email);
+
+		if (existUser != null)
+			return Result.Failure<AuthResultModel>("User with this email already exists");
+
+		var user = AdminModel.Create(Guid.NewGuid(), email, _passwordHash.Generate(password), role);
 
 		if (user.IsFailure)
 			return Result.Failure<AuthResultModel>(user.Error);
@@ -75,10 +111,10 @@ public class UsersService : IUsersServices
 		var createdUserId = await _usersRepository.Create(user.Value);
 
 		// Если регистрация прошла успешно, создаём токены
-		var accessToken = _jwt.GenerateAccessToken(user.Value);
+		var accessToken = _jwt.GenerateAccessToken(user.Value.Id);
 		var refreshToken = _jwt.GenerateRefreshToken();
 
-		var refreshTokenModel = RefreshTokenModel.Create(createdUserId, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+		var refreshTokenModel = RefreshTokenModel.Create(createdUserId, Role.Admin, refreshToken, _jwt.GetRefreshTokenExpirationDays());
 
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
@@ -106,16 +142,16 @@ public class UsersService : IUsersServices
 		if (user == null)
 			return Result.Failure<AuthResultModel>("User not found");
 
-		var accessToken = _jwt.GenerateAccessToken(user);
+		var accessToken = _jwt.GenerateAccessToken(user.Id);
 		var newRefreshToken = _jwt.GenerateRefreshToken();
 
-		var refreshTokenModel = RefreshTokenModel.Create(userId, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+		var refreshTokenModel = RefreshTokenModel.Create(user.Id, user.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());
 
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
 
 		// Обновление refresh-токена в хранилище
-		await _usersRepository.UpdateRefreshToken(userId, refreshTokenModel.Value);
+		await _usersRepository.UpdateRefreshToken(user.Id, user.Role, refreshTokenModel.Value);
 
 		return new AuthResultModel
 		{

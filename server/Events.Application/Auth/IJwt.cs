@@ -1,14 +1,11 @@
 ﻿using CSharpFunctionalExtensions;
-
-using Events.Domain.Models;
+using Events.Domain.Models.Users;
 
 namespace Events.Application.Auth;
 
 public interface IJwt
 {
-	public string Generate(ParticipantModel user);
-
-	public string GenerateAccessToken(ParticipantModel participant);
+	public string GenerateAccessToken(Guid id);
 
 	public string GenerateRefreshToken();
 

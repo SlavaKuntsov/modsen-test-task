@@ -78,6 +78,7 @@ public static class ApiExtensions
 			options.AddDefaultPolicy(policy =>
 			{
 				policy.WithOrigins("http://localhost:5173");
+				policy.WithOrigins("http://localhost:5174");
 				policy.AllowAnyHeader();
 				policy.AllowAnyMethod();
 				policy.AllowCredentials();

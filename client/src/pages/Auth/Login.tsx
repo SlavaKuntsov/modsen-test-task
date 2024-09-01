@@ -7,7 +7,7 @@ import FormBlock from '../../components/FormBlock';
 import useCustomToast from '../../components/Toast';
 import { login } from '../../utils/api/userApi';
 import { useUserStore } from '../../utils/store/UserStoreContext';
-import { IUser } from '../../utils/types/types';
+import { IUser } from '../../utils/types';
 
 const LoginSchema = Yup.object().shape({
 	password: Yup.string()
@@ -25,7 +25,7 @@ export default function Login() {
 
 	const userStore = useUserStore();
 	const { setAuth } = userStore;
-	
+
 	const { showToast } = useCustomToast();
 
 	const handleLogin = async (values: IUser) => {
@@ -34,15 +34,14 @@ export default function Login() {
 
 			if (result === true) {
 				showToast({
-					title: 'Успешно!', // Используем строку в качестве заголовка
-					status: 'success', // В данном случае ошибка
+					title: 'Успешно!',
+					status: 'success',
 				});
 				setAuth(true);
 			} else if (typeof result === 'string') {
-				// Если результат - это строка, отображаем её с помощью Toast
 				showToast({
-					title: result, // Используем строку в качестве заголовка
-					status: 'error', // В данном случае ошибка
+					title: result,
+					status: 'error',
 				});
 			}
 		} catch (error) {
@@ -76,6 +75,7 @@ export default function Login() {
 						className='flex flex-col items-start gap-1 max-w-80'
 					>
 						<Field
+							type='email'
 							placeholder='Еmail'
 							className={classNames(
 								' w-80 py-3 px-5 mt-2 border-2 border-gray-200 border-solid rounded transition-[border] ease-in-out duration-500',
@@ -95,6 +95,7 @@ export default function Login() {
 						/>
 
 						<Field
+							type='password'
 							placeholder='Password'
 							className={classNames(
 								' w-80 py-3 px-5 mt-2 border-2 border-gray-200 border-solid rounded transition-[border] ease-in-out duration-500',

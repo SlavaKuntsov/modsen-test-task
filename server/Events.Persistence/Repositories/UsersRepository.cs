@@ -1,5 +1,7 @@
-﻿using Events.Domain.Interfaces.Repositories;
+﻿using Events.Domain.Enums;
+using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
+using Events.Domain.Models.Users;
 using Events.Persistence.Entities;
 
 using MapsterMapper;
@@ -74,6 +76,16 @@ public class UsersRepository : IUsersRepository
 		return entity.Id;
 	}
 
+	public async Task<Guid> Create(AdminModel user)
+	{
+		var entity = _mapper.Map<AdminEntity>(user);
+
+		await _context.Admins.AddAsync(entity);
+		await _context.SaveChangesAsync();
+
+		return entity.Id;
+	}
+
 	public async Task<RefreshTokenModel?> GetRefreshToken(string refreshToken)
 	{
 		var entity = await _context
@@ -94,16 +106,31 @@ public class UsersRepository : IUsersRepository
 	{
 		var entity = _mapper.Map<RefreshTokenEntity>(refreshToken);
 
+		Console.WriteLine("---------------------");
+		Console.WriteLine(entity.Id);
+		Console.WriteLine(entity.Token);
+		Console.WriteLine(entity.AdminId);
+		Console.WriteLine(entity.UserId);
+
 		_context.RefreshTokens.Add(entity);
 		await _context.SaveChangesAsync();
 	}
 
-	public async Task UpdateRefreshToken(Guid userId, RefreshTokenModel newRefreshToken)
+	public async Task UpdateRefreshToken(Guid userId, Role role, RefreshTokenModel newRefreshToken)
 	{
 		// Получаем существующий refresh token для данного пользователя
-		var existingToken = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserId == userId);
+		RefreshTokenEntity? existingToken = null;
 
-		Console.WriteLine(existingToken);
+		if (role == Role.Admin)
+		{
+			existingToken = await _context.RefreshTokens
+				.FirstOrDefaultAsync(rt => rt.AdminId == userId);
+		}
+		else if (role == Role.User)
+		{
+			existingToken = await _context.RefreshTokens
+				.FirstOrDefaultAsync(rt => rt.UserId == userId);
+		}
 
 		if (existingToken != null)
 		{

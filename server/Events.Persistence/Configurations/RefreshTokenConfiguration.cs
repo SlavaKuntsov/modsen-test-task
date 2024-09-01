@@ -1,11 +1,8 @@
-﻿using Events.Persistence.Entities;
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Events.Persistence.Entities;
 
-namespace Events.Persistence.Configurations;
-
-public partial class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshTokenEntity>
+public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshTokenEntity>
 {
 	public void Configure(EntityTypeBuilder<RefreshTokenEntity> builder)
 	{
@@ -13,10 +10,9 @@ public partial class RefreshTokenConfiguration : IEntityTypeConfiguration<Refres
 
 		builder.ToTable("RefreshToken");
 
-		// Указываем, что свойство Token обязательно для заполнения
 		builder.Property(rt => rt.Token)
 			   .IsRequired()
-			   .IsConcurrencyToken(); // Добавляем защиту от одновременных изменений
+			   .IsConcurrencyToken(); // Защита от одновременных изменений
 
 		builder.Property(rt => rt.CreatedAt)
 			   .IsRequired();
@@ -27,10 +23,16 @@ public partial class RefreshTokenConfiguration : IEntityTypeConfiguration<Refres
 		builder.Property(rt => rt.IsRevoked)
 			   .IsRequired();
 
-		// Устанавливаем отношение с сущностью пользователя (один ко многим)
-		builder.HasOne(rt => rt.User)
-			   .WithMany(p => p.RefreshTokens)
-			   .HasForeignKey(rt => rt.UserId)
-			   .OnDelete(DeleteBehavior.Cascade); // Удаляем токены, если удаляется пользователь
+		// Настройка связей с AdminEntity (один-к-одному)
+		builder.HasOne(rt => rt.Admin)
+			   .WithOne(a => a.RefreshToken)
+			   .HasForeignKey<RefreshTokenEntity>(rt => rt.AdminId)
+			   .OnDelete(DeleteBehavior.Cascade); // При удалении Admin удалять его RefreshToken
+
+		// Настройка связей с ParticipantEntity (один-к-одному)
+		builder.HasOne(rt => rt.Participant)
+			   .WithOne(p => p.RefreshToken)
+			   .HasForeignKey<RefreshTokenEntity>(rt => rt.UserId)
+			   .OnDelete(DeleteBehavior.Cascade); // При удалении Participant удалять его RefreshToken
 	}
 }

@@ -8,37 +8,40 @@ public partial class ParticipantConfiguration : IEntityTypeConfiguration<Partici
 {
 	public void Configure(EntityTypeBuilder<ParticipantEntity> builder)
 	{
-		builder.HasKey(p => p.Id);
+		builder.ToTable("Participant"); // Таблица для участников
 
-		builder.ToTable("Participant");
+		builder.HasKey(p => p.Id); // Уникальный ключ
 
-		builder
-			.Property(e => e.FirstName)
+		builder.Property(p => p.Email)
 			.HasMaxLength(100)
-			.IsRequired();
+			.IsRequired(); // Обязательное поле
 
-		builder
-			.Property(e => e.LastName)
+		builder.Property(p => p.Password)
+			.IsRequired(); // Обязательное поле
+
+		builder.Property(p => p.Role)
+			.IsRequired(); // Обязательное поле
+
+		builder.Property(p => p.FirstName)
 			.HasMaxLength(100)
-			.IsRequired();
+			.IsRequired(); // Обязательное поле
 
-		builder
-			.Property(e => e.DateOfBirth)
-			.IsRequired();
-
-		builder
-			.Property(e => e.EventRegistrationDate)
-			.IsRequired(false);
-
-		builder
-			.Property(e => e.Email)
+		builder.Property(p => p.LastName)
 			.HasMaxLength(100)
-			.IsRequired();
+			.IsRequired(); // Обязательное поле
 
-		builder
-			.HasMany(p => p.RefreshTokens)
-			.WithOne(rt => rt.User)
-			.HasForeignKey(rt => rt.UserId)
-			.OnDelete(DeleteBehavior.Cascade); // Удаляем токены, если удаляется пользователь
+		builder.Property(p => p.DateOfBirth)
+			.IsRequired() // Обязательное поле
+			.HasConversion(
+				v => v.ToUniversalTime(), // Преобразование к UTC перед сохранением
+				v => DateTime.SpecifyKind(v, DateTimeKind.Utc)); // Преобразование к UTC при загрузке;
+
+		builder.Property(p => p.EventRegistrationDate)
+			.IsRequired(false); // Необязательное поле
+
+		// Настройка связи с RefreshTokenEntity (один-к-одному)
+		builder.HasOne(p => p.RefreshToken)
+			   .WithOne(rt => rt.Participant)
+			   .HasForeignKey<RefreshTokenEntity>(rt => rt.UserId); // Внешний ключ
 	}
 }

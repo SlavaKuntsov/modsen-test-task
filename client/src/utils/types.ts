@@ -1,6 +1,11 @@
 export interface IUser {
 	email: string;
 	password: string;
+	passwordConfirmation?: string;
+	firstName?: string;
+	lastName?: string;
+	dateOfBirth?: string | undefined | null,
+	role?: string;
 }
 
 export interface IAuthResult {

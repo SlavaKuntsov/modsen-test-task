@@ -1,4 +1,4 @@
-﻿using Events.Domain.Models;
+﻿using Events.Domain.Models.Users;
 
 namespace Events.API.Contracts.Events;
 

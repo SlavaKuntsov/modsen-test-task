@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using Events.Domain.Models.Users;
 
 namespace Events.Domain.Models;
 

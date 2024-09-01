@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react';
-import { StatusType } from '../utils/types/types';
+import { StatusType } from '../utils/types';
 
 interface ToastProps {
 	title: string;

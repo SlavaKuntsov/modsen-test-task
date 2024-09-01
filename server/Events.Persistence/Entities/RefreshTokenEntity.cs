@@ -12,8 +12,14 @@ public class RefreshTokenEntity
 
 	public DateTime CreatedAt { get; set; } // Дата создания токена
 
-	public Guid UserId { get; set; } // Идентификатор пользователя, к которому привязан токен
+	//public Guid UserId { get; set; } // Идентификатор пользователя, к которому привязан токен
 
-	public ParticipantEntity User { get; set; } = null!; // Навигационное свойство к сущности пользователя
+	//public virtual IUser User { get; set; } // Общее свойство для связи с пользователем
+
+	public Guid? AdminId { get; set; } // Идентификатор администратора, к которому привязан токен
+	public Guid? UserId { get; set; } // Идентификатор участника, к которому привязан токен
+
+	// Навигационные свойства
+	public virtual AdminEntity Admin { get; set; } // Убедитесь, что связь виртуальная
+	public virtual ParticipantEntity Participant { get; set; } // Убедитесь, что связь виртуальная
 }
-

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.Persistence.Migrations
 {
     [DbContext(typeof(EventsDBContext))]
-    [Migration("20240828224327_initial")]
+    [Migration("20240901020224_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -24,6 +24,32 @@ namespace Events.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Events.Persistence.Entities.AdminEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActiveAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Admin", (string)null);
+                });
 
             modelBuilder.Entity("Events.Persistence.Entities.EventEntity", b =>
                 {
@@ -108,6 +134,9 @@ namespace Events.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("Participant", (string)null);
@@ -117,6 +146,9 @@ namespace Events.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AdminId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -133,12 +165,16 @@ namespace Events.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("AdminId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("RefreshToken", (string)null);
                 });
@@ -160,18 +196,31 @@ namespace Events.Persistence.Migrations
 
             modelBuilder.Entity("Events.Persistence.Entities.RefreshTokenEntity", b =>
                 {
-                    b.HasOne("Events.Persistence.Entities.ParticipantEntity", "User")
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Events.Persistence.Entities.AdminEntity", "Admin")
+                        .WithOne("RefreshToken")
+                        .HasForeignKey("Events.Persistence.Entities.RefreshTokenEntity", "AdminId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("User");
+                    b.HasOne("Events.Persistence.Entities.ParticipantEntity", "Participant")
+                        .WithOne("RefreshToken")
+                        .HasForeignKey("Events.Persistence.Entities.RefreshTokenEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Admin");
+
+                    b.Navigation("Participant");
+                });
+
+            modelBuilder.Entity("Events.Persistence.Entities.AdminEntity", b =>
+                {
+                    b.Navigation("RefreshToken")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Events.Persistence.Entities.ParticipantEntity", b =>
                 {
-                    b.Navigation("RefreshTokens");
+                    b.Navigation("RefreshToken")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

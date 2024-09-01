@@ -1,5 +1,5 @@
 import kyCore from '../core/kyCore';
-import { IAuthResult, IUser } from '../types/types';
+import { IAuthResult, IUser } from '../types';
 
 export const getEvents = async (): Promise<Event> => {
 	try {
@@ -17,9 +17,7 @@ export const login = async (userData: IUser): Promise<boolean | string> => {
 			credentials: 'include',
 		});
 
-		// Проверяем, успешен ли ответ
 		if (!response.ok) {
-			// Если ответ не успешный, извлекаем текст ошибки
 			const errorResponse = await response.json();
 			console.error('Login failed:', errorResponse);
 			// return errorResponse; // Возвращаем текст ошибки
@@ -40,8 +38,10 @@ export const registration = async (
 	userData: IUser
 ): Promise<boolean | string> => {
 	try {
+		console.log('userData reg: ', userData);
+
 		const response = await kyCore
-			.post('Users/Registration', { json: userData })
+			.post('Users/ParticipantRegistration', { json: userData })
 			.json<IAuthResult>();
 
 		localStorage.setItem('accessToken', response.accessToken);
