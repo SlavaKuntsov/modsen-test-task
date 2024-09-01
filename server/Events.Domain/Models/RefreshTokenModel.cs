@@ -20,6 +20,11 @@ public class RefreshTokenModel
 
 	public Guid? UserId { get; set; } // Идентификатор участника, к которому привязан токен
 
+	public RefreshTokenModel()
+	{
+
+	}
+
 	public RefreshTokenModel(Guid id, string token, DateTime expiresAt, bool isRevoked, DateTime createdAt, Guid? adminId, Guid? participantId)
 	{
 		Id = id;

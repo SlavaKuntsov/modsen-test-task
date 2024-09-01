@@ -10,7 +10,8 @@ public record CreateEventRequest
     [Required]
     public string Description { get; set; } = string.Empty;
 
-    public DateTime EventDateTime { get; set; }
+    [Required]
+    public string EventDateTime { get; set; }
 
     [Required]
     public string Location { get; set; } = string.Empty;
@@ -21,5 +22,6 @@ public record CreateEventRequest
     [Required]
     public int MaxParticipants { get; set; }
 
+    [Required]
     public string ImageUrl { get; set; } = string.Empty;
 }

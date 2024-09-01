@@ -32,9 +32,12 @@ public partial class ParticipantConfiguration : IEntityTypeConfiguration<Partici
 
 		builder.Property(p => p.DateOfBirth)
 			.IsRequired() // Обязательное поле
+			.HasColumnType("date") // Указываем тип колонки как date
 			.HasConversion(
-				v => v.ToUniversalTime(), // Преобразование к UTC перед сохранением
-				v => DateTime.SpecifyKind(v, DateTimeKind.Utc)); // Преобразование к UTC при загрузке;
+				v => v.Date, // Сохраняем только дату
+				v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Указываем, что дата - это UTC
+			);
+
 
 		builder.Property(p => p.EventRegistrationDate)
 			.IsRequired(false); // Необязательное поле

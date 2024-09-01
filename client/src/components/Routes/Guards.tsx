@@ -10,7 +10,7 @@ export function AuthGuard({
 }) {
 	if (!user) {
 		console.log('AuthGuard to login');
-		return <Navigate to='/login' replace />;
+		return <Navigate to='/auth/login' replace />;
 	}
 	return component;
 }

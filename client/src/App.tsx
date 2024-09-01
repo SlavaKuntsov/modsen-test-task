@@ -3,9 +3,11 @@ import { useLayoutEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AuthGuard, UnAuthGuard } from './components/Routes/Guards';
 import Layout from './layouts/Layout';
+import LayoutContainer from './layouts/LayoutContainer';
 import Login from './pages/Auth/Login';
 import Registration from './pages/Auth/Registration';
-import Home from './pages/Home';
+import Home from './pages/Main/Home';
+import Participant from './pages/Main/Participant';
 import NotFoundPage from './pages/NotFoundPage';
 import { checkAccessToken } from './utils/api/authApi';
 import { userStore } from './utils/store/userStore';
@@ -13,8 +15,7 @@ import { userStore } from './utils/store/userStore';
 const App = observer(() => {
 	// const navigate = useNavigate();
 
-	const { user, isLoggedIn, setUser, isAuth, setAuth, isAuth2, setAuth2 } =
-		userStore;
+	const { user, setUser, isAuth, setAuth, isAuth2, setAuth2 } = userStore;
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useLayoutEffect(() => {
@@ -27,13 +28,12 @@ const App = observer(() => {
 				if (userData) {
 					setUser(userData);
 					setAuth2(true);
-					// redirectTo('/main');
-				} else {
-					// redirectTo('/login');
+				} else if (userData == null) {
+					setAuth2(false);
+					setAuth(false);
 				}
 			} else {
 				console.log('to /main');
-				// navigate('/main')
 			}
 			setIsLoading(false);
 		};
@@ -46,22 +46,42 @@ const App = observer(() => {
 	}
 	return (
 		<Routes>
-			<Route path='/' element={<Layout />}>
+			<Route
+				path='/'
+				element={
+					<Layout>
+						<LayoutContainer />
+					</Layout>
+				}
+			>
 				<Route
 					index
 					path='/'
 					element={<AuthGuard user={user} component={<Home />} />}
 				/>
 				<Route
-					path='/login'
+					path='/participant'
+					element={<AuthGuard user={user} component={<Participant />} />}
+				/>
+			</Route>
+			<Route
+				path='/auth'
+				element={
+					<Layout>
+						<LayoutContainer isAuth={true} />
+					</Layout>
+				}
+			>
+				<Route
+					path='login'
 					element={<UnAuthGuard user={user} component={<Login />} />}
 				/>
 				<Route
-					path='/registration'
+					path='registration'
 					element={<UnAuthGuard user={user} component={<Registration />} />}
 				/>
-				<Route path='*' element={<NotFoundPage />} />
 			</Route>
+			<Route path='*' element={<NotFoundPage />} />
 		</Routes>
 	);
 });

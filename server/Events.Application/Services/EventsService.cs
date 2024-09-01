@@ -1,6 +1,14 @@
-﻿using Events.Domain.Interfaces.Repositories;
+﻿using System;
+using System.Diagnostics;
+using System.Reflection;
+
+using CSharpFunctionalExtensions;
+
+using Events.Domain.Enums;
+using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
+using Events.Domain.Models.Users;
 
 namespace Events.Application.Services;
 
@@ -8,18 +16,40 @@ public class EventsService : IEventsServices
 {
 	private readonly IEventsRepository _eventsRepository;
 
-    public EventsService(IEventsRepository eventsRepository)
-    {
+	public EventsService(IEventsRepository eventsRepository)
+	{
 		_eventsRepository = eventsRepository;
-    }
+	}
 
 	public async Task<IList<EventModel>> Get()
 	{
 		return await _eventsRepository.Get();
 	}
 
-	public async Task<Guid> Create(EventModel eventModel)
+	public async Task<Result<EventModel>> Get(Guid id)
 	{
-		return await _eventsRepository.Create(eventModel);
+		var existEvent = await _eventsRepository.Get(id);
+
+		if (existEvent == null)
+			return Result.Failure<EventModel>("Event with this id doesn't exists");
+
+
+		Debug.WriteLine("______________________________");
+		Debug.WriteLine("existEvent  id: " + existEvent.Id);
+
+		return existEvent;
+	}
+
+	public async Task<Result<Guid>> Create(Guid id, string title, string description, string eventDateTime, string location, string category, int maxParticipants, string imageUrl)
+	{
+
+		var user = EventModel.Create(Guid.NewGuid(),  title, description, eventDateTime, location, category, maxParticipants, imageUrl);
+
+		if (user.IsFailure)
+			return Result.Failure<Guid>(user.Error);
+
+		var createdEventId = await _eventsRepository.Create(user.Value);
+
+		return createdEventId;
 	}
 }

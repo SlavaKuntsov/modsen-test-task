@@ -6,8 +6,9 @@ import Button from '../../components/Button';
 import FormBlock from '../../components/FormBlock';
 import useCustomToast from '../../components/Toast';
 import { login } from '../../utils/api/userApi';
-import { useUserStore } from '../../utils/store/UserStoreContext';
+// import { useUserStore } from '../../utils/store/UserStoreContext';
 import { IUser } from '../../utils/types';
+import { userStore } from '../../utils/store/userStore';
 
 const LoginSchema = Yup.object().shape({
 	password: Yup.string()
@@ -23,7 +24,7 @@ const LoginSchema = Yup.object().shape({
 export default function Login() {
 	document.title = 'Login';
 
-	const userStore = useUserStore();
+	// const userStore = useUserStore();
 	const { setAuth } = userStore;
 
 	const { showToast } = useCustomToast();
@@ -46,6 +47,7 @@ export default function Login() {
 			}
 		} catch (error) {
 			console.error('Error creating user:', error);
+			setAuth(false);
 			throw error;
 		}
 	};
@@ -125,7 +127,7 @@ export default function Login() {
 						</Button>
 
 						<Link
-							to='/registration'
+							to='/auth/registration'
 							className='text-gray-500 mt-3 text-center w-full'
 						>
 							Зарегистрироваться

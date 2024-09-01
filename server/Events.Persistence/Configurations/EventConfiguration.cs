@@ -21,9 +21,13 @@ public partial class EventConfiguration : IEntityTypeConfiguration<EventEntity>
 			.Property(e => e.Description)
 			.IsRequired();
 
-		builder
-			.Property(e => e.EventDateTime)
-			.IsRequired();
+		builder.Property(p => p.EventDateTime)
+			.IsRequired() // Обязательное поле
+			.HasColumnType("date") // Указываем тип колонки как date
+			.HasConversion(
+				v => v.Date, // Сохраняем только дату
+				v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Указываем, что дата - это UTC
+			);
 
 		builder
 			.Property(e => e.Location)

@@ -26,18 +26,6 @@ public class EventsController : BaseController
 	[Authorize(Policy = "UserOnly")]
 	public async Task<IActionResult> GetEvents()
 	{
-		//if (!User.Identity.IsAuthenticated)
-		//{
-		//	return Unauthorized("User is not authenticated");
-		//}
-		var claims = User.Claims.ToList();
-		// Проверка, действительно ли пользователь авторизован
-		Debug.WriteLine($"IsAuthenticated: {User.Identity.IsAuthenticated}");
-		// Вывод всех claims
-		foreach (var claim in claims)
-		{
-			Debug.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
-		}
 
 		var events = await _eventsServices.Get();
 		var response = _mapper.Map<IList<GetEventResponse>>(events);
@@ -49,49 +37,36 @@ public class EventsController : BaseController
 	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> GetEventsAdmin()
 	{
-		//if (!User.Identity.IsAuthenticated)
-		//{
-		//	return Unauthorized("User is not authenticated");
-		//}
-		var claims = User.Claims.ToList();
-		// Проверка, действительно ли пользователь авторизован
-		Debug.WriteLine($"IsAuthenticated: {User.Identity.IsAuthenticated}");
-		// Вывод всех claims
-		foreach (var claim in claims)
-		{
-			Debug.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
-		}
-
 		var events = await _eventsServices.Get();
 		var response = _mapper.Map<IList<GetEventResponse>>(events);
 
 		return Ok(response);
 	}
 
-	[HttpPost]
+	[HttpGet(nameof(GetEvent) + "/{id:Guid}")]
+	[Authorize(Policy = "UserOrAdmin")]
+	public async Task<IActionResult> GetEvent(Guid id)
+	{
+		var eventModel = await _eventsServices.Get(id);
+
+
+		Debug.WriteLine("______________________________");
+		Debug.WriteLine("eventModel controller  id: " + eventModel.Value.Id);
+
+		var response = _mapper.Map<GetEventResponse>(eventModel.Value);
+
+		return Ok(response);
+	}
+
+	[HttpPost($"{nameof(CreateEvent)}")]
 	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> CreateEvent([FromBody] CreateEventRequest request)
 	{
-		if (!User.Identity.IsAuthenticated)
-		{
-			return Unauthorized("User is not authenticated");
-		}
-		var claims = User.Claims.ToList();
-		// Проверка, действительно ли пользователь авторизован
-		Debug.WriteLine($"IsAuthenticated: {User.Identity.IsAuthenticated}");
-		// Вывод всех claims
-		foreach (var claim in claims)
-		{
-			Debug.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
-		}
+		var eventId = await _eventsServices.Create(Guid.NewGuid(), request.Title, request.Description, request.EventDateTime, request.Location, request.Category, request.MaxParticipants, request.ImageUrl);
 
-		var eventModel = EventModel.Create(Guid.NewGuid(), request.Title);
+		if (eventId.IsFailure)
+			return BadRequest(eventId.Error);
 
-		if (eventModel.IsFailure)
-			return BadRequest(eventModel.Error);
-
-		Guid eventId = await _eventsServices.Create(eventModel.Value);
-
-		return Ok(eventId);
+		return Ok(eventId.Value);
 	}
 }

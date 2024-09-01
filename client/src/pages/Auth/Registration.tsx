@@ -9,8 +9,9 @@ import Button from '../../components/Button';
 import FormBlock from '../../components/FormBlock';
 import useCustomToast from '../../components/Toast';
 import { registration } from '../../utils/api/userApi';
-import { useUserStore } from '../../utils/store/UserStoreContext';
+// import { useUserStore } from '../../utils/store/UserStoreContext';
 import { IUser } from '../../utils/types';
+import { userStore } from '../../utils/store/userStore';
 
 // Подключаем плагин для поддержки пользовательского формата
 dayjs.extend(customParseFormat);
@@ -38,7 +39,7 @@ const RegistrationSchema = Yup.object().shape({
 export default function Registration() {
 	document.title = 'Registration';
 
-	const userStore = useUserStore();
+	// const userStore = useUserStore();
 	const { setAuth } = userStore;
 	const { showToast } = useCustomToast();
 
@@ -239,7 +240,7 @@ export default function Registration() {
 							Зарегистрироваться
 						</Button>
 
-						<Link to='/login' className='text-gray-500 mt-3 text-center w-full'>
+						<Link to='/auth/login' className='text-gray-500 mt-3 text-center w-full'>
 							Войти в аккаунт
 						</Link>
 					</Form>

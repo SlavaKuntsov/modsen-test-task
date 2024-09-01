@@ -4,8 +4,19 @@ export interface IUser {
 	passwordConfirmation?: string;
 	firstName?: string;
 	lastName?: string;
-	dateOfBirth?: string | undefined | null,
+	dateOfBirth?: string | undefined | null;
 	role?: string;
+}
+
+export interface IEvent {
+	id: string;
+	title: string;
+	description: string;
+	eventDateTime: string | undefined | null;
+	location: string;
+	category: string;
+	maxParticipants: number;
+	imageUrl: string;
 }
 
 export interface IAuthResult {
@@ -19,3 +30,8 @@ export interface IEvent {
 }
 
 export type StatusType = 'success' | 'error' | 'warning' | 'info';
+
+export interface IRoute {
+	name: string;
+	path: string;
+}

@@ -1,15 +1,6 @@
 import kyCore from '../core/kyCore';
 import { IAuthResult, IUser } from '../types';
 
-export const getEvents = async (): Promise<Event> => {
-	try {
-		return await kyCore.get('events').json<Event>();
-	} catch (error) {
-		console.error('Failed to fetch users:', error);
-		throw error;
-	}
-};
-
 export const login = async (userData: IUser): Promise<boolean | string> => {
 	try {
 		const response = await kyCore.post('Users/Login', {
