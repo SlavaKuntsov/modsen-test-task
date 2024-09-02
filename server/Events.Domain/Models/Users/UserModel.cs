@@ -4,27 +4,21 @@ namespace Events.Domain.Models.Users;
 
 public abstract class UserModel
 {
-    public Guid Id { get; set; }
+	public Guid Id { get; protected set; }
 
-    public string Email { get; set; } = string.Empty;
+	public string Email { get; protected set; } = string.Empty;
 
-    public string Password { get; set; } = string.Empty;
+	public string Password { get; protected set; } = string.Empty;
 
-    public Role Role { get; set; }
+	public Role Role { get; protected set; }
 
-    public UserModel()
-    {
+	public UserModel() { }
 
-    }
-
-    public UserModel(Guid id, string email, string password, Role role)
-    {
-        Id = id;
-        Email = email;
-        Password = password;
-        Role = role;
-    }
-
-    // TODO - может здесь сделать Create(принимает все поля для ParticipantModel и т.д) который по условия будет создавать или ParticipantModel или AdminModel
-    // TODO - или в каждой моделе свои Create
+	public UserModel(Guid id, string email, string password, Role role)
+	{
+		Id = id;
+		Email = email;
+		Password = password;
+		Role = role;
+	}
 }

@@ -1,8 +1,5 @@
-﻿using System.Diagnostics;
-
-using Events.API.Contracts.Events;
+﻿using Events.API.Contracts.Events;
 using Events.Domain.Interfaces.Services;
-using Events.Domain.Models;
 
 using MapsterMapper;
 
@@ -48,10 +45,6 @@ public class EventsController : BaseController
 	public async Task<IActionResult> GetEvent(Guid id)
 	{
 		var eventModel = await _eventsServices.Get(id);
-
-
-		Debug.WriteLine("______________________________");
-		Debug.WriteLine("eventModel controller  id: " + eventModel.Value.Id);
 
 		var response = _mapper.Map<GetEventResponse>(eventModel.Value);
 

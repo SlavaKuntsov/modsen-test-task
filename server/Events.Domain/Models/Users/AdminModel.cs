@@ -1,17 +1,15 @@
 ﻿using CSharpFunctionalExtensions;
 
 using Events.Domain.Enums;
+using Events.Domain.Validators.Users;
 
 namespace Events.Domain.Models.Users;
 
 public class AdminModel : UserModel
 {
-	public bool IsActiveAdmin { get; set; } = false;
+	public bool IsActiveAdmin { get; private set; } = false;
 
-	public AdminModel()
-	{
-
-	}
+	public AdminModel() { }
 
 	private AdminModel(Guid id, string email, string password, Role role) : base(id, email, password, role)
 	{
@@ -23,9 +21,14 @@ public class AdminModel : UserModel
 
 	public static Result<AdminModel> Create(Guid id, string email, string password, Role role)
 	{
-		if (string.IsNullOrEmpty(email))
-			return Result.Failure<AdminModel>("Email cannot be null or empty.");
+		AdminModel model = new AdminModel(id, email, password, role);
 
-		return Result.Success(new AdminModel(id, email, password, role));
+		var validator = new AdminModelValidation();
+		var validationResult = validator.Validate(model);
+
+		if (!validationResult.IsValid)
+			return Result.Failure<AdminModel>(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
+
+		return model;
 	}
 }

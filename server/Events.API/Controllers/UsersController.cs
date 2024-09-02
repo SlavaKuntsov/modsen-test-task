@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-using Events.API.Contracts.Users;
+﻿using Events.API.Contracts.Users;
 using Events.Domain.Enums;
 using Events.Domain.Interfaces.Services;
 
@@ -25,7 +23,6 @@ public class UsersController : BaseController
 	[HttpPost($"{nameof(Login)}")]
 	public async Task<IActionResult> Login([FromBody] CreateLoginRequest request)
 	{
-
 		var authResult  = await _usersServices.Login(request.Email, request.Password);
 
 		if (authResult.IsFailure)
@@ -47,7 +44,7 @@ public class UsersController : BaseController
 		if (role != Role.User)
 			return (BadRequest("Role does not equal the necessary one"));
 
-		var authResult = await _usersServices.ParticipantRegistration(request.Email, request.Password, role, request.FirstName, request.LastName, request.DateOfBirth);
+		var authResult = await _usersServices.ParticipantRegistration(request.Email, request.Password, role, request.FirstName, request.LastName, request.DateOfBirth, request.EventRegistrationDate);
 
 		if (authResult.IsFailure)
 			return Unauthorized(authResult.Error);
@@ -101,7 +98,7 @@ public class UsersController : BaseController
 	}
 
 	[HttpGet($"{nameof(Authorize)}")]
-	[Authorize]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> Authorize()
 	{
 		var userIdClaim = User.FindFirst("Id");
@@ -120,7 +117,7 @@ public class UsersController : BaseController
 	}
 
 	[HttpGet($"{nameof(Unauthorize)}")]
-	//[Authorize]
+	[Authorize(Policy = "UserOrAdmin")]
 	public IActionResult Unauthorize()
 	{
 		HttpContext.Response.Cookies.Delete(ApiExtensions.COOKIE_NAME);

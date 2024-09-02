@@ -38,9 +38,13 @@ public partial class ParticipantConfiguration : IEntityTypeConfiguration<Partici
 				v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Указываем, что дата - это UTC
 			);
 
-
 		builder.Property(p => p.EventRegistrationDate)
-			.IsRequired(false); // Необязательное поле
+			.IsRequired() // Обязательное поле
+			.HasColumnType("date") // Указываем тип колонки как date
+			.HasConversion(
+				v => v.Date, // Сохраняем только дату
+				v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Указываем, что дата - это UTC
+			);
 
 		// Настройка связи с RefreshTokenEntity (один-к-одному)
 		builder.HasOne(p => p.RefreshToken)

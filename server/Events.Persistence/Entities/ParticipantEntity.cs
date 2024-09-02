@@ -19,7 +19,7 @@ public class ParticipantEntity : IUser
 
 	public DateTime DateOfBirth { get; set; } // дата рождения
 
-	public DateTime? EventRegistrationDate { get; set; } = null; // дата регистрации на событие
+	public DateTime EventRegistrationDate { get; set; } // дата регистрации на событие
 
 	public IList<EventEntity> Events { get; set; } = new List<EventEntity>(); // связанные события
 

@@ -1,9 +1,5 @@
-﻿using System.Diagnostics;
-
-using Events.Application.Auth;
-using Events.Domain.Interfaces.Repositories;
+﻿using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
-using Events.Domain.Models.Users;
 using Events.Persistence.Entities;
 
 using MapsterMapper;
@@ -37,9 +33,6 @@ public class EventsRepository : IEventsRepository
 
 	public async Task<EventModel?> Get(Guid id)
 	{
-		Debug.WriteLine("______________________________");
-		Debug.WriteLine("event id ---: " + id);
-
 		var eventEntitiy = await _context
 			.Events
 			.AsNoTracking()
@@ -48,14 +41,7 @@ public class EventsRepository : IEventsRepository
 		if (eventEntitiy == null)
 			return null;
 
-		Debug.WriteLine("______________________________");
-		Debug.WriteLine("event id: " + eventEntitiy.Id);
-
 		var model = _mapper.Map<EventModel>(eventEntitiy);
-
-
-		Debug.WriteLine("______________________________");
-		Debug.WriteLine("model event id: " + model.Id);
 
 		return model;
 	}

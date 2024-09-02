@@ -1,14 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.Reflection;
+﻿using CSharpFunctionalExtensions;
 
-using CSharpFunctionalExtensions;
-
-using Events.Domain.Enums;
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
-using Events.Domain.Models.Users;
 
 namespace Events.Application.Services;
 
@@ -32,10 +26,6 @@ public class EventsService : IEventsServices
 
 		if (existEvent == null)
 			return Result.Failure<EventModel>("Event with this id doesn't exists");
-
-
-		Debug.WriteLine("______________________________");
-		Debug.WriteLine("existEvent  id: " + existEvent.Id);
 
 		return existEvent;
 	}

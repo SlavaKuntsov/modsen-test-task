@@ -62,14 +62,14 @@ public class UsersService : IUsersServices
 		};
 	}
 
-	public async Task<Result<AuthResultModel>> ParticipantRegistration(string email, string password, Role role, string firstName, string lastName, string dateOfBirth)
+	public async Task<Result<AuthResultModel>> ParticipantRegistration(string email, string password, Role role, string firstName, string lastName, string dateOfBirth, string eventRegistrationDate)
 	{
 		var existUser = await _usersRepository.Get(email);
 
 		if (existUser != null)
 			return Result.Failure<AuthResultModel>("User with this email already exists");
 
-		var user = ParticipantModel.Create(Guid.NewGuid(), email, _passwordHash.Generate(password), role, firstName, lastName, dateOfBirth);
+		var user = ParticipantModel.Create(Guid.NewGuid(), email, _passwordHash.Generate(password), role, firstName, lastName, dateOfBirth, eventRegistrationDate);
 
 		if (user.IsFailure)
 			return Result.Failure<AuthResultModel>(user.Error);
@@ -77,7 +77,6 @@ public class UsersService : IUsersServices
 		// TODO - добавить транзакцию на создание юзера и токена
 		var createdUserId = await _usersRepository.Create(user.Value);
 
-		// Если регистрация прошла успешно, создаём токены
 		var accessToken = _jwt.GenerateAccessToken(user.Value.Id, user.Value.Role);
 		var refreshToken = _jwt.GenerateRefreshToken();
 
@@ -88,13 +87,13 @@ public class UsersService : IUsersServices
 
 		await _usersRepository.SaveRefreshToken(refreshTokenModel.Value);
 
-		// Возвращаем AuthResultModel с токенами
 		return new AuthResultModel
 		{
 			AccessToken = accessToken,
 			RefreshToken = refreshToken
 		};
 	}
+
 
 	public async Task<Result<AuthResultModel>> AdminRegistration(string email, string password, Role role)
 	{
@@ -110,7 +109,6 @@ public class UsersService : IUsersServices
 
 		var createdUserId = await _usersRepository.Create(user.Value);
 
-		// Если регистрация прошла успешно, создаём токены
 		var accessToken = _jwt.GenerateAccessToken(user.Value.Id, user.Value.Role);
 		var refreshToken = _jwt.GenerateRefreshToken();
 
@@ -121,7 +119,6 @@ public class UsersService : IUsersServices
 
 		await _usersRepository.SaveRefreshToken(refreshTokenModel.Value);
 
-		// Возвращаем AuthResultModel с токенами
 		return new AuthResultModel
 		{
 			AccessToken = accessToken,
@@ -150,7 +147,6 @@ public class UsersService : IUsersServices
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
 
-		// Обновление refresh-токена в хранилище
 		await _usersRepository.UpdateRefreshToken(user.Id, user.Role, refreshTokenModel.Value);
 
 		return new AuthResultModel

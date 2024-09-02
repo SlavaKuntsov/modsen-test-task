@@ -10,7 +10,7 @@ public interface IUsersServices
 {
 	public Task<Result<AuthResultModel>> Login(string email, string password);
 
-	public Task<Result<AuthResultModel>> ParticipantRegistration(string email, string password, Role role, string firstName, string lastName, string dateOfBirth);
+	public Task<Result<AuthResultModel>> ParticipantRegistration(string email, string password, Role role, string firstName, string lastName, string dateOfBirth, string eventRegistrationDate);
 
 	public Task<Result<AuthResultModel>> AdminRegistration(string email, string password, Role role);
 

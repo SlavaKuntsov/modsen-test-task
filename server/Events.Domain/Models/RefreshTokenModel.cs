@@ -1,29 +1,27 @@
 ﻿using CSharpFunctionalExtensions;
 
 using Events.Domain.Enums;
+using Events.Domain.Validators.Users;
 
 namespace Events.Domain.Models;
 
 public class RefreshTokenModel
 {
-	public Guid Id { get; set; }
+	public Guid Id { get; private set; }
 
-	public string Token { get; set; } = string.Empty;
+	public string Token { get; private set; } = string.Empty;
 
-	public DateTime ExpiresAt { get; set; }
+	public DateTime ExpiresAt { get; private set; }
 
-	public bool IsRevoked { get; set; }
+	public bool IsRevoked { get; private set; }
 
-	public DateTime CreatedAt { get; set; }
+	public DateTime CreatedAt { get; private set; }
 
-	public Guid? AdminId { get; set; } // Идентификатор администратора, к которому привязан токен
+	public Guid? AdminId { get; private set; }
 
-	public Guid? UserId { get; set; } // Идентификатор участника, к которому привязан токен
+	public Guid? UserId { get; private set; }
 
-	public RefreshTokenModel()
-	{
-
-	}
+	public RefreshTokenModel() { }
 
 	public RefreshTokenModel(Guid id, string token, DateTime expiresAt, bool isRevoked, DateTime createdAt, Guid? adminId, Guid? participantId)
 	{
@@ -38,24 +36,22 @@ public class RefreshTokenModel
 
 	public static Result<RefreshTokenModel> Create(Guid userId, Role role, string token, int refreshTokenExpirationDays)
 	{
-		if (string.IsNullOrWhiteSpace(token))
-			return Result.Failure<RefreshTokenModel>("Token cannot be empty");
-
-		if (userId == Guid.Empty)
-			return Result.Failure<RefreshTokenModel>("Invalid user ID");
-
-		var refreshToken = new RefreshTokenModel
-		(
+		RefreshTokenModel model = new(
 			Guid.NewGuid(),
 			token,
 			DateTime.UtcNow.Add(TimeSpan.FromDays(refreshTokenExpirationDays)),
 			false,
 			DateTime.UtcNow,
 			role == Role.Admin ? userId : null,
-			role == Role.User ? userId : null
-		);
+			role == Role.User ? userId : null);
 
-		return Result.Success(refreshToken);
+		var validator = new RefreshTokenModelValidator();
+		var validationResult = validator.Validate(model);
+
+		if (!validationResult.IsValid)
+			return Result.Failure<RefreshTokenModel>(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
+
+		return model;
 	}
 }
 

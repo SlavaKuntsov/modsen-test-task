@@ -118,7 +118,6 @@ public class UsersRepository : IUsersRepository
 
 	public async Task UpdateRefreshToken(Guid userId, Role role, RefreshTokenModel newRefreshToken)
 	{
-		// Получаем существующий refresh token для данного пользователя
 		RefreshTokenEntity? existingToken = null;
 
 		if (role == Role.Admin)
@@ -134,7 +133,6 @@ public class UsersRepository : IUsersRepository
 
 		if (existingToken != null)
 		{
-			// Обновляем токен и время его создания
 			existingToken.Token = newRefreshToken.Token;
 			existingToken.CreatedAt = DateTime.UtcNow;
 			existingToken.ExpiresAt = DateTime.UtcNow.AddDays(30);

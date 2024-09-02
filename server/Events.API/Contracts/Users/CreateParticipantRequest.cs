@@ -17,7 +17,6 @@ public class CreateParticipantRequest
 
 	[Required]
 	public string Role { get; set; }
-	//public Role Role { get; set; } = Role.User;
 
 	[Required]
 	public string FirstName { get; set; }
@@ -26,6 +25,8 @@ public class CreateParticipantRequest
 	public string LastName { get; set; }
 
 	[Required]
-	//[DateFormat("dd-MM-yyyy")]
 	public string DateOfBirth { get; set; }
+
+	[Required]
+	public string EventRegistrationDate { get; set; }
 }

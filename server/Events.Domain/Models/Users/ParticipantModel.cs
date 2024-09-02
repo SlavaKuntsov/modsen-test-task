@@ -1,38 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Globalization;
+﻿using System.Globalization;
 
 using CSharpFunctionalExtensions;
 
 using Events.Domain.Enums;
-
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Events.Domain.Validators.Users;
 
 namespace Events.Domain.Models.Users;
 
 public class ParticipantModel : UserModel
 {
-	//public Guid Id { get; set; }
+	public const string DATE_FORMAT = "dd-MM-yyyy";
 
-	//public string Email { get; set; } = string.Empty;
+	public string FirstName { get; private set; } = string.Empty;
 
-	//public string Password { get; set; } = string.Empty;
+	public string LastName { get; private set; } = string.Empty;
 
-	public string FirstName { get; set; } = string.Empty;
+	public DateTime DateOfBirth { get; private set; }
 
-	public string LastName { get; set; } = string.Empty;
+	public DateTime EventRegistrationDate { get; private set; }
 
-	public DateTime DateOfBirth { get; set; }
+	public IList<EventModel> Events { get; private set; } = [];
 
-	public DateTime? EventRegistrationDate { get; set; } = null;
+	public ParticipantModel() { }
 
-	public IList<EventModel> Events { get; set; } = [];
-
-	public ParticipantModel()
-	{
-
-	}
-
-	private ParticipantModel(Guid id, string email, string password, Role role, string firstName, string lastName, DateTime dateOfBirth) : base(id, email, password, role)
+	private ParticipantModel(Guid id, string email, string password, Role role, string firstName, string lastName, DateTime dateOfBirth, DateTime eventRegistration) : base(id, email, password, role)
 	{
 		Id = id;
 		Email = email;
@@ -41,22 +32,25 @@ public class ParticipantModel : UserModel
 		FirstName = firstName;
 		LastName = lastName;
 		DateOfBirth = dateOfBirth;
+		EventRegistrationDate = eventRegistration;
 	}
 
-	public static Result<ParticipantModel> Create(Guid id, string email, string password, Role role, string firstName, string lastName, string dateOfBirth)
+	public static Result<ParticipantModel> Create(Guid id, string email, string password, Role role, string firstName, string lastName, string dateOfBirth, string eventRegistrationDate)
 	{
-		if (string.IsNullOrEmpty(email))
-			return Result.Failure<ParticipantModel>("Email cannot be null or empty.");
+		DateTime dateOfBirthTime;
+		DateTime eventRegistrationDateTime;
 
-		DateTime dateTime;
+		DateTime.TryParseExact(dateOfBirth, DATE_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateOfBirthTime);
+		DateTime.TryParseExact(eventRegistrationDate, DATE_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out eventRegistrationDateTime);
 
-		string format = "dd-MM-yyyy";
+		ParticipantModel model = new(id, email, password, role, firstName, lastName, dateOfBirthTime, eventRegistrationDateTime);
 
-		if (!DateTime.TryParseExact(dateOfBirth, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
-		{
-			return Result.Failure<ParticipantModel>($"Date of birth must be in the format {format}");
-		}
+		var validator = new ParticipantModelValidator();
+		var validationResult = validator.Validate(model);
 
-		return Result.Success(new ParticipantModel(id, email, password, role, firstName, lastName, dateTime));
+		if (!validationResult.IsValid)
+			return Result.Failure<ParticipantModel>(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
+
+		return model;
 	}
 }

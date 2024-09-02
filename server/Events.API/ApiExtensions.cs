@@ -20,14 +20,12 @@ public static class ApiExtensions
 
 	public static IServiceCollection AddAPI(this IServiceCollection services, IConfiguration configuration)
 	{
-		// Mapster
 		var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
 		typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
 
 		var mapperConfig = new Mapper(typeAdapterConfig);
 		services.AddSingleton<IMapper>(mapperConfig);
 
-		// JWT
 		var jwtOptions = configuration.GetSection(nameof(JwtModel)).Get<JwtModel>();
 
 		services
