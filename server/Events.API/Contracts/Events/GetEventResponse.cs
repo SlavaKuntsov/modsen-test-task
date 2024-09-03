@@ -19,6 +19,4 @@ public class GetEventResponse
     public int MaxParticipants { get; set; }
 
     public string ImageUrl { get; set; } = string.Empty;
-
-    public IList<ParticipantModel> Participants { get; set; } = [];
 }

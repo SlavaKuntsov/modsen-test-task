@@ -1,4 +1,6 @@
-﻿using Events.Domain.Enums;
+﻿using CSharpFunctionalExtensions;
+
+using Events.Domain.Enums;
 using Events.Domain.Models;
 using Events.Domain.Models.Users;
 
@@ -10,12 +12,12 @@ public interface IUsersRepository
 	public Task<ParticipantModel?> Get(string email);
 	public Task<ParticipantModel?> Get(string email, string password);
 
-	public Task<Guid> Create(ParticipantModel user);
-	public Task<Guid> Create(AdminModel user);
+	public Task<Result<Guid>> Create(ParticipantModel user, RefreshTokenModel refreshTokenModel);
+	public Task<Result<Guid>> Create(AdminModel user, RefreshTokenModel refreshTokenModel);
 
 	public Task<RefreshTokenModel?> GetRefreshToken(string refreshToken);
 
-	public Task SaveRefreshToken(RefreshTokenModel refreshToken);
+	//public Task SaveRefreshToken(RefreshTokenModel refreshToken);
 
 	public Task UpdateRefreshToken(Guid userId, Role role, RefreshTokenModel newRefreshToken);
 

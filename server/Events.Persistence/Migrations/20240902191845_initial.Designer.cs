@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.Persistence.Migrations
 {
     [DbContext(typeof(EventsDBContext))]
-    [Migration("20240901020224_initial")]
+    [Migration("20240902191845_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -66,7 +66,7 @@ namespace Events.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("EventDateTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("date");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
@@ -110,15 +110,15 @@ namespace Events.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("date");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<DateTime?>("EventRegistrationDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("EventRegistrationDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -181,17 +181,21 @@ namespace Events.Persistence.Migrations
 
             modelBuilder.Entity("Events.Persistence.Entities.EventParticipantEntity", b =>
                 {
-                    b.HasOne("Events.Persistence.Entities.EventEntity", null)
-                        .WithMany()
+                    b.HasOne("Events.Persistence.Entities.EventEntity", "Event")
+                        .WithMany("EventParticipants")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Events.Persistence.Entities.ParticipantEntity", null)
-                        .WithMany()
+                    b.HasOne("Events.Persistence.Entities.ParticipantEntity", "Participant")
+                        .WithMany("Events")
                         .HasForeignKey("ParticipantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Participant");
                 });
 
             modelBuilder.Entity("Events.Persistence.Entities.RefreshTokenEntity", b =>
@@ -217,8 +221,15 @@ namespace Events.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Events.Persistence.Entities.EventEntity", b =>
+                {
+                    b.Navigation("EventParticipants");
+                });
+
             modelBuilder.Entity("Events.Persistence.Entities.ParticipantEntity", b =>
                 {
+                    b.Navigation("Events");
+
                     b.Navigation("RefreshToken")
                         .IsRequired();
                 });

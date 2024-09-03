@@ -33,7 +33,7 @@ namespace Events.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
-                    EventDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EventDateTime = table.Column<DateTime>(type: "date", nullable: false),
                     Location = table.Column<string>(type: "text", nullable: false),
                     Category = table.Column<string>(type: "text", nullable: false),
                     MaxParticipants = table.Column<int>(type: "integer", nullable: false),
@@ -54,8 +54,8 @@ namespace Events.Persistence.Migrations
                     Role = table.Column<int>(type: "integer", nullable: false),
                     FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    EventRegistrationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DateOfBirth = table.Column<DateTime>(type: "date", nullable: false),
+                    EventRegistrationDate = table.Column<DateTime>(type: "date", nullable: false)
                 },
                 constraints: table =>
                 {

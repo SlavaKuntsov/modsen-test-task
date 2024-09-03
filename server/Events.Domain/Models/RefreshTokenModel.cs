@@ -13,7 +13,7 @@ public class RefreshTokenModel
 
 	public DateTime ExpiresAt { get; private set; }
 
-	public bool IsRevoked { get; private set; }
+	public bool IsRevoked { get; private set; } = false;
 
 	public DateTime CreatedAt { get; private set; }
 

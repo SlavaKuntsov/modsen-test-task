@@ -21,14 +21,14 @@ public class EventModel
 
 	public string Category { get; private set; } = string.Empty;
 
-	public int MaxParticipants { get; private set; }
+	public int MaxParticipants { get; private set; } = 0;
 
 	// при изменении IList<ParticipantModel> Participants менять количество зарегистрированных участников
 	public int ParticipantsCount { get; private set; } = 0;
 
 	public string ImageUrl { get; private set; } = string.Empty;
 
-	public IList<ParticipantModel> Participants { get; set; } = [];
+	//public IList<ParticipantModel> Participants { get; set; } = [];
 
 	public EventModel() { }
 

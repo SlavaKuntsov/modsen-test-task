@@ -44,7 +44,7 @@ public class UsersController : BaseController
 		if (role != Role.User)
 			return (BadRequest("Role does not equal the necessary one"));
 
-		var authResult = await _usersServices.ParticipantRegistration(request.Email, request.Password, role, request.FirstName, request.LastName, request.DateOfBirth, request.EventRegistrationDate);
+		var authResult = await _usersServices.ParticipantRegistration(request.Email, request.Password, role, request.FirstName, request.LastName, request.DateOfBirth);
 
 		if (authResult.IsFailure)
 			return Unauthorized(authResult.Error);
@@ -108,12 +108,14 @@ public class UsersController : BaseController
 
 		Guid userId = Guid.Parse(userIdClaim.Value);
 
-		var user = await _usersServices.Authorize(userId);
+		var user = await _usersServices.GetOrAuthorize(userId);
 
 		if (user.IsFailure)
 			return Unauthorized(user.Error);
 
-		return Ok(user.Value);
+		var response = _mapper.Map<GetUserResponse>(user.Value);
+
+		return Ok(response);
 	}
 
 	[HttpGet($"{nameof(Unauthorize)}")]
@@ -123,5 +125,19 @@ public class UsersController : BaseController
 		HttpContext.Response.Cookies.Delete(ApiExtensions.COOKIE_NAME);
 
 		return Ok();
+	}
+
+	[HttpGet(nameof(GetParticipant) + "/{id:Guid}")]
+	//[Authorize(Policy = "UserOrAdmin")]
+	public async Task<IActionResult> GetParticipant(Guid id)
+	{
+		var user = await _usersServices.GetOrAuthorize(id);
+
+		if (user.IsFailure)
+			return Unauthorized(user.Error);
+
+		var response = _mapper.Map<GetUserResponse>(user.Value);
+
+		return Ok(response);
 	}
 }

@@ -23,5 +23,8 @@ public record CreateEventRequest
     public int MaxParticipants { get; set; }
 
     [Required]
+    public int ParticipantsCount { get; set; }
+
+    [Required]
     public string ImageUrl { get; set; } = string.Empty;
 }

@@ -12,5 +12,21 @@ public partial class EventParticipantConfiguration : IEntityTypeConfiguration<Ev
 		builder.HasKey(e => new { e.EventId, e.ParticipantId });
 
 		builder.ToTable("EventParticipant");
+
+		builder.Property(p => p.EventRegistrationDate)
+			.IsRequired();
+			//.HasColumnType("date")
+			//.HasConversion(
+			//	v => v.Date,
+			//	v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+			//);
+
+		builder.HasOne(ep => ep.Participant)
+			.WithMany(p => p.Events)
+			.HasForeignKey(ep => ep.ParticipantId);
+
+		builder.HasOne(ep => ep.Event)
+			.WithMany(e => e.EventParticipants)
+			.HasForeignKey(ep => ep.EventId);
 	}
 }

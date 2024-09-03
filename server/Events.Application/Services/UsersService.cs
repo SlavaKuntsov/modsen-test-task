@@ -62,30 +62,29 @@ public class UsersService : IUsersServices
 		};
 	}
 
-	public async Task<Result<AuthResultModel>> ParticipantRegistration(string email, string password, Role role, string firstName, string lastName, string dateOfBirth, string eventRegistrationDate)
+	public async Task<Result<AuthResultModel>> ParticipantRegistration(string email, string password, Role role, string firstName, string lastName, string dateOfBirth)
 	{
 		var existUser = await _usersRepository.Get(email);
 
 		if (existUser != null)
 			return Result.Failure<AuthResultModel>("User with this email already exists");
 
-		var user = ParticipantModel.Create(Guid.NewGuid(), email, _passwordHash.Generate(password), role, firstName, lastName, dateOfBirth, eventRegistrationDate);
-
+		var user = ParticipantModel.Create(Guid.NewGuid(), email, _passwordHash.Generate(password), role, firstName, lastName, dateOfBirth);
 		if (user.IsFailure)
 			return Result.Failure<AuthResultModel>(user.Error);
-
-		// TODO - добавить транзакцию на создание юзера и токена
-		var createdUserId = await _usersRepository.Create(user.Value);
 
 		var accessToken = _jwt.GenerateAccessToken(user.Value.Id, user.Value.Role);
 		var refreshToken = _jwt.GenerateRefreshToken();
 
-		var refreshTokenModel = RefreshTokenModel.Create(createdUserId, Role.User, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+		var refreshTokenModel = RefreshTokenModel.Create(user.Value.Id, Role.User, refreshToken, _jwt.GetRefreshTokenExpirationDays());
 
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
 
-		await _usersRepository.SaveRefreshToken(refreshTokenModel.Value);
+		var createdUserId = await _usersRepository.Create(user.Value, refreshTokenModel.Value);
+
+		if (createdUserId.IsFailure)
+			return Result.Failure<AuthResultModel>(createdUserId.Error);
 
 		return new AuthResultModel
 		{
@@ -93,7 +92,6 @@ public class UsersService : IUsersServices
 			RefreshToken = refreshToken
 		};
 	}
-
 
 	public async Task<Result<AuthResultModel>> AdminRegistration(string email, string password, Role role)
 	{
@@ -107,17 +105,15 @@ public class UsersService : IUsersServices
 		if (user.IsFailure)
 			return Result.Failure<AuthResultModel>(user.Error);
 
-		var createdUserId = await _usersRepository.Create(user.Value);
-
 		var accessToken = _jwt.GenerateAccessToken(user.Value.Id, user.Value.Role);
 		var refreshToken = _jwt.GenerateRefreshToken();
 
-		var refreshTokenModel = RefreshTokenModel.Create(createdUserId, Role.Admin, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+		var refreshTokenModel = RefreshTokenModel.Create(user.Value.Id, Role.Admin, refreshToken, _jwt.GetRefreshTokenExpirationDays());
 
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
 
-		await _usersRepository.SaveRefreshToken(refreshTokenModel.Value);
+		var createdUserId = await _usersRepository.Create(user.Value, refreshTokenModel.Value);
 
 		return new AuthResultModel
 		{
@@ -156,8 +152,7 @@ public class UsersService : IUsersServices
 		};
 	}
 
-	// TODO -  пока что возвращает ParticipantModel но есть ли смысл всю модель возвращать
-	public async Task<Result<ParticipantModel>> Authorize(Guid id)
+	public async Task<Result<ParticipantModel>> GetOrAuthorize(Guid id)
 	{
 		var user = await _usersRepository.Get(id);
 

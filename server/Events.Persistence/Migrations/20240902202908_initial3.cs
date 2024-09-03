@@ -6,20 +6,18 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Events.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class initial4 : Migration
+    public partial class initial3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<DateTime>(
                 name: "EventRegistrationDate",
-                table: "Participant",
-                type: "date",
+                table: "EventParticipant",
+                type: "timestamp with time zone",
                 nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                 oldClrType: typeof(DateTime),
-                oldType: "timestamp with time zone",
-                oldNullable: true);
+                oldType: "date");
         }
 
         /// <inheritdoc />
@@ -27,11 +25,11 @@ namespace Events.Persistence.Migrations
         {
             migrationBuilder.AlterColumn<DateTime>(
                 name: "EventRegistrationDate",
-                table: "Participant",
-                type: "timestamp with time zone",
-                nullable: true,
+                table: "EventParticipant",
+                type: "date",
+                nullable: false,
                 oldClrType: typeof(DateTime),
-                oldType: "date");
+                oldType: "timestamp with time zone");
         }
     }
 }

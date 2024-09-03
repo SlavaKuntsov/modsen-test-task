@@ -3,16 +3,19 @@
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
+using Events.Domain.Models.Users;
 
 namespace Events.Application.Services;
 
 public class EventsService : IEventsServices
 {
 	private readonly IEventsRepository _eventsRepository;
+	private readonly IEventsParticipantsRepository _eventsParticipantsRepository;
 
-	public EventsService(IEventsRepository eventsRepository)
+	public EventsService(IEventsRepository eventsRepository, IEventsParticipantsRepository eventsParticipantsRepository)
 	{
 		_eventsRepository = eventsRepository;
+		_eventsParticipantsRepository = eventsParticipantsRepository;
 	}
 
 	public async Task<IList<EventModel>> Get()
@@ -30,16 +33,75 @@ public class EventsService : IEventsServices
 		return existEvent;
 	}
 
-	public async Task<Result<Guid>> Create(Guid id, string title, string description, string eventDateTime, string location, string category, int maxParticipants, string imageUrl)
+	public async Task<Result<IList<EventModel>>> Get(string title)
 	{
+		var existEvents = await _eventsRepository.Get(title);
 
-		var user = EventModel.Create(Guid.NewGuid(),  title, description, eventDateTime, location, category, maxParticipants, imageUrl);
+		if (existEvents == null)
+			return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
 
-		if (user.IsFailure)
-			return Result.Failure<Guid>(user.Error);
+		return Result.Success(existEvents);
+	}
 
-		var createdEventId = await _eventsRepository.Create(user.Value);
+	public async Task<Result<IList<ParticipantModel>>> GetEventParticipants(Guid eventId)
+	{
+		var particants = await _eventsParticipantsRepository.GetParticipantsByEvent(eventId);
 
-		return createdEventId;
+		if (particants == null)
+			return Result.Failure<IList<ParticipantModel>>("Particants not found");
+
+		return Result.Success(particants);
+	}
+
+	public async Task<Result<Guid>> Create(string title, string description, string eventDateTime, string location, string category, int maxParticipants, string imageUrl)
+	{
+		var eventModel = EventModel.Create(Guid.NewGuid(),  title, description, eventDateTime, location, category, maxParticipants, imageUrl);
+
+		if (eventModel.IsFailure)
+			return Result.Failure<Guid>(eventModel.Error);
+
+		return await _eventsRepository.Create(eventModel.Value);
+	}
+
+	public async Task<Result> AddParticipantToEvent(string eventId, string participantId)
+	{
+		if (await _eventsParticipantsRepository.IsExists(Guid.Parse(eventId), Guid.Parse(participantId)))
+			return Result.Failure("Same registration already exists");
+
+		DateTime dateTime = DateTime.Now;
+
+		await _eventsParticipantsRepository.AddEventParticipant(Guid.Parse(eventId), Guid.Parse(participantId), dateTime);
+		return Result.Success();
+	}
+
+	public async Task<Result> RemoveParticipantFromEvent(string eventId, string participantId)
+	{
+		if (!await _eventsParticipantsRepository.IsExists(Guid.Parse(eventId), Guid.Parse(participantId)))
+			return Result.Failure("Same registration doesn't exists");
+
+		await _eventsParticipantsRepository.RemoveEventParticipant(Guid.Parse(eventId), Guid.Parse(participantId));
+		return Result.Success();
+	}
+
+	public async Task<Result<Guid>> Update(Guid id, string title, string description, string eventDateTime, string location, string category, int maxParticipants, string imageUrl)
+	{
+		if (!await _eventsRepository.IsExists(id))
+			return Result.Failure<Guid>("Event with this id doesn't exists");
+
+		var eventModel = EventModel.Create(id, title, description, eventDateTime, location, category, maxParticipants, imageUrl);
+
+		if (eventModel.IsFailure)
+			return Result.Failure<Guid>(eventModel.Error);
+
+		return await _eventsRepository.Update(eventModel.Value);
+	}
+
+	public async Task<Result> Delete(Guid eventId)
+	{
+		if (!await _eventsRepository.IsExists(eventId))
+			return Result.Failure("Event with this id doesn't exists");
+
+		await _eventsRepository.Delete(eventId);
+		return Result.Success();
 	}
 }

@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Events.Persistence.Entities;
+
 using Microsoft.EntityFrameworkCore;
-using Events.Persistence.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Events.Persistence.Configurations;
 
@@ -8,47 +9,38 @@ public partial class ParticipantConfiguration : IEntityTypeConfiguration<Partici
 {
 	public void Configure(EntityTypeBuilder<ParticipantEntity> builder)
 	{
-		builder.ToTable("Participant"); // Таблица для участников
+		builder.ToTable("Participant");
 
-		builder.HasKey(p => p.Id); // Уникальный ключ
+		builder.HasKey(p => p.Id);
 
 		builder.Property(p => p.Email)
 			.HasMaxLength(100)
-			.IsRequired(); // Обязательное поле
+			.IsRequired();
 
 		builder.Property(p => p.Password)
-			.IsRequired(); // Обязательное поле
+			.IsRequired();
 
 		builder.Property(p => p.Role)
-			.IsRequired(); // Обязательное поле
+			.IsRequired();
 
 		builder.Property(p => p.FirstName)
 			.HasMaxLength(100)
-			.IsRequired(); // Обязательное поле
+			.IsRequired();
 
 		builder.Property(p => p.LastName)
 			.HasMaxLength(100)
-			.IsRequired(); // Обязательное поле
+			.IsRequired();
 
 		builder.Property(p => p.DateOfBirth)
-			.IsRequired() // Обязательное поле
-			.HasColumnType("date") // Указываем тип колонки как date
+			.IsRequired()
+			.HasColumnType("date")
 			.HasConversion(
-				v => v.Date, // Сохраняем только дату
-				v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Указываем, что дата - это UTC
+				v => v.Date,
+				v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
 			);
 
-		builder.Property(p => p.EventRegistrationDate)
-			.IsRequired() // Обязательное поле
-			.HasColumnType("date") // Указываем тип колонки как date
-			.HasConversion(
-				v => v.Date, // Сохраняем только дату
-				v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Указываем, что дата - это UTC
-			);
-
-		// Настройка связи с RefreshTokenEntity (один-к-одному)
 		builder.HasOne(p => p.RefreshToken)
-			   .WithOne(rt => rt.Participant)
-			   .HasForeignKey<RefreshTokenEntity>(rt => rt.UserId); // Внешний ключ
+			.WithOne(rt => rt.Participant)
+			.HasForeignKey<RefreshTokenEntity>(rt => rt.UserId);
 	}
 }

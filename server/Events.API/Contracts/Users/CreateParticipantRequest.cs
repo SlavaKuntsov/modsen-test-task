@@ -27,6 +27,6 @@ public class CreateParticipantRequest
 	[Required]
 	public string DateOfBirth { get; set; }
 
-	[Required]
-	public string EventRegistrationDate { get; set; }
+	//[Required]
+	//public string EventRegistrationDate { get; set; }
 }

@@ -1,4 +1,6 @@
-﻿using Events.Domain.Enums;
+﻿using CSharpFunctionalExtensions;
+
+using Events.Domain.Enums;
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
 using Events.Domain.Models.Users;
@@ -66,24 +68,52 @@ public class UsersRepository : IUsersRepository
 		return model;
 	}
 
-	public async Task<Guid> Create(ParticipantModel user)
+	public async Task<Result<Guid>> Create(ParticipantModel user, RefreshTokenModel refreshTokenModel)
 	{
-		var entity = _mapper.Map<ParticipantEntity>(user);
+		var userEntity = _mapper.Map<ParticipantEntity>(user);
+		var refreshTokenEntity = _mapper.Map<RefreshTokenEntity>(refreshTokenModel);
 
-		await _context.Participants.AddAsync(entity);
-		await _context.SaveChangesAsync();
+		using var transaction = _context.Database.BeginTransaction();
 
-		return entity.Id;
+		try
+		{
+			await _context.Participants.AddAsync(userEntity);
+			await _context.RefreshTokens.AddAsync(refreshTokenEntity);
+			await _context.SaveChangesAsync();
+
+			transaction.Commit();
+
+			return userEntity.Id;
+		}
+		catch (Exception ex)
+		{
+			await transaction.RollbackAsync();
+			return Result.Failure<Guid>($"An error occurred while creating user and saving token: {ex.Message}");
+		}
 	}
 
-	public async Task<Guid> Create(AdminModel user)
+	public async Task<Result<Guid>> Create(AdminModel user, RefreshTokenModel refreshTokenModel)
 	{
-		var entity = _mapper.Map<AdminEntity>(user);
+		var userEntity = _mapper.Map<AdminEntity>(user);
+		var refreshTokenEntity = _mapper.Map<RefreshTokenEntity>(refreshTokenModel);
 
-		await _context.Admins.AddAsync(entity);
-		await _context.SaveChangesAsync();
+		using var transaction = _context.Database.BeginTransaction();
 
-		return entity.Id;
+		try
+		{
+			await _context.Admins.AddAsync(userEntity);
+			await _context.RefreshTokens.AddAsync(refreshTokenEntity);
+			await _context.SaveChangesAsync();
+
+			transaction.Commit();
+
+			return userEntity.Id;
+		}
+		catch (Exception ex)
+		{
+			await transaction.RollbackAsync();
+			return Result.Failure<Guid>($"An error occurred while creating admin and saving token: {ex.Message}");
+		}
 	}
 
 	public async Task<RefreshTokenModel?> GetRefreshToken(string refreshToken)
@@ -101,7 +131,7 @@ public class UsersRepository : IUsersRepository
 		return model;
 	}
 
-	// TODO - где применять??
+	// TODO - его логика добавлена в Create метод выше
 	public async Task SaveRefreshToken(RefreshTokenModel refreshToken)
 	{
 		var entity = _mapper.Map<RefreshTokenEntity>(refreshToken);

@@ -12,54 +12,36 @@ public partial class EventConfiguration : IEntityTypeConfiguration<EventEntity>
 
 		builder.ToTable("Event");
 
-		builder
-			.Property(e => e.Title)
+		builder.Property(e => e.Title)
 			.HasMaxLength(200)
 			.IsRequired();
 
-		builder
-			.Property(e => e.Description)
+		builder.Property(e => e.Description)
 			.IsRequired();
 
-		builder.Property(p => p.EventDateTime)
-			.IsRequired() // Обязательное поле
-			.HasColumnType("date") // Указываем тип колонки как date
+		builder.Property(e => e.EventDateTime)
+			.IsRequired()
+			.HasColumnType("date")
 			.HasConversion(
-				v => v.Date, // Сохраняем только дату
-				v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Указываем, что дата - это UTC
+				v => v.Date,
+				v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
 			);
 
-		builder
-			.Property(e => e.Location)
+		builder.Property(e => e.Location)
 			.IsRequired();
 
-		builder
-			.Property(e => e.Category)
+		builder.Property(e => e.Category)
 			.IsRequired();
 
-		builder
-			.Property(e => e.MaxParticipants)
+		builder.Property(e => e.MaxParticipants)
 			.IsRequired();
 
-		builder
-			.Property(e => e.ImageUrl)
+		builder.Property(e => e.ImageUrl)
 			.IsRequired(false);
 
-		builder
-			.Property(e => e.MaxParticipants)
-			.IsRequired();
-
-		builder.HasMany(e => e.Participants)
-			.WithMany(p => p.Events)
-			.UsingEntity<EventParticipantEntity>(
-				//"EventParticipant",
-				l =>
-				l.HasOne<ParticipantEntity>()
-					.WithMany()
-					.HasForeignKey(p => p.ParticipantId),
-				r =>
-				r.HasOne<EventEntity>()
-					.WithMany()
-					.HasForeignKey(e => e.EventId));
+		// Настройка связи с участниками через EventParticipant
+		builder.HasMany(e => e.EventParticipants)
+			.WithOne(ep => ep.Event)
+			.HasForeignKey(ep => ep.EventId);
 	}
 }

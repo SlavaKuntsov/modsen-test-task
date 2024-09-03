@@ -12,29 +12,29 @@ public class RefreshTokenModelValidator : AbstractValidator<RefreshTokenModel>
 			.NotNull();
 
 		RuleFor(x => x.Token)
-				.NotEmpty().WithMessage("Title cannot be null or empty.");
+			.NotEmpty().WithMessage("Title cannot be null or empty.");
 
 		RuleFor(x => x.ExpiresAt)
-			.Must(BeAValidDate).WithMessage("Date of token expire must be in the format dd-MM-yyyy.")
-			.Must(BeAPastDate).WithMessage("Date of token expire must be in the past.")
+			//.Must(BeAValidDate).WithMessage("Date of token expire must be in the format dd-MM-yyyy.")
+			//.Must(BeAPastDate).WithMessage("Date of token expire must be in the past.")
 			.NotEmpty().WithMessage("Date of token expire cannot be null or empty.");
 
 		RuleFor(x => x.CreatedAt)
-			.Must(BeAValidDate).WithMessage("Date of token create must be in the format dd-MM-yyyy.")
+			//.Must(BeAValidDate).WithMessage("Date of token create must be in the format dd-MM-yyyy.")
 			.NotEmpty().WithMessage("Date of token create cannot be null or empty.");
 
 		RuleFor(x => x.IsRevoked)
-				.NotEmpty().WithMessage("IsRevoked cannot be null or empty.");
+			.NotNull().WithMessage("IsRevoked cannot be null or empty.");
 	}
 
-	private bool BeAValidDate(DateTime dateOfBirth)
-	{
-		return dateOfBirth != default(DateTime);
-	}
+	//private bool BeAValidDate(DateTime dateOfBirth)
+	//{
+	//	return dateOfBirth != default(DateTime);
+	//}
 
-	private bool BeAPastDate(DateTime date)
-	{
-		return date < DateTime.Today;
-	}
+	//private bool BeAPastDate(DateTime date)
+	//{
+	//	return date < DateTime.Today;
+	//}
 }
 
