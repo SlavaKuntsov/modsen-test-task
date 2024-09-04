@@ -20,8 +20,8 @@ public partial class ParticipantConfiguration : IEntityTypeConfiguration<Partici
 		builder.Property(p => p.Password)
 			.IsRequired();
 
-		builder.Property(p => p.Role)
-			.IsRequired();
+		//builder.Property(p => p.Role)
+		//	.IsRequired();
 
 		builder.Property(p => p.FirstName)
 			.HasMaxLength(100)

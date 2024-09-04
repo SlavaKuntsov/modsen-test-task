@@ -33,9 +33,7 @@ public class UsersRepository : IUsersRepository
 		if (participantEntitiy == null)
 			return null;
 
-		var model = _mapper.Map<ParticipantModel>(participantEntitiy);
-
-		return model;
+		return _mapper.Map<ParticipantModel>(participantEntitiy);
 	}
 
 	public async Task<ParticipantModel?> Get(string email)
@@ -48,9 +46,7 @@ public class UsersRepository : IUsersRepository
 		if (participantEntitiy == null)
 			return null;
 
-		var model = _mapper.Map<ParticipantModel>(participantEntitiy);
-
-		return model;
+		return _mapper.Map<ParticipantModel>(participantEntitiy);
 	}
 
 	public async Task<ParticipantModel?> Get(string email, string password)
@@ -63,9 +59,7 @@ public class UsersRepository : IUsersRepository
 		if (participantEntitiy == null)
 			return null;
 
-		var model = _mapper.Map<ParticipantModel>(participantEntitiy);
-
-		return model;
+		return _mapper.Map<ParticipantModel>(participantEntitiy);
 	}
 
 	public async Task<Result<Guid>> Create(ParticipantModel user, RefreshTokenModel refreshTokenModel)
@@ -116,6 +110,17 @@ public class UsersRepository : IUsersRepository
 		}
 	}
 
+	public async Task<AdminModel> ChangeAdminActivation(Guid id, bool isActive)
+	{
+		var entity = await _context.Admins.FindAsync(id);
+
+		entity!.IsActiveAdmin = isActive;
+
+		await _context.SaveChangesAsync();
+
+		return _mapper.Map<AdminModel>(entity);
+	}
+
 	public async Task<RefreshTokenModel?> GetRefreshToken(string refreshToken)
 	{
 		var entity = await _context
@@ -126,9 +131,7 @@ public class UsersRepository : IUsersRepository
 		if (entity == null)
 			return null;
 
-		var model = _mapper.Map<RefreshTokenModel>(entity);
-
-		return model;
+		return _mapper.Map<RefreshTokenModel>(entity);
 	}
 
 	// TODO - его логика добавлена в Create метод выше

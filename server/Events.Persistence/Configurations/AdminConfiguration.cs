@@ -19,8 +19,8 @@ public partial class AdminConfiguration : IEntityTypeConfiguration<AdminEntity>
 		builder.Property(a => a.Password)
 			.IsRequired(); // Обязательное поле
 
-		builder.Property(a => a.Role)
-			.IsRequired(); // Обязательное поле
+		//builder.Property(a => a.Role)
+		//	.IsRequired(); // Обязательное поле
 
 		builder.Property(a => a.IsActiveAdmin)
 			.IsRequired(); // Обязательное поле

@@ -11,7 +11,7 @@ public class AdminEntity : IUser
 	
 	public string Password { get; set; } = string.Empty; // пароль
 	
-	public Role Role { get; set; } // роль
+	//public Role Role { get; set; } // роль
 	
 	public bool IsActiveAdmin { get; set; } = false; // активный администратор
 

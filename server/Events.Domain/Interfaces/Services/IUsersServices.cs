@@ -14,6 +14,8 @@ public interface IUsersServices
 
 	public Task<Result<AuthResultModel>> AdminRegistration(string email, string password, Role role);
 
+	public Task<Result<AdminModel>> ChangeAdminActivation(Guid id, bool isActive);
+
 	public Task<Result<AuthResultModel>> RefreshToken(string refreshToken);
 
 	public Task<Result<ParticipantModel>> GetOrAuthorize(Guid id);

@@ -11,6 +11,6 @@ public class AdminModelValidation : AbstractValidator<AdminModel>
 		Include(new UserModelValidator());
 
 		RuleFor(x => x.IsActiveAdmin)
-			.NotEmpty().WithMessage("IsActiveAdmin cannot be null or empty.");
+			.NotNull().WithMessage("IsActiveAdmin cannot be null or empty.");
 	}
 }

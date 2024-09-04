@@ -31,6 +31,8 @@ public class GetUserResponse
 		}
 	}
 
+	public string AccessToken { get; set; }
+
 	//private DateTime _eventRegistrationDate;
 
 	//public string EventRegistrationDate

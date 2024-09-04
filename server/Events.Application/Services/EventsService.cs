@@ -33,9 +33,29 @@ public class EventsService : IEventsServices
 		return existEvent;
 	}
 
-	public async Task<Result<IList<EventModel>>> Get(string title)
+	public async Task<Result<IList<EventModel>>> GetByTitle(string title)
 	{
-		var existEvents = await _eventsRepository.Get(title);
+		var existEvents = await _eventsRepository.GetByTitle(title);
+
+		if (existEvents == null)
+			return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
+
+		return Result.Success(existEvents);
+	}
+
+	public async Task<Result<IList<EventModel>>> GetByLocation(string location)
+	{
+		var existEvents = await _eventsRepository.GetByLocation(location);
+
+		if (existEvents == null)
+			return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
+
+		return Result.Success(existEvents);
+	}
+
+	public async Task<Result<IList<EventModel>>> GetByCategory(string category)
+	{
+		var existEvents = await _eventsRepository.GetByCategory(category);
 
 		if (existEvents == null)
 			return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");

@@ -9,7 +9,9 @@ public interface IEventsServices
 {
 	public Task<IList<EventModel>> Get();
 	public Task<Result<EventModel>> Get(Guid id);
-	public Task<Result<IList<EventModel>>> Get(string title);
+	public Task<Result<IList<EventModel>>> GetByTitle(string title);
+	public Task<Result<IList<EventModel>>> GetByLocation(string title);
+	public Task<Result<IList<EventModel>>> GetByCategory(string title);
 	public Task<Result<IList<ParticipantModel>>> GetEventParticipants(Guid eventId);
 
 	public Task<Result<Guid>> Create(string title, string description, string eventDateTime, string location, string category, int maxParticipants, string imageUrl);

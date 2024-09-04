@@ -11,7 +11,7 @@ public class ParticipantEntity : IUser
 
 	public string Password { get; set; } = string.Empty; // пароль
 
-	public Role Role { get; set; } // роль
+	//public Role Role { get; set; } // роль
 
 	public string FirstName { get; set; } = string.Empty; // имя
 

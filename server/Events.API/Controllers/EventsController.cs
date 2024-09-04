@@ -36,16 +36,47 @@ public class EventsController : BaseController
 	{
 		var eventModel = await _eventsServices.Get(id);
 
+		if (eventModel.IsFailure)
+			return BadRequest(eventModel.Error);
+
 		var response = _mapper.Map<GetEventResponse>(eventModel.Value);
 
 		return Ok(response);
 	}
 
-	[HttpGet(nameof(GetEvent) + "/{title}")]
+	[HttpGet(nameof(GetEventByTitle) + "/{title}")]
 	//[Authorize(Policy = "UserOrAdmin")]
-	public async Task<IActionResult> GetEvent(string title)
+	public async Task<IActionResult> GetEventByTitle(string title)
 	{
-		var eventModel = await _eventsServices.Get(title);
+		var eventModel = await _eventsServices.GetByTitle(title);
+
+		if (eventModel.IsFailure)
+			return BadRequest(eventModel.Error);
+
+		var response = _mapper.Map<IList<GetEventResponse>>(eventModel.Value);
+
+		return Ok(response);
+	}
+
+	[HttpGet(nameof(GetEventsByLocation) + "/{location}")]
+	//[Authorize(Policy = "UserOrAdmin")]
+	public async Task<IActionResult> GetEventsByLocation(string location)
+	{
+		var eventModel = await _eventsServices.GetByLocation(location);
+
+		if (eventModel.IsFailure)
+			return BadRequest(eventModel.Error);
+
+		var response = _mapper.Map<IList<GetEventResponse>>(eventModel.Value);
+
+		return Ok(response);
+	}
+
+	[HttpGet(nameof(GetEventsByCategory) + "/{category}")]
+	//[Authorize(Policy = "UserOrAdmin")]
+	public async Task<IActionResult> GetEventsByCategory(string category)
+	{
+		var eventModel = await _eventsServices.GetByCategory(category);
 
 		if (eventModel.IsFailure)
 			return BadRequest(eventModel.Error);
@@ -62,7 +93,7 @@ public class EventsController : BaseController
 		var users = await _eventsServices.GetEventParticipants(id);
 
 		if (users.IsFailure)
-			return Unauthorized(users.Error);
+			return BadRequest(users.Error);
 
 		var response = _mapper.Map<IList<GetUserResponse>>(users.Value);
 

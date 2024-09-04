@@ -122,6 +122,16 @@ public class UsersService : IUsersServices
 		};
 	}
 
+	public async Task<Result<AdminModel>> ChangeAdminActivation(Guid id, bool isActive)
+	{
+		var existUser = await _usersRepository.Get(id);
+
+		if (existUser == null)
+			return Result.Failure<AdminModel>("User with this id doesn't exists");
+
+		return await _usersRepository.ChangeAdminActivation(id, isActive);
+	}
+
 	public async Task<Result<AuthResultModel>> RefreshToken(string refreshToken)
 	{
 		// TODO - как варинат достать из токена, из Claims, айди что там находит

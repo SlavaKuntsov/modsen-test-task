@@ -17,7 +17,7 @@ public interface IUsersRepository
 
 	public Task<RefreshTokenModel?> GetRefreshToken(string refreshToken);
 
-	//public Task SaveRefreshToken(RefreshTokenModel refreshToken);
+	public Task<AdminModel> ChangeAdminActivation(Guid id, bool isActive);
 
 	public Task UpdateRefreshToken(Guid userId, Role role, RefreshTokenModel newRefreshToken);
 

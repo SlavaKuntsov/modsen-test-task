@@ -28,9 +28,7 @@ public class EventsRepository : IEventsRepository
 			.AsNoTracking()
 			.ToListAsync();
 
-		var eventsModels = _mapper.Map<IList<EventModel>>(eventsEntities);
-
-		return eventsModels;
+		return _mapper.Map<IList<EventModel>>(eventsEntities);
 	}
 
 	public async Task<EventModel?> Get(Guid id)
@@ -43,12 +41,10 @@ public class EventsRepository : IEventsRepository
 		if (eventEntitiy == null)
 			return null;
 
-		var model = _mapper.Map<EventModel>(eventEntitiy);
-
-		return model;
+		return _mapper.Map<EventModel>(eventEntitiy);
 	}
 
-	public async Task<IList<EventModel>?> Get(string title)
+	public async Task<IList<EventModel>?> GetByTitle(string title)
 	{
 		var eventEntities = await _context
 			.Events
@@ -59,9 +55,35 @@ public class EventsRepository : IEventsRepository
 		if (eventEntities == null || eventEntities.Count == 0)
 			return null;
 
-		var models = _mapper.Map<IList<EventModel>>(eventEntities);
+		return _mapper.Map<IList<EventModel>>(eventEntities);
+	}
 
-		return models;
+	public async Task<IList<EventModel>?> GetByLocation(string location)
+	{
+		var eventEntities = await _context
+			.Events
+			.AsNoTracking()
+			.Where(p => p.Location == location)
+			.ToListAsync();
+
+		if (eventEntities == null || eventEntities.Count == 0)
+			return null;
+
+		return _mapper.Map<IList<EventModel>>(eventEntities);
+	}
+
+	public async Task<IList<EventModel>?> GetByCategory(string category)
+	{
+		var eventEntities = await _context
+			.Events
+			.AsNoTracking()
+			.Where(p => p.Category == category)
+			.ToListAsync();
+
+		if (eventEntities == null || eventEntities.Count == 0)
+			return null;
+
+		return _mapper.Map<IList<EventModel>>(eventEntities);
 	}
 
 	//public async Task<EventModel?> Get<T>(T value, Func<EventModel, bool> predicate)

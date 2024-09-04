@@ -1,4 +1,5 @@
 ﻿using Events.API.Contracts.Users;
+using Events.Application.Services;
 using Events.Domain.Enums;
 using Events.Domain.Interfaces.Services;
 
@@ -20,7 +21,7 @@ public class UsersController : BaseController
 		_mapper = mapper;
 	}
 
-	[HttpPost($"{nameof(Login)}")]
+	[HttpPost(nameof(Login))]
 	public async Task<IActionResult> Login([FromBody] CreateLoginRequest request)
 	{
 		var authResult  = await _usersServices.Login(request.Email, request.Password);
@@ -35,7 +36,7 @@ public class UsersController : BaseController
 		return Ok(result);
 	}
 
-	[HttpPost($"{nameof(ParticipantRegistration)}")]
+	[HttpPost(nameof(ParticipantRegistration))]
 	public async Task<IActionResult> ParticipantRegistration([FromBody] CreateParticipantRequest request)
 	{
 		if (!Enum.TryParse<Role>(request.Role, out var role))
@@ -56,7 +57,7 @@ public class UsersController : BaseController
 		return Ok(result);
 	}
 
-	[HttpPost($"{nameof(AdminRegistration)}")]
+	[HttpPost(nameof(AdminRegistration))]
 	public async Task<IActionResult> AdminRegistration([FromBody] CreateAdminRequest request)
 	{
 		if (!Enum.TryParse<Role>(request.Role, out var role))
@@ -77,7 +78,35 @@ public class UsersController : BaseController
 		return Ok(result);
 	}
 
-	[HttpPost($"{nameof(RefreshToken)}")]
+	[HttpGet(nameof(AdminActivation) + "/{id:Guid}")]
+	[Authorize(Policy = "AdminOnly")]
+	public async Task<IActionResult> AdminActivation(Guid id)
+	{
+		var model = await _usersServices.ChangeAdminActivation(id, true);
+
+		if (model.IsFailure)
+			return BadRequest(model.Error);
+
+		var result = _mapper.Map<GetAuthResultResponse>(model.Value);
+
+		return Ok(result);
+	}
+
+	[HttpGet(nameof(AdminActivation) + "/{id:Guid}")]
+	[Authorize(Policy = "AdminOnly")]
+	public async Task<IActionResult> AdminDeactivation(Guid id)
+	{
+		var model = await _usersServices.ChangeAdminActivation(id, false);
+
+		if (model.IsFailure)
+			return BadRequest(model.Error);
+
+		var result = _mapper.Map<GetAuthResultResponse>(model.Value);
+
+		return Ok(result);
+	}
+
+	[HttpPost(nameof(RefreshToken))]
 	public async Task<IActionResult> RefreshToken()
 	{
 		string? refreshToken = HttpContext.Request.Cookies[ApiExtensions.COOKIE_NAME];
@@ -97,7 +126,7 @@ public class UsersController : BaseController
 		return Ok(result);
 	}
 
-	[HttpGet($"{nameof(Authorize)}")]
+	[HttpGet(nameof(Authorize))]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> Authorize()
 	{
@@ -118,8 +147,8 @@ public class UsersController : BaseController
 		return Ok(response);
 	}
 
-	[HttpGet($"{nameof(Unauthorize)}")]
-	[Authorize(Policy = "UserOrAdmin")]
+	[HttpGet(nameof(Unauthorize))]
+	//[Authorize(Policy = "UserOrAdmin")]
 	public IActionResult Unauthorize()
 	{
 		HttpContext.Response.Cookies.Delete(ApiExtensions.COOKIE_NAME);
