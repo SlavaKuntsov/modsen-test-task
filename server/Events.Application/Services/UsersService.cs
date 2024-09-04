@@ -15,12 +15,14 @@ namespace Events.Application.Services;
 public class UsersService : IUsersServices
 {
 	private readonly IUsersRepository _usersRepository;
+	private readonly ITokensRepository _tokensRepository;
 	private readonly IMapper _mapper;
 	private readonly IPasswordHash _passwordHash;
 	private readonly IJwt _jwt;
 
 	public UsersService(
 		IUsersRepository usersRepository,
+		ITokensRepository tokensRepository,
 		IMapper mapper,
 		IPasswordHash passwordHash,
 		IJwt jwt)
@@ -53,7 +55,7 @@ public class UsersService : IUsersServices
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
 
-		await _usersRepository.UpdateRefreshToken(user.Id, user.Role, refreshTokenModel.Value);
+		await _tokensRepository.UpdateRefreshToken(user.Id, user.Role, refreshTokenModel.Value);
 
 		return new AuthResultModel
 		{
@@ -153,7 +155,7 @@ public class UsersService : IUsersServices
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
 
-		await _usersRepository.UpdateRefreshToken(user.Id, user.Role, refreshTokenModel.Value);
+		await _tokensRepository.UpdateRefreshToken(user.Id, user.Role, refreshTokenModel.Value);
 
 		return new AuthResultModel
 		{

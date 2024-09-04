@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-public class GetUserResponse
+public class GetParticipantResponse
 {
 	public Guid Id { get; set; }
 

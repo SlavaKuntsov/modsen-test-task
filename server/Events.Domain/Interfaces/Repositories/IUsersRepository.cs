@@ -1,6 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
 
-using Events.Domain.Enums;
 using Events.Domain.Models;
 using Events.Domain.Models.Users;
 
@@ -15,11 +14,5 @@ public interface IUsersRepository
 	public Task<Result<Guid>> Create(ParticipantModel user, RefreshTokenModel refreshTokenModel);
 	public Task<Result<Guid>> Create(AdminModel user, RefreshTokenModel refreshTokenModel);
 
-	public Task<RefreshTokenModel?> GetRefreshToken(string refreshToken);
-
 	public Task<AdminModel> ChangeAdminActivation(Guid id, bool isActive);
-
-	public Task UpdateRefreshToken(Guid userId, Role role, RefreshTokenModel newRefreshToken);
-
-	public Task DeleteRefreshToken(string refreshToken);
 }

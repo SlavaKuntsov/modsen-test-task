@@ -1,4 +1,5 @@
-﻿using Events.API.Contracts.Users;
+﻿using Events.API.Contracts.Participants;
+using Events.API.Contracts.Users;
 using Events.Application.Services;
 using Events.Domain.Enums;
 using Events.Domain.Interfaces.Services;
@@ -92,7 +93,7 @@ public class UsersController : BaseController
 		return Ok(result);
 	}
 
-	[HttpGet(nameof(AdminActivation) + "/{id:Guid}")]
+	[HttpGet(nameof(AdminDeactivation) + "/{id:Guid}")]
 	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> AdminDeactivation(Guid id)
 	{
@@ -142,7 +143,7 @@ public class UsersController : BaseController
 		if (user.IsFailure)
 			return Unauthorized(user.Error);
 
-		var response = _mapper.Map<GetUserResponse>(user.Value);
+		var response = _mapper.Map<GetParticipantResponse>(user.Value);
 
 		return Ok(response);
 	}
@@ -165,7 +166,7 @@ public class UsersController : BaseController
 		if (user.IsFailure)
 			return Unauthorized(user.Error);
 
-		var response = _mapper.Map<GetUserResponse>(user.Value);
+		var response = _mapper.Map<GetParticipantResponse>(user.Value);
 
 		return Ok(response);
 	}

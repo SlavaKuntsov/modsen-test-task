@@ -15,12 +15,12 @@ namespace Events.Infrastructure.Auth;
 public class Jwt : IJwt
 {
 	private readonly JwtModel _jwtOptions;
-	private readonly IUsersRepository _usersRepository;
+	private readonly ITokensRepository _tokensRepository;
 
-	public Jwt(IOptions<JwtModel> jwtOptions, IUsersRepository usersRepository)
+	public Jwt(IOptions<JwtModel> jwtOptions, ITokensRepository tokensRepository)
 	{
 		_jwtOptions = jwtOptions.Value;
-		_usersRepository = usersRepository;
+		_tokensRepository = tokensRepository;
 	}
 
 	public string GenerateAccessToken(Guid id, Role role)
@@ -53,7 +53,7 @@ public class Jwt : IJwt
 
 	public async Task<Guid> ValidateRefreshToken(string refreshToken)
 	{
-		var storedToken = await _usersRepository.GetRefreshToken(refreshToken);
+		var storedToken = await _tokensRepository.GetRefreshToken(refreshToken);
 
 		if (storedToken == null || storedToken.IsRevoked || storedToken.ExpiresAt < DateTime.UtcNow)
 			return Guid.Empty;

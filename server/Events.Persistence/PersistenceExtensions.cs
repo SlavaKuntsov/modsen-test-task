@@ -20,6 +20,7 @@ public static class PersistenceExtensions
 
 		services.AddScoped<IEventsRepository, EventsRepository>();
 		services.AddScoped<IUsersRepository, UsersRepository>();
+		services.AddScoped<ITokensRepository, TokensRepository>();
 		services.AddScoped<IEventsParticipantsRepository, EventsParticipantsRepository>();
 
 		return services;

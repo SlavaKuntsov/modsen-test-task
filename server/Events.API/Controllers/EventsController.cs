@@ -95,7 +95,7 @@ public class EventsController : BaseController
 		if (users.IsFailure)
 			return BadRequest(users.Error);
 
-		var response = _mapper.Map<IList<GetUserResponse>>(users.Value);
+		var response = _mapper.Map<IList<GetParticipantResponse>>(users.Value);
 
 		return Ok(response);
 	}

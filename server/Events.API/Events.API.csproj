@@ -34,8 +34,4 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Contracts\Participants\" />
-  </ItemGroup>
-
 </Project>
