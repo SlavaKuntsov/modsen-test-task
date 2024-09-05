@@ -20,10 +20,9 @@ public class EventsController : BaseController
 	}
 
 	[HttpGet($"{nameof(GetEvents)}")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEvents()
 	{
-
 		var events = await _eventsServices.Get();
 		var response = _mapper.Map<IList<GetEventResponse>>(events);
 

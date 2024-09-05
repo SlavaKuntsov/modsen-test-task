@@ -1,6 +1,8 @@
-﻿using Events.API.Contracts.Participants;
+﻿using System.Security.Claims;
+
+using Events.API.Contracts.Participants;
 using Events.API.Contracts.Users;
-using Events.Application.Services;
+using Events.Application.Auth;
 using Events.Domain.Enums;
 using Events.Domain.Interfaces.Services;
 
@@ -62,10 +64,11 @@ public class UsersController : BaseController
 	public async Task<IActionResult> AdminRegistration([FromBody] CreateAdminRequest request)
 	{
 		if (!Enum.TryParse<Role>(request.Role, out var role))
+			//throw new BadHttpRequestException("Such role does not exist");
 			return BadRequest("Such role does not exist");
 
 		if (role != Role.Admin)
-			return (BadRequest("Role does not equal the necessary one"));
+			return BadRequest("Role does not equal the necessary one");
 
 		var authResult = await _usersServices.AdminRegistration(request.Email, request.Password, role);
 
@@ -131,21 +134,23 @@ public class UsersController : BaseController
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> Authorize()
 	{
-		var userIdClaim = User.FindFirst("Id");
+		var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+		//var userRoleClaim = User.FindFirst(ClaimTypes.Role);
 
 		if (userIdClaim == null)
 			return Unauthorized("User ID not found in claims.");
 
 		Guid userId = Guid.Parse(userIdClaim.Value);
 
-		var user = await _usersServices.GetOrAuthorize(userId);
+		var participant = await _usersServices.GetOrAuthorize(userId);
+		var admin = await _usersServices.GetOrAuthorizeAdmin(userId);
 
-		if (user.IsFailure)
-			return Unauthorized(user.Error);
-
-		var response = _mapper.Map<GetParticipantResponse>(user.Value);
-
-		return Ok(response);
+		if (participant.IsSuccess)
+			return Ok(_mapper.Map<GetParticipantResponse>(participant.Value));
+		if (admin.IsSuccess)
+			return Ok(_mapper.Map<GetParticipantResponse>(admin.Value));
+		else
+			return BadRequest(participant.Error);
 	}
 
 	[HttpGet(nameof(Unauthorize))]

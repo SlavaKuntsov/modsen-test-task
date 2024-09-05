@@ -6,7 +6,7 @@ public class GetParticipantResponse
 
 	public string Email { get; set; }
 
-	//public string Role { get; set; }
+	public string Role { get; set; }
 
 	public string FirstName { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -25,10 +26,12 @@ public class Jwt : IJwt
 
 	public string GenerateAccessToken(Guid id, Role role)
 	{
+		Debug.WriteLine("-------------------" + EnumExtensions.GetDescription(role));
+
 		var claims = new[]
 		{
-			new Claim("Id", id.ToString()),
-			new Claim(ClaimTypes.Role, role.ToString())
+			new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+			new Claim(ClaimTypes.Role, EnumExtensions.GetDescription(role))
 		};
 
 		var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));

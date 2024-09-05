@@ -10,9 +10,9 @@ public class AdminEntity : IUser
 	public string Email { get; set; } = string.Empty; // почта
 	
 	public string Password { get; set; } = string.Empty; // пароль
-	
-	//public Role Role { get; set; } // роль
-	
+
+	public Role Role { get; set; } // роль
+
 	public bool IsActiveAdmin { get; set; } = false; // активный администратор
 
 	public RefreshTokenEntity RefreshToken { get; set; } 

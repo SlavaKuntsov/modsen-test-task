@@ -19,4 +19,5 @@ public interface IUsersServices
 	public Task<Result<AuthResultModel>> RefreshToken(string refreshToken);
 
 	public Task<Result<ParticipantModel>> GetOrAuthorize(Guid id);
+	public Task<Result<AdminModel>> GetOrAuthorizeAdmin(Guid id);
 }

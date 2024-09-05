@@ -35,6 +35,19 @@ public class UsersRepository : IUsersRepository
 		return _mapper.Map<ParticipantModel>(participantEntitiy);
 	}
 
+	public async Task<AdminModel?> GetAdmin(Guid id)
+	{
+		var participantEntitiy = await _context
+			.Admins
+			.AsNoTracking()
+			.FirstOrDefaultAsync(p => p.Id == id);
+
+		if (participantEntitiy == null)
+			return null;
+
+		return _mapper.Map<AdminModel>(participantEntitiy);
+	}
+
 	public async Task<ParticipantModel?> Get(string email)
 	{
 		var participantEntitiy = await _context
@@ -46,6 +59,19 @@ public class UsersRepository : IUsersRepository
 			return null;
 
 		return _mapper.Map<ParticipantModel>(participantEntitiy);
+	}
+
+	public async Task<AdminModel?> GetAdmin(string email)
+	{
+		var participantEntitiy = await _context
+			.Admins
+			.AsNoTracking()
+			.FirstOrDefaultAsync(p => p.Email == email);
+
+		if (participantEntitiy == null)
+			return null;
+
+		return _mapper.Map<AdminModel>(participantEntitiy);
 	}
 
 	public async Task<ParticipantModel?> Get(string email, string password)

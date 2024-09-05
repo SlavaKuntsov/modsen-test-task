@@ -28,6 +28,7 @@ public class UsersService : IUsersServices
 		IJwt jwt)
 	{
 		_usersRepository = usersRepository;
+		_tokensRepository = tokensRepository;
 		_mapper = mapper;
 		_passwordHash = passwordHash;
 		_jwt = jwt;
@@ -36,6 +37,64 @@ public class UsersService : IUsersServices
 	public async Task<Result<AuthResultModel>> Login(string email, string password)
 	{
 		var existUser = await _usersRepository.Get(email);
+		var existAdmin = await _usersRepository.GetAdmin(email);
+
+		//if (existUser == null && existAdmin == null)
+		//	return Result.Failure<AuthResultModel>("User with this email doesn't exists");
+
+		if (existUser != null)
+		{
+			var isCorrectPassword = _passwordHash.Verify(password, existUser.Password);
+
+			if (!isCorrectPassword)
+				return Result.Failure<AuthResultModel>("Incorrect password");
+
+			string accessToken = _jwt.GenerateAccessToken(existUser.Id, existUser.Role);
+			string refreshToken = _jwt.GenerateRefreshToken();
+
+			var refreshTokenModel = RefreshTokenModel.Create(existUser.Id, existUser.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+
+			if (refreshTokenModel.IsFailure)
+				return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
+
+			await _tokensRepository.UpdateRefreshToken(existUser.Id, existUser.Role, refreshTokenModel.Value);
+
+			return new AuthResultModel
+			{
+				AccessToken = accessToken,
+				RefreshToken = refreshToken,
+			};
+		}
+		if (existAdmin != null)
+		{
+			var isCorrectPassword = _passwordHash.Verify(password, existAdmin.Password);
+
+			if (!isCorrectPassword)
+				return Result.Failure<AuthResultModel>("Incorrect password");
+
+			string accessToken = _jwt.GenerateAccessToken(existAdmin.Id, existAdmin.Role);
+			string refreshToken = _jwt.GenerateRefreshToken();
+
+			var refreshTokenModel = RefreshTokenModel.Create(existAdmin.Id, existAdmin.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+
+			if (refreshTokenModel.IsFailure)
+				return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
+
+			await _tokensRepository.UpdateRefreshToken(existAdmin.Id, existAdmin.Role, refreshTokenModel.Value);
+
+			return new AuthResultModel
+			{
+				AccessToken = accessToken,
+				RefreshToken = refreshToken,
+			};
+		}
+		return Result.Failure<AuthResultModel>("User with this email doesn't exists");
+
+	}
+
+	public async Task<Result<AuthResultModel>> LoginAdmin(string email, string password)
+	{
+		var existUser = await _usersRepository.GetAdmin(email);
 
 		if (existUser == null)
 			return Result.Failure<AuthResultModel>("User with this email doesn't exists");
@@ -45,17 +104,15 @@ public class UsersService : IUsersServices
 		if (!isCorrectPassword)
 			return Result.Failure<AuthResultModel>("Incorrect password");
 
-		var user = _mapper.Map<ParticipantModel>(existUser);
-
-		string accessToken = _jwt.GenerateAccessToken(user.Id, user.Role);
+		string accessToken = _jwt.GenerateAccessToken(existUser.Id, existUser.Role);
 		string refreshToken = _jwt.GenerateRefreshToken();
 
-		var refreshTokenModel = RefreshTokenModel.Create(user.Id, user.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+		var refreshTokenModel = RefreshTokenModel.Create(existUser.Id, existUser.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());
 
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
 
-		await _tokensRepository.UpdateRefreshToken(user.Id, user.Role, refreshTokenModel.Value);
+		await _tokensRepository.UpdateRefreshToken(existUser.Id, existUser.Role, refreshTokenModel.Value);
 
 		return new AuthResultModel
 		{
@@ -66,12 +123,14 @@ public class UsersService : IUsersServices
 
 	public async Task<Result<AuthResultModel>> ParticipantRegistration(string email, string password, Role role, string firstName, string lastName, string dateOfBirth)
 	{
-		var existUser = await _usersRepository.Get(email);
+		var existParticipant = await _usersRepository.Get(email);
+		var existAdmin = await _usersRepository.GetAdmin(email);
 
-		if (existUser != null)
+		if (existParticipant != null || existAdmin != null)
 			return Result.Failure<AuthResultModel>("User with this email already exists");
 
 		var user = ParticipantModel.Create(Guid.NewGuid(), email, _passwordHash.Generate(password), role, firstName, lastName, dateOfBirth);
+
 		if (user.IsFailure)
 			return Result.Failure<AuthResultModel>(user.Error);
 
@@ -97,10 +156,14 @@ public class UsersService : IUsersServices
 
 	public async Task<Result<AuthResultModel>> AdminRegistration(string email, string password, Role role)
 	{
-		var existUser = await _usersRepository.Get(email);
+		var existParticipant = await _usersRepository.Get(email);
+		var existAdmin = await _usersRepository.GetAdmin(email);
 
-		if (existUser != null)
+		if (existParticipant != null || existAdmin != null)
 			return Result.Failure<AuthResultModel>("User with this email already exists");
+
+		if (existAdmin != null)
+			return Result.Failure<AuthResultModel>("Admin with this email already exists");
 
 		var user = AdminModel.Create(Guid.NewGuid(), email, _passwordHash.Generate(password), role);
 
@@ -170,6 +233,16 @@ public class UsersService : IUsersServices
 
 		if (user == null)
 			return Result.Failure<ParticipantModel>("User not found");
+
+		return user;
+	}
+
+	public async Task<Result<AdminModel>> GetOrAuthorizeAdmin(Guid id)
+	{
+		var user = await _usersRepository.GetAdmin(id);
+
+		if (user == null)
+			return Result.Failure<AdminModel>("User not found");
 
 		return user;
 	}
