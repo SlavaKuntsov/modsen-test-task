@@ -8,6 +8,12 @@ export interface IUser {
 	role?: string;
 }
 
+export enum IUserRole {
+	Admin = 'Admin',
+	User = 'User',
+	All = 'All',
+}
+
 export interface IEvent {
 	id: string;
 	title: string;
@@ -34,4 +40,5 @@ export type StatusType = 'success' | 'error' | 'warning' | 'info';
 export interface IRoute {
 	name: string;
 	path: string;
+	role: IUserRole
 }

@@ -1,39 +1,39 @@
 import { observer } from 'mobx-react-lite';
 import { useLayoutEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { AuthGuard, UnAuthGuard } from './components/Routes/Guards';
+import Loader from './components/Loader';
+import {
+	AuthGuard,
+	AuthRoleGuard,
+	UnAuthGuard,
+} from './components/Routes/Guards';
 import Layout from './layouts/Layout';
 import LayoutContainer from './layouts/LayoutContainer';
 import Login from './pages/Auth/Login';
 import Registration from './pages/Auth/Registration';
+import Admin from './pages/Main/Admin';
 import Home from './pages/Main/Home';
 import Participant from './pages/Main/Participant';
 import NotFoundPage from './pages/NotFoundPage';
 import { checkAccessToken } from './utils/api/authApi';
 import { userStore } from './utils/store/userStore';
+import { IUserRole } from './utils/types';
 
 const App = observer(() => {
-	// const navigate = useNavigate();
-
 	const { user, setUser, isAuth, setAuth, isAuth2, setAuth2 } = userStore;
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useLayoutEffect(() => {
 		const fetchUserData = async () => {
-			// Проверяем, авторизован ли пользователь
-			console.log('isAuth: ', isAuth);
 			if (!isAuth2) {
 				const userData = await checkAccessToken();
-				console.log('userData: ', userData);
 				if (userData) {
 					setUser(userData);
 					setAuth2(true);
-				} else if (userData == null) {
+				} else {
 					setAuth2(false);
 					setAuth(false);
 				}
-			} else {
-				console.log('to /main');
 			}
 			setIsLoading(false);
 		};
@@ -42,8 +42,9 @@ const App = observer(() => {
 	}, [isAuth, setAuth, isAuth2, setAuth2]);
 
 	if (isLoading) {
-		return <h1>Загрузка...</h1>; // Отображаем загрузку пока проверяем аутентификацию
+		return <Loader size='large' />;
 	}
+
 	return (
 		<Routes>
 			<Route
@@ -54,16 +55,39 @@ const App = observer(() => {
 					</Layout>
 				}
 			>
+				{/* Домашняя страница */}
 				<Route
 					index
 					path='/'
 					element={<AuthGuard user={user} component={<Home />} />}
 				/>
+
+				{/* Страница для участников */}
 				<Route
 					path='/participant'
-					element={<AuthGuard user={user} component={<Participant />} />}
+					element={
+						<AuthRoleGuard
+							user={user}
+							role={IUserRole.User}
+							component={<Participant />}
+						/>
+					}
+				/>
+
+				{/* Страница для администраторов */}
+				<Route
+					path='/admin'
+					element={
+						<AuthRoleGuard
+							user={user}
+							role={IUserRole.Admin}
+							component={<Admin />}
+						/>
+					}
 				/>
 			</Route>
+
+			{/* Авторизация */}
 			<Route
 				path='/auth'
 				element={
@@ -81,6 +105,8 @@ const App = observer(() => {
 					element={<UnAuthGuard user={user} component={<Registration />} />}
 				/>
 			</Route>
+
+			{/* Страница не найдена */}
 			<Route path='*' element={<NotFoundPage />} />
 		</Routes>
 	);

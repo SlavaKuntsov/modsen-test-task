@@ -1,27 +1,28 @@
+import { HTTPError } from 'ky'; // Убедитесь, что HTTPError импортирован
 import kyCore from '../core/kyCore';
 import { IAuthResult, IUser } from '../types';
 
 export const login = async (userData: IUser): Promise<boolean | string> => {
+	console.log('login')
 	try {
-		const response = await kyCore.post('Users/Login', {
+		const response = kyCore.post('Users/Login', {
 			json: userData,
 			credentials: 'include',
 		});
-
-		if (!response.ok) {
-			const errorResponse = await response.json();
-			console.error('Login failed:', errorResponse);
-			// return errorResponse; // Возвращаем текст ошибки
-		}
 
 		const responseData = await response.json<IAuthResult>();
 		localStorage.setItem('accessToken', responseData.accessToken);
 
 		return true;
-	} catch (error) {
-		console.error('Failed to login:', error);
-		console.log(error);
-		return 'Incorrect password';
+	} catch (error: unknown) {
+		if (error instanceof HTTPError && error.response) {
+			const errorMessage = await error.response.text();
+			console.error('Failed to reg admin:', errorMessage);
+			return errorMessage;
+		}
+
+		console.error('Unexpected error:', error);
+		return 'An unexpected error occurred';
 	}
 };
 
@@ -38,9 +39,15 @@ export const registration = async (
 		localStorage.setItem('accessToken', response.accessToken);
 
 		return true;
-	} catch (error) {
-		console.error('Failed to login:', error);
-		return 'User with this email already exists';
+	} catch (error: unknown) {
+		if (error instanceof HTTPError && error.response) {
+			const errorMessage = await error.response.text();
+			console.error('Failed to reg admin:', errorMessage);
+			return errorMessage;
+		}
+
+		console.error('Unexpected error:', error);
+		return 'An unexpected error occurred';
 	}
 };
 

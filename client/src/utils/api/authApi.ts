@@ -1,9 +1,11 @@
+import { HTTPError } from 'ky';
 import kyCore from '../core/kyCore';
 import { getAccessToken, getRefreshToken } from '../tokens';
 import { IAuthResult, IUser } from '../types';
 
 export const checkAccessToken = async (): Promise<IUser | null> => {
 	// UseGlobalNavigate();
+	console.log('access token');
 
 	const accessToken = getAccessToken();
 	const refreshToken = getRefreshToken();
@@ -18,14 +20,21 @@ export const checkAccessToken = async (): Promise<IUser | null> => {
 			if (response.ok) {
 				return await response.json<IUser>();
 			}
-		} catch (error) {
-			console.error('Access token invalid, trying to refresh token...');
-			console.error(error);
+		} catch (error: unknown) {
+			// Указываем, что error может быть неизвестного типа
+			if (error instanceof HTTPError && error.response) {
+				// Используем HTTPError
+				const errorMessage = await error.response.text(); // Извлекаем текст ошибки
+				console.error('Failed to reg admin:', errorMessage);
+			}
+
+			console.error('Unexpected error:', error);
 		}
 	}
 
 	// undefined === наличие токена
 	if (refreshToken === undefined) {
+		console.log('refreshing token');
 		return await handleRefreshToken();
 	} else {
 		return null;
@@ -54,6 +63,7 @@ export const handleRefreshToken = async (): Promise<IUser | null> => {
 };
 
 export const unauthorize = async () => {
+	console.log('unauthorize');
 	try {
 		const response = await kyCore.get('Users/Unauthorize', {
 			credentials: 'include',

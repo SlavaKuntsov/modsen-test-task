@@ -4,11 +4,14 @@ import { IEvent } from '../types';
 class EventStore {
 	events: Array<IEvent> | null = null;
 	selectedEvent: string | null = null;
+	searchingEvent: string | null = null;
 
 	constructor() {
 		makeAutoObservable(this, {
 			setEvents: true,
 			setSelectEvent: true,
+			isEventLoading: true,
+			setSearchingEvent: true,
 		});
 	}
 
@@ -16,8 +19,17 @@ class EventStore {
 		this.events = event;
 	};
 
-	setSelectEvent = (id: string) => {
+	setSelectEvent = (id: string | null) => {
 		this.selectedEvent = id;
+	};
+
+	setSearchingEvent = (id: string | null) => {
+		this.searchingEvent = id;
+	};
+
+	resetStore = () => {
+		this.events = null;
+		this.selectedEvent = null;
 	};
 
 	get isEventLoading() {

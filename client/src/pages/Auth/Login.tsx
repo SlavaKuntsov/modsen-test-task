@@ -33,6 +33,8 @@ export default function Login() {
 		try {
 			const result = await login(values);
 
+			console.log('login end')
+
 			if (result === true) {
 				showToast({
 					title: 'Успешно!',

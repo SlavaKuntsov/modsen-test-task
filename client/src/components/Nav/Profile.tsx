@@ -7,12 +7,16 @@ const Profile = observer(() => {
 
 	const { logout, user } = userStore;
 
+	const handleLogout = async () => {
+		await logout();
+	};
+
 	return (
 		<div className='flex items-center gap-4'>
 			{user?.email}
 
 			<button
-				onClick={async () => await logout()}
+				onClick={handleLogout}
 				type='button'
 				className='px-2 py-1 bg-zinc-900 text-zinc-50 self-start'
 			>
