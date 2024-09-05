@@ -2,7 +2,6 @@
 
 using Events.API.Contracts.Participants;
 using Events.API.Contracts.Users;
-using Events.Application.Auth;
 using Events.Domain.Enums;
 using Events.Domain.Interfaces.Services;
 

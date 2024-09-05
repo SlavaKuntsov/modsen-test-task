@@ -38,7 +38,8 @@ public class TokensRepository : ITokensRepository
 	{
 		var entity = _mapper.Map<RefreshTokenEntity>(refreshToken);
 
-		_context.RefreshTokens.Add(entity);
+		await _context.RefreshTokens.AddAsync(entity);
+
 		await _context.SaveChangesAsync();
 	}
 
@@ -60,8 +61,8 @@ public class TokensRepository : ITokensRepository
 		if (existingToken != null)
 		{
 			existingToken.Token = newRefreshToken.Token;
-			existingToken.CreatedAt = DateTime.UtcNow;
-			existingToken.ExpiresAt = DateTime.UtcNow.AddDays(30);
+			existingToken.ExpiresAt = newRefreshToken.ExpiresAt;
+			existingToken.CreatedAt = newRefreshToken.CreatedAt;
 
 			_context.RefreshTokens.Update(existingToken);
 			await _context.SaveChangesAsync();
