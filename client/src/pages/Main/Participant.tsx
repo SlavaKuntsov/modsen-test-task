@@ -1,7 +1,12 @@
-import React from 'react'
+import Events from '../../components/Events/Events';
+import Search from '../../components/Search';
+import { IEventsFetch } from '../../utils/types';
 
 export default function Participant() {
-  return (
-	<div>Participant</div>
-  )
+	return (
+		<>
+			<Search />
+			<Events fetch={IEventsFetch.UserEvents}/>
+		</>
+	);
 }

@@ -1,33 +1,61 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { useEventItem } from '../../hooks/useEventItem';
-import { getEvents } from '../../utils/api/eventsApi';
+import { getEventParticipant, getEvents } from '../../utils/api/eventsApi';
 import { eventStore } from '../../utils/store/eventsStore';
-import { getAccessToken } from '../../utils/tokens';
+import { userStore } from '../../utils/store/userStore';
+import { IEventsFetch } from '../../utils/types';
 import Loader from '../Loader';
 import EventListItem from './EventListItem';
 import SelectedEventItem from './SelectedEventItem';
 
-const Events = observer(() => {
-	const { events, setEvents, isEventLoading, selectedEvent, searchingEvent } =
-		eventStore;
+const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
+	const {
+		events,
+		setEvents,
+		isEventLoading,
+		selectedEvent,
+		searchingEvent,
+		resetStore,
+	} = eventStore;
+	const { user } = userStore;
+	const [prevPage, setPrevPage] = useState<IEventsFetch>(fetch);
 
 	// const [accessToken, setAccessToken] = useState<string | null>('');
 
 	// useEffect(() => {
-		// setAccessToken(getAccessToken());
+	// setAccessToken(getAccessToken());
 	// }, []);
+
+	// setPrevPage(fetch);
 
 	useEffect(() => {
 		const fetchEvents = async () => {
 			console.log('fetchEvents void');
-			if (events) return;
 			const data = await getEvents();
+			console.log('data all: ', data);
 			setEvents(data);
 		};
 
-		fetchEvents();
-	}, [events, setEvents]);
+		const fetchParticipant = async () => {
+			console.log('fetchParticipant void');
+			const data = await getEventParticipant(user?.id);
+			console.log('data participant: ', data);
+			setEvents(data);
+		};
+
+		console.log('prevPage: ', prevPage);
+		console.log('fetch: ', fetch);
+		if (prevPage !== fetch) {
+			resetStore();
+			setPrevPage(fetch);
+		}
+		if (fetch === IEventsFetch.AllEvents) {
+			fetchEvents();
+		} else if (fetch === IEventsFetch.UserEvents) {
+			fetchParticipant();
+		}
+	}, [fetch, user?.id, prevPage, resetStore, setEvents]);
 
 	const { isLoading, eventItem } = useEventItem(selectedEvent);
 
@@ -48,9 +76,15 @@ const Events = observer(() => {
 							})
 						) : (
 							<div className='w-full h-full flex items-center justify-center text-center'>
-								<h3 className='text-lg font-medium '>
-									Событий с таким названием <br /> не найдено...
-								</h3>
+								{fetch === IEventsFetch.UserEvents ? (
+									<h3 className='text-lg font-medium p-2'>
+										Зарегистрированных на Вас событий не найдено...
+									</h3>
+								) : (
+									<h3 className='text-lg font-medium p-2'>
+										Событий с таким названием <br /> не найдено...
+									</h3>
+								)}
 							</div>
 						)
 					) : (
@@ -61,7 +95,7 @@ const Events = observer(() => {
 					{!eventItem ? (
 						<>empty event</>
 					) : !isLoading ? (
-						<SelectedEventItem item={eventItem} />
+						<SelectedEventItem item={eventItem} fetch={fetch} />
 					) : (
 						<Loader size='medium' />
 					)}

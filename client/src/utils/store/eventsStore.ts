@@ -12,10 +12,20 @@ class EventStore {
 			setSelectEvent: true,
 			isEventLoading: true,
 			setSearchingEvent: true,
+			removeEventById: true,
+			resetStore: true,
 		});
 	}
 
 	setEvents = (event: Array<IEvent> | null) => {
+		if (
+			!event ||
+			event.length === 0 ||
+			!event.some(e => e.id === this.selectedEvent)
+		) {
+			this.selectedEvent = null;
+		}
+
 		this.events = event;
 	};
 
@@ -30,6 +40,12 @@ class EventStore {
 	resetStore = () => {
 		this.events = null;
 		this.selectedEvent = null;
+	};
+
+	removeEventById = (id: string) => {
+		if (this.events) {
+			this.events = this.events.filter(event => event.id !== id);
+		}
 	};
 
 	get isEventLoading() {

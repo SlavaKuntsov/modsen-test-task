@@ -1,4 +1,5 @@
 import { observer } from 'mobx-react-lite';
+import { eventStore } from '../../utils/store/eventsStore';
 import { userStore } from '../../utils/store/userStore';
 // import { useUserStore } from '../../utils/store/UserStoreContext';
 
@@ -6,9 +7,11 @@ const Profile = observer(() => {
 	// const userStore = useUserStore();
 
 	const { logout, user } = userStore;
+	const { resetStore } = eventStore;
 
 	const handleLogout = async () => {
 		await logout();
+		resetStore();
 	};
 
 	return (

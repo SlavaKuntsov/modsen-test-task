@@ -1,4 +1,5 @@
 export interface IUser {
+	id?: string | null | undefined;
 	email: string;
 	password: string;
 	passwordConfirmation?: string;
@@ -13,6 +14,13 @@ export enum IUserRole {
 	User = 'User',
 	All = 'All',
 }
+export enum IEventsFetch {
+	AllEvents = 'AllEvents',
+	UserEvents = 'UserEvents',
+	// All = 'All',
+}
+
+// export type IEventsFetch = 'allEvents' | 'UserEvents'
 
 export interface IEvent {
 	id: string;

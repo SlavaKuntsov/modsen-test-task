@@ -1,7 +1,14 @@
-import { Button as BaseButton } from 'antd';
+import { ButtonProps as AntButtonProps, Button as BaseButton } from 'antd';
 import classNames from 'classnames';
+import { FC, ReactNode } from 'react';
 
-const Button = ({ children, className, size, ...props }) => (
+interface ButtonProps extends AntButtonProps {
+	children: ReactNode; 
+	className?: string; 
+	size?: 'small' | 'middle' | 'large';
+}
+
+const Button: FC<ButtonProps> = ({ children, className, size, ...props }) => (
 	<BaseButton
 		{...props}
 		className={classNames(

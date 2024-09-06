@@ -25,8 +25,8 @@ const RegistrationSchema = Yup.object().shape({
 	password: Yup.string()
 		.required('Please Enter your Password')
 		.matches(
-			/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{3,})/,
-			'Must Contain 7 Characters, One Uppercase, One Lowercase, One Number'
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+			'Must Contain 8 Characters, One Uppercase, One Lowercase, One Number'
 		),
 	passwordConfirmation: Yup.string()
 		.required('Please Enter your Confirm Password')

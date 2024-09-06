@@ -11,7 +11,7 @@ export default function Nav() {
 	const routes: Array<IRoute> = [
 		{ name: 'Все события', path: '/', role: IUserRole.All },
 		{ name: 'Мои события', path: '/participant', role: IUserRole.User },
-		{ name: 'Админ панель', path: '/admin', role: IUserRole.Admin },
+		// { name: 'Админ панель', path: '/admin', role: IUserRole.Admin },
 		// name: '', path: '/events'
 	];
 

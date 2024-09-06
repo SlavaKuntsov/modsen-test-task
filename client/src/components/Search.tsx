@@ -17,6 +17,7 @@ export default function Search() {
 	};
 
 	return (
+		<>
 		<Search
 			size='large'
 			placeholder='Поиск событий'
@@ -26,6 +27,7 @@ export default function Search() {
 			// onChange={data => handleSearch(data.target.value)}
 			// enterButton={true}
 			style={{ width: 400 }}
-		/>
+			/>
+			</>
 	);
 }

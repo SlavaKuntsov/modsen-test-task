@@ -23,7 +23,9 @@ export default function LayoutContainer({
 			{!isAuth ? (
 				<>
 					<Nav />
-					<main className='h-full w-full'>{children || <Outlet />}</main>
+					<main className='flex flex-col items-center w-full h-full gap-5'>
+						{children || <Outlet />}
+					</main>
 				</>
 			) : (
 				children || <Outlet />
