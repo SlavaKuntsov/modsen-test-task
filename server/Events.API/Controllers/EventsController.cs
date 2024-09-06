@@ -29,6 +29,16 @@ public class EventsController : BaseController
 		return Ok(response);
 	}
 
+	//[HttpGet(nameof(GetEventsForParticipant) + " /{id: Guid}")]
+	//[Authorize(Policy = "UserOrAdmin")]
+	//public async Task<IActionResult> GetEventsForParticipant(Guid particiapntId)
+	//{
+	//	var events = await _eventsServices.GetByParticipantId(particiapntId);
+	//	var response = _mapper.Map<IList<GetEventResponse>>(events);
+
+	//	return Ok(response);
+	//}
+
 	[HttpGet(nameof(GetEvent) + "/{id:Guid}")]
 	//[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEvent(Guid id)
@@ -39,6 +49,20 @@ public class EventsController : BaseController
 			return BadRequest(eventModel.Error);
 
 		var response = _mapper.Map<GetEventResponse>(eventModel.Value);
+
+		return Ok(response);
+	}
+
+	[HttpGet(nameof(GetEventsByParticipant) + "/{id:Guid}")]
+	//[Authorize(Policy = "UserOrAdmin")]
+	public async Task<IActionResult> GetEventsByParticipant(Guid id)
+	{
+		var eventModel = await _eventsServices.GetByParticipantId(id);
+
+		if (eventModel.IsFailure)
+			return BadRequest(eventModel.Error);
+
+		var response = _mapper.Map<IList<GetEventResponse>>(eventModel.Value);
 
 		return Ok(response);
 	}

@@ -33,6 +33,17 @@ public class EventsService : IEventsServices
 		return existEvent;
 	}
 
+	public async Task<Result<IList<EventModel>>> GetByParticipantId(Guid id)
+	{
+		var existEvents = await _eventsRepository.GetByParticipantId(id);
+
+		if (existEvents == null)
+			//return Result.Failure<IList<EventModel>>("Events for this participant doesn't exists");
+			return Result.Success<IList<EventModel>>([]);
+
+		return Result.Success(existEvents);
+	}
+
 	public async Task<Result<IList<EventModel>>> GetByTitle(string title)
 	{
 		var existEvents = await _eventsRepository.GetByTitle(title);

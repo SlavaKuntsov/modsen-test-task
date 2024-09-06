@@ -44,6 +44,27 @@ public class EventsRepository : IEventsRepository
 		return _mapper.Map<EventModel>(eventEntitiy);
 	}
 
+	public async Task<IList<EventModel>?> GetByParticipantId(Guid id)
+	{
+		var eventEntitiesId = await _context
+		.EventsParticipants
+		.AsNoTracking()
+		.Where(p => p.ParticipantId == id)
+		.Select(p => p.EventId)
+		.ToListAsync();
+
+		if (eventEntitiesId == null || eventEntitiesId.Count == 0)
+			return null;
+
+		var events = await _context
+		.Events
+		.Where(e => eventEntitiesId.Contains(e.Id))
+		.ToListAsync();
+		
+		return _mapper.Map<IList<EventModel>>(events);
+	}
+
+
 	public async Task<IList<EventModel>?> GetByTitle(string title)
 	{
 		var eventEntities = await _context
