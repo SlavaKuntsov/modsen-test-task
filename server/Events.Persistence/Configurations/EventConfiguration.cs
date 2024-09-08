@@ -36,7 +36,8 @@ public partial class EventConfiguration : IEntityTypeConfiguration<EventEntity>
 		builder.Property(e => e.MaxParticipants)
 			.IsRequired();
 
-		builder.Property(e => e.ImageUrl)
+		builder.Property(e => e.Image)
+			.HasColumnType ("bytea")
 			.IsRequired(false);
 
 		// Настройка связи с участниками через EventParticipant

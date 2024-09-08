@@ -135,6 +135,21 @@ public class UsersRepository : IUsersRepository
 		}
 	}
 
+	public async Task<ParticipantModel> Update(ParticipantModel particantModel)
+	{
+		var entity = await _context.Participants.FindAsync(particantModel.Id);
+
+		//entity!.Email = particantModel.Email;
+		//entity!.Password = particantModel.Password;
+		entity!.FirstName = particantModel.FirstName;
+		entity!.LastName = particantModel.LastName;
+		entity!.DateOfBirth = particantModel.DateOfBirth;
+
+		await _context.SaveChangesAsync();
+
+		return _mapper.Map<ParticipantModel>(entity);
+	}
+
 	public async Task<AdminModel> ChangeAdminActivation(Guid id, bool isActive)
 	{
 		var entity = await _context.Admins.FindAsync(id);
@@ -144,5 +159,11 @@ public class UsersRepository : IUsersRepository
 		await _context.SaveChangesAsync();
 
 		return _mapper.Map<AdminModel>(entity);
+	}
+
+	public async Task<bool> IsExists(Guid eventId)
+	{
+		return await _context.Participants
+			.AnyAsync(ep => ep.Id == eventId);
 	}
 }

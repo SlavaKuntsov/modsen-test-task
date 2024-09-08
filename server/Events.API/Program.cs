@@ -1,9 +1,9 @@
 using Events.Persistence;
 using Events.Application;
 using Events.Infrastructure;
-using Events.API;
 using Microsoft.AspNetCore.CookiePolicy;
 using Events.API.Middlewares;
+using Events.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var services  = builder.Services;
@@ -27,6 +27,7 @@ if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
+	app.ApplyMigrations();
 }
 
 app.UseExceptionHandler();

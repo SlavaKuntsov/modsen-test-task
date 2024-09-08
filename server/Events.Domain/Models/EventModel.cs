@@ -26,13 +26,14 @@ public class EventModel
 	// при изменении IList<ParticipantModel> Participants менять количество зарегистрированных участников
 	public int ParticipantsCount { get; private set; } = 0;
 
-	public string ImageUrl { get; private set; } = string.Empty;
+	//public string ImageUrl { get; private set; } = string.Empty;
+	public byte[] Image { get; private set; } = [];
 
 	//public IList<ParticipantModel> Participants { get; set; } = [];
 
 	public EventModel() { }
 
-	private EventModel(Guid id, string title, string description, DateTime eventDateTime, string location, string category, int maxParticipants, string imageUrl)
+	private EventModel(Guid id, string title, string description, DateTime eventDateTime, string location, string category, int maxParticipants, byte[] imageUrl)
 	{
 		Id = id;
 		Title = title;
@@ -41,10 +42,10 @@ public class EventModel
 		Location = location;
 		Category = category;
 		MaxParticipants = maxParticipants;
-		ImageUrl = imageUrl;
+		Image = imageUrl;
 	}
 
-	public static Result<EventModel> Create(Guid id, string title, string description, string eventDateTime, string location, string category, int maxParticipants, string imageUrl)
+	public static Result<EventModel> Create(Guid id, string title, string description, string eventDateTime, string location, string category, int maxParticipants, byte[] imageUrl)
 	{
 		DateTime dateTime;
 

@@ -16,5 +16,9 @@ public interface IUsersRepository
 	public Task<Result<Guid>> Create(ParticipantModel user, RefreshTokenModel refreshTokenModel);
 	public Task<Result<Guid>> Create(AdminModel user, RefreshTokenModel refreshTokenModel);
 
+	public Task<ParticipantModel> Update(ParticipantModel particantModel);
+
 	public Task<AdminModel> ChangeAdminActivation(Guid id, bool isActive);
+
+	public Task<bool> IsExists(Guid eventId);
 }

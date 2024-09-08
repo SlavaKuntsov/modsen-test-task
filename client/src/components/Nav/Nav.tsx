@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Link, useLocation } from 'react-router-dom';
 import { userStore } from '../../utils/store/userStore';
 import { IRoute, IUserRole } from '../../utils/types';
-import Profile from './Profile';
+import NavProfile from './NavProfile';
 
 export default function Nav() {
 	const location = useLocation(); // Получаем текущее местоположение
@@ -11,7 +11,7 @@ export default function Nav() {
 	const routes: Array<IRoute> = [
 		{ name: 'Все события', path: '/', role: IUserRole.All },
 		{ name: 'Мои события', path: '/participant', role: IUserRole.User },
-		// { name: 'Админ панель', path: '/admin', role: IUserRole.Admin },
+		{ name: 'Админ панель', path: '/admin', role: IUserRole.Admin },
 		// name: '', path: '/events'
 	];
 
@@ -41,7 +41,7 @@ export default function Nav() {
 					})}
 			</div>
 			<div className='grid justify-items-end'>
-				<Profile />
+				<NavProfile />
 			</div>
 		</nav>
 	);

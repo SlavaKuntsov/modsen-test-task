@@ -1,7 +1,10 @@
 ﻿using System.Security.Claims;
 
+using Events.API.Contracts.Events;
 using Events.API.Contracts.Participants;
 using Events.API.Contracts.Users;
+using Events.API.Extensions;
+using Events.Application.Services;
 using Events.Domain.Enums;
 using Events.Domain.Interfaces.Services;
 
@@ -77,6 +80,20 @@ public class UsersController : BaseController
 		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
 
 		var result = _mapper.Map<GetAuthResultResponse>(authResult.Value);
+
+		return Ok(result);
+	}
+
+	[HttpPut(nameof(Update))]
+	//[Authorize(Policy = "AdminOnly")]
+	public async Task<IActionResult> Update([FromBody] UpdateParticipantRequest request)
+	{
+		var particantModel =  await _usersServices.Update(request.Id, request.FirstName, request.LastName, request.DateOfBirth);
+
+		if (particantModel.IsFailure)
+			return BadRequest(particantModel.Error);
+
+		var result = _mapper.Map<GetParticipantResponse>(particantModel.Value);
 
 		return Ok(result);
 	}

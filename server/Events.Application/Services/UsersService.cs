@@ -1,4 +1,6 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Security.AccessControl;
+
+using CSharpFunctionalExtensions;
 
 using Events.Application.Auth;
 using Events.Application.Interfaces.Auth;
@@ -92,34 +94,34 @@ public class UsersService : IUsersServices
 
 	}
 
-	public async Task<Result<AuthResultModel>> LoginAdmin(string email, string password)
-	{
-		var existUser = await _usersRepository.GetAdmin(email);
+	//public async Task<Result<AuthResultModel>> LoginAdmin(string email, string password)
+	//{
+	//	var existUser = await _usersRepository.GetAdmin(email);
 
-		if (existUser == null)
-			return Result.Failure<AuthResultModel>("User with this email doesn't exists");
+	//	if (existUser == null)
+	//		return Result.Failure<AuthResultModel>("User with this email doesn't exists");
 
-		var isCorrectPassword = _passwordHash.Verify(password, existUser.Password);
+	//	var isCorrectPassword = _passwordHash.Verify(password, existUser.Password);
 
-		if (!isCorrectPassword)
-			return Result.Failure<AuthResultModel>("Incorrect password");
+	//	if (!isCorrectPassword)
+	//		return Result.Failure<AuthResultModel>("Incorrect password");
 
-		string accessToken = _jwt.GenerateAccessToken(existUser.Id, existUser.Role);
-		string refreshToken = _jwt.GenerateRefreshToken();
+	//	string accessToken = _jwt.GenerateAccessToken(existUser.Id, existUser.Role);
+	//	string refreshToken = _jwt.GenerateRefreshToken();
 
-		var refreshTokenModel = RefreshTokenModel.Create(existUser.Id, existUser.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+	//	var refreshTokenModel = RefreshTokenModel.Create(existUser.Id, existUser.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());
 
-		if (refreshTokenModel.IsFailure)
-			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
+	//	if (refreshTokenModel.IsFailure)
+	//		return Result.Failure<AuthResultModel>(refreshTokenModel.Error);
 
-		await _tokensRepository.UpdateRefreshToken(existUser.Id, existUser.Role, refreshTokenModel.Value);
+	//	await _tokensRepository.UpdateRefreshToken(existUser.Id, existUser.Role, refreshTokenModel.Value);
 
-		return new AuthResultModel
-		{
-			AccessToken = accessToken,
-			RefreshToken = refreshToken,
-		};
-	}
+	//	return new AuthResultModel
+	//	{
+	//		AccessToken = accessToken,
+	//		RefreshToken = refreshToken,
+	//	};
+	//}
 
 	public async Task<Result<AuthResultModel>> ParticipantRegistration(string email, string password, Role role, string firstName, string lastName, string dateOfBirth)
 	{
@@ -157,10 +159,11 @@ public class UsersService : IUsersServices
 	public async Task<Result<AuthResultModel>> AdminRegistration(string email, string password, Role role)
 	{
 		var existParticipant = await _usersRepository.Get(email);
-		var existAdmin = await _usersRepository.GetAdmin(email);
 
-		if (existParticipant != null || existAdmin != null)
+		if (existParticipant != null)
 			return Result.Failure<AuthResultModel>("User with this email already exists");
+
+		var existAdmin = await _usersRepository.GetAdmin(email);
 
 		if (existAdmin != null)
 			return Result.Failure<AuthResultModel>("Admin with this email already exists");
@@ -187,6 +190,21 @@ public class UsersService : IUsersServices
 		};
 	}
 
+	public async Task<Result<ParticipantModel>> Update(Guid id, string firstName, string lastName, string dateOfBirth)
+	{
+		var existUser = await _usersRepository.Get(id);
+
+		if (existUser == null)
+			return Result.Failure<ParticipantModel>("User with this id doesn't exists");
+
+		var particantModel = ParticipantModel.Create(id, existUser.Email, existUser.Password, existUser.Role, firstName, lastName, dateOfBirth);
+
+		if (particantModel.IsFailure)
+			return Result.Failure<ParticipantModel>(particantModel.Error);
+
+		return await _usersRepository.Update(particantModel.Value);
+	}
+
 	public async Task<Result<AdminModel>> ChangeAdminActivation(Guid id, bool isActive)
 	{
 		var existUser = await _usersRepository.Get(id);
@@ -199,21 +217,25 @@ public class UsersService : IUsersServices
 
 	public async Task<Result<AuthResultModel>> RefreshToken(string refreshToken)
 	{
-		// TODO - как варинат достать из токена, из Claims, айди что там находит
 		var userId = await _jwt.ValidateRefreshToken(refreshToken);
 
 		if (userId == Guid.Empty)
 			return Result.Failure<AuthResultModel>("Invalid refresh token");
 
-		var user = await _usersRepository.Get(userId);
+		UserModel? user = await _usersRepository.Get(userId);
 
 		if (user == null)
-			return Result.Failure<AuthResultModel>("User not found");
+		{
+			user = await _usersRepository.GetAdmin(userId);
+
+			if (user == null)
+				return Result.Failure<AuthResultModel>("User not found");
+		}
 
 		var accessToken = _jwt.GenerateAccessToken(user.Id, user.Role);
 		var newRefreshToken = _jwt.GenerateRefreshToken();
 
-		var refreshTokenModel = RefreshTokenModel.Create(user.Id, user.Role, refreshToken, _jwt.GetRefreshTokenExpirationDays());
+		var refreshTokenModel = RefreshTokenModel.Create(user.Id, user.Role, newRefreshToken, _jwt.GetRefreshTokenExpirationDays());
 
 		if (refreshTokenModel.IsFailure)
 			return Result.Failure<AuthResultModel>(refreshTokenModel.Error);

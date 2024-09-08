@@ -17,17 +17,14 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 		selectedEvent,
 		searchingEvent,
 		resetStore,
+		setSelectEvent,
 	} = eventStore;
-	const { user } = userStore;
+
 	const [prevPage, setPrevPage] = useState<IEventsFetch>(fetch);
 
-	// const [accessToken, setAccessToken] = useState<string | null>('');
+	const { user } = userStore;
 
-	// useEffect(() => {
-	// setAccessToken(getAccessToken());
-	// }, []);
-
-	// setPrevPage(fetch);
+	const { isLoading, eventItem, refetch  } = useEventItem(selectedEvent);
 
 	useEffect(() => {
 		const fetchEvents = async () => {
@@ -57,13 +54,27 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 		}
 	}, [fetch, user?.id, prevPage, resetStore, setEvents]);
 
-	const { isLoading, eventItem } = useEventItem(selectedEvent);
-
 	const filteredEvents = searchingEvent
 		? events!.filter(event =>
 				event.title.toLowerCase().includes(searchingEvent.toLowerCase())
 			)
 		: events;
+
+	useEffect(() => {
+		if (filteredEvents && filteredEvents?.length < 1) setSelectEvent(null);
+	}, [filteredEvents, setSelectEvent]); 
+
+	const refreshEvents = async () => {
+		if (fetch === IEventsFetch.AllEvents) {
+			const data = await getEvents();
+			setEvents(data);
+		} else if (fetch === IEventsFetch.UserEvents) {
+			const data = await getEventParticipant(user?.id);
+			setEvents(data);
+		}
+
+		refetch();
+	};
 
 	return (
 		<section className='w-full h-full px-10'>
@@ -92,10 +103,18 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 					)}
 				</div>
 				<>
-					{!eventItem ? (
-						<>empty event</>
-					) : !isLoading ? (
-						<SelectedEventItem item={eventItem} fetch={fetch} />
+					{!isLoading ? (
+						eventItem ? (
+							<SelectedEventItem
+								item={eventItem!}
+								fetch={fetch}
+								refreshEvents={refreshEvents}
+							/>
+						) : (
+							<div className='flex items-center justify-center w-full h-full'>
+								<h1 className='text-center text-xl'>Событие не выбрано :(</h1>
+							</div>
+						)
 					) : (
 						<Loader size='medium' />
 					)}

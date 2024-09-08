@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.Persistence.Migrations
 {
     [DbContext(typeof(EventsDBContext))]
-    [Migration("20240902191845_initial")]
+    [Migration("20240908094733_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -68,8 +68,8 @@ namespace Events.Persistence.Migrations
                     b.Property<DateTime>("EventDateTime")
                         .HasColumnType("date");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("text");
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Location")
                         .IsRequired()
@@ -96,6 +96,9 @@ namespace Events.Persistence.Migrations
                     b.Property<Guid>("ParticipantId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("EventRegistrationDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("EventId", "ParticipantId");
 
                     b.HasIndex("ParticipantId");
@@ -116,9 +119,6 @@ namespace Events.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("EventRegistrationDate")
-                        .HasColumnType("date");
 
                     b.Property<string>("FirstName")
                         .IsRequired()

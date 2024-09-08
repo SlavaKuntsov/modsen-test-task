@@ -1,6 +1,4 @@
-﻿using Events.Domain.Models.Users;
-
-namespace Events.API.Contracts.Events;
+﻿namespace Events.API.Contracts.Events;
 
 public class GetEventResponse
 {
@@ -18,5 +16,9 @@ public class GetEventResponse
 
     public int MaxParticipants { get; set; }
 
-    public string ImageUrl { get; set; } = string.Empty;
+    public int ParticipantsCount { get; set; }
+
+	//public string ImageUrl { get; set; } = string.Empty;
+
+	public string Image { get; set; } = string.Empty;
 }

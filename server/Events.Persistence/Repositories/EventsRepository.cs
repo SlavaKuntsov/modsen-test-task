@@ -140,7 +140,7 @@ public class EventsRepository : IEventsRepository
 		entity.Location = eventModel.Location;
 		entity.Category = eventModel.Category;
 		entity.MaxParticipants = eventModel.MaxParticipants;
-		entity.ImageUrl = eventModel.ImageUrl;
+		entity.Image = eventModel.Image;
 
 		await _context.SaveChangesAsync();
 

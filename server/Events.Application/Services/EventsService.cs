@@ -84,7 +84,7 @@ public class EventsService : IEventsServices
 		return Result.Success(particants);
 	}
 
-	public async Task<Result<Guid>> Create(string title, string description, string eventDateTime, string location, string category, int maxParticipants, string imageUrl)
+	public async Task<Result<Guid>> Create(string title, string description, string eventDateTime, string location, string category, int maxParticipants, byte[] imageUrl)
 	{
 		var eventModel = EventModel.Create(Guid.NewGuid(),  title, description, eventDateTime, location, category, maxParticipants, imageUrl);
 
@@ -114,7 +114,7 @@ public class EventsService : IEventsServices
 		return Result.Success();
 	}
 
-	public async Task<Result<Guid>> Update(Guid id, string title, string description, string eventDateTime, string location, string category, int maxParticipants, string imageUrl)
+	public async Task<Result<Guid>> Update(Guid id, string title, string description, string eventDateTime, string location, string category, int maxParticipants, byte[] imageUrl)
 	{
 		if (!await _eventsRepository.IsExists(id))
 			return Result.Failure<Guid>("Event with this id doesn't exists");

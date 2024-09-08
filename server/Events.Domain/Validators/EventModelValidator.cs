@@ -31,7 +31,7 @@ public class EventModelValidator : AbstractValidator<EventModel>
 		RuleFor(x => x.ParticipantsCount)
 			.NotNull().WithMessage("ParticipantsCount cannot be null or empty.");
 
-		RuleFor(x => x.ImageUrl)
+		RuleFor(x => x.Image)
 			.NotEmpty().WithMessage("ImageUrl cannot be null or empty.");
 	}
 

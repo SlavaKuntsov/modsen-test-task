@@ -7,8 +7,8 @@ import FormBlock from '../../components/FormBlock';
 import useCustomToast from '../../components/Toast';
 import { login } from '../../utils/api/userApi';
 // import { useUserStore } from '../../utils/store/UserStoreContext';
-import { IUser } from '../../utils/types';
 import { userStore } from '../../utils/store/userStore';
+import { IUser } from '../../utils/types';
 
 const LoginSchema = Yup.object().shape({
 	password: Yup.string()
@@ -21,6 +21,7 @@ const LoginSchema = Yup.object().shape({
 		.email('Invalid email')
 		.required('Please Enter your Email'),
 });
+
 export default function Login() {
 	document.title = 'Login';
 
@@ -33,7 +34,7 @@ export default function Login() {
 		try {
 			const result = await login(values);
 
-			console.log('login end')
+			console.log('login end');
 
 			if (result === true) {
 				showToast({
@@ -120,7 +121,7 @@ export default function Login() {
 
 						<Button
 							htmlType='submit'
-							className='bg-blue-500 mt-3'
+							className='!bg-[#1e293b] mt-3'
 							type='primary'
 							size='large'
 							disabled={isSubmitting}

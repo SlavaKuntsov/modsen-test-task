@@ -1,7 +1,7 @@
 import { HTTPError } from 'ky';
 import kyCore from '../core/kyCore';
 import { getAccessToken } from '../tokens';
-import { IEvent, IUser } from '../types';
+import { IEvent } from '../types';
 
 export const getEvents = async (): Promise<IEvent[]> => {
 	console.log('getEvents void');
@@ -14,22 +14,6 @@ export const getEvents = async (): Promise<IEvent[]> => {
 				},
 			})
 			.json<IEvent[]>();
-	} catch (error) {
-		console.error('Failed to fetch users:', error);
-		throw error;
-	}
-};
-
-export const getEventsAdmin = async (): Promise<IEvent> => {
-	const accessToken = getAccessToken();
-	try {
-		return await kyCore
-			.get('Events/GetEventsAdmin', {
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-			})
-			.json<IEvent>();
 	} catch (error) {
 		console.error('Failed to fetch users:', error);
 		throw error;
@@ -54,7 +38,9 @@ export const getEvent = async (id: string): Promise<IEvent> => {
 	}
 };
 
-export const getEventParticipant = async (id: string | null | undefined): Promise<IEvent[]> => {
+export const getEventParticipant = async (
+	id: string | null | undefined
+): Promise<IEvent[]> => {
 	const accessToken = getAccessToken();
 	try {
 		const res = await kyCore
@@ -69,7 +55,7 @@ export const getEventParticipant = async (id: string | null | undefined): Promis
 	} catch (error) {
 		console.error('Failed to fetch users:', error);
 		// throw error;
-		return []
+		return [];
 	}
 };
 
@@ -122,6 +108,56 @@ export const eventUnregistration = async ({
 		if (error instanceof HTTPError && error.response) {
 			const errorMessage = await error.response.text();
 			console.error('Failed to unregistration on event:', errorMessage);
+			return errorMessage;
+		}
+
+		console.error('Unexpected error:', error);
+		return 'An unexpected error occurred';
+	}
+};
+
+export const createEvent = async (event: IEvent): Promise<string> => {
+	const accessToken = getAccessToken();
+	try {
+		const res = await kyCore
+			.post(`Events/CreateEvent`, {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+				json: event,
+			})
+			.json<string>();
+
+		return res;
+	} catch (error: unknown) {
+		if (error instanceof HTTPError && error.response) {
+			const errorMessage = await error.response.text();
+			console.error('Failed to create event:', errorMessage);
+			return errorMessage;
+		}
+
+		console.error('Unexpected error:', error);
+		return 'An unexpected error occurred';
+	}
+};
+
+export const updateEvent = async (event: IEvent): Promise<string | boolean> => {
+	const accessToken = getAccessToken();
+	try {
+		const res = await kyCore
+			.put(`Events/Update`, {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+				json: event,
+			})
+			.json<string>();
+
+		return true;
+	} catch (error: unknown) {
+		if (error instanceof HTTPError && error.response) {
+			const errorMessage = await error.response.text();
+			console.error('Failed to update event:', errorMessage);
 			return errorMessage;
 		}
 

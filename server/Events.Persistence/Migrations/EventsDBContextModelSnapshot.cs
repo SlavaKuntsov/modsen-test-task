@@ -65,8 +65,8 @@ namespace Events.Persistence.Migrations
                     b.Property<DateTime>("EventDateTime")
                         .HasColumnType("date");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("text");
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Location")
                         .IsRequired()

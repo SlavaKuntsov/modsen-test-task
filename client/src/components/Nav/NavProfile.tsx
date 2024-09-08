@@ -1,11 +1,9 @@
 import { observer } from 'mobx-react-lite';
+import { Link } from 'react-router-dom';
 import { eventStore } from '../../utils/store/eventsStore';
 import { userStore } from '../../utils/store/userStore';
-// import { useUserStore } from '../../utils/store/UserStoreContext';
 
-const Profile = observer(() => {
-	// const userStore = useUserStore();
-
+const NavProfile = observer(() => {
 	const { logout, user } = userStore;
 	const { resetStore } = eventStore;
 
@@ -16,7 +14,9 @@ const Profile = observer(() => {
 
 	return (
 		<div className='flex items-center gap-4'>
-			{user?.email}
+			<Link to='/profile' className='text-lg'>
+				{user?.email}
+			</Link>
 
 			<button
 				onClick={handleLogout}
@@ -29,4 +29,4 @@ const Profile = observer(() => {
 	);
 });
 
-export default Profile;
+export default NavProfile;

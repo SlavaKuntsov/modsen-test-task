@@ -18,6 +18,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import { checkAccessToken } from './utils/api/authApi';
 import { userStore } from './utils/store/userStore';
 import { IUserRole } from './utils/types';
+import Profile from './pages/Main/Profile';
 
 const App = observer(() => {
 	const { user, setUser, isAuth, setAuth, isAuth2, setAuth2 } = userStore;
@@ -70,6 +71,18 @@ const App = observer(() => {
 							user={user}
 							role={IUserRole.User}
 							component={<Participant />}
+						/>
+					}
+				/>
+
+				{/* Страница для участников */}
+				<Route
+					path='/profile'
+					element={
+						<AuthRoleGuard
+							user={user}
+							role={IUserRole.User}
+							component={<Profile />}
 						/>
 					}
 				/>

@@ -1,5 +1,7 @@
 ﻿using Events.API.Contracts.Events;
 using Events.Domain.Interfaces.Services;
+using Events.Domain.Models;
+using Events.Persistence.Entities;
 
 using MapsterMapper;
 
@@ -23,10 +25,19 @@ public class EventsController : BaseController
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEvents()
 	{
-		var events = await _eventsServices.Get();
-		var response = _mapper.Map<IList<GetEventResponse>>(events);
+		var eventModels = await _eventsServices.Get();
+		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels);
 
-		return Ok(response);
+		for (int i = 0; i < responses.Count; i++)
+		{
+			var eventModel = eventModels[i]; // Получаем соответствующий элемент из eventModels
+			if (eventModel.Image != null) // Проверяем наличие изображения
+				responses[i].Image = Convert.ToBase64String(eventModel.Image); // Конвертируем изображение
+			else
+				responses[i].Image = "";
+		}
+
+		return Ok(responses);
 	}
 
 	//[HttpGet(nameof(GetEventsForParticipant) + " /{id: Guid}")]
@@ -50,6 +61,11 @@ public class EventsController : BaseController
 
 		var response = _mapper.Map<GetEventResponse>(eventModel.Value);
 
+		if (eventModel.Value.Image != null)
+			response.Image = Convert.ToBase64String(eventModel.Value.Image); // Конвертируем изображение в Base64
+		else
+			response.Image = "";
+
 		return Ok(response);
 	}
 
@@ -57,61 +73,97 @@ public class EventsController : BaseController
 	//[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventsByParticipant(Guid id)
 	{
-		var eventModel = await _eventsServices.GetByParticipantId(id);
+		var eventModels = await _eventsServices.GetByParticipantId(id);
 
-		if (eventModel.IsFailure)
-			return BadRequest(eventModel.Error);
+		if (eventModels.IsFailure)
+			return BadRequest(eventModels.Error);
 
-		var response = _mapper.Map<IList<GetEventResponse>>(eventModel.Value);
+		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels.Value);
 
-		return Ok(response);
+		for (int i = 0; i < responses.Count; i++)
+		{
+			var eventModel = eventModels.Value[i]; // Получаем соответствующий элемент из eventModels
+			if (eventModel.Image != null) // Проверяем наличие изображения
+				responses[i].Image = Convert.ToBase64String(eventModel.Image); // Конвертируем изображение
+			else
+				responses[i].Image = "";
+		}
+
+		return Ok(responses);
 	}
 
 	[HttpGet(nameof(GetEventByTitle) + "/{title}")]
 	//[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventByTitle(string title)
 	{
-		var eventModel = await _eventsServices.GetByTitle(title);
+		var eventModels = await _eventsServices.GetByTitle(title);
 
-		if (eventModel.IsFailure)
-			return BadRequest(eventModel.Error);
+		if (eventModels.IsFailure)
+			return BadRequest(eventModels.Error);
 
-		var response = _mapper.Map<IList<GetEventResponse>>(eventModel.Value);
+		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels.Value);
 
-		return Ok(response);
+		for (int i = 0; i < responses.Count; i++)
+		{
+			var eventModel = eventModels.Value[i]; // Получаем соответствующий элемент из eventModels
+			if (eventModel.Image != null) // Проверяем наличие изображения
+				responses[i].Image = Convert.ToBase64String(eventModel.Image); // Конвертируем изображение
+			else
+				responses[i].Image = "";
+		}
+
+		return Ok(responses);
 	}
 
 	[HttpGet(nameof(GetEventsByLocation) + "/{location}")]
 	//[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventsByLocation(string location)
 	{
-		var eventModel = await _eventsServices.GetByLocation(location);
+		var eventModels = await _eventsServices.GetByLocation(location);
 
-		if (eventModel.IsFailure)
-			return BadRequest(eventModel.Error);
+		if (eventModels.IsFailure)
+			return BadRequest(eventModels.Error);
 
-		var response = _mapper.Map<IList<GetEventResponse>>(eventModel.Value);
+		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels.Value);
 
-		return Ok(response);
+		for (int i = 0; i < responses.Count; i++)
+		{
+			var eventModel = eventModels.Value[i]; // Получаем соответствующий элемент из eventModels
+			if (eventModel.Image != null) // Проверяем наличие изображения
+				responses[i].Image = Convert.ToBase64String(eventModel.Image); // Конвертируем изображение
+			else
+				responses[i].Image = "";
+		}
+
+		return Ok(responses);
 	}
 
 	[HttpGet(nameof(GetEventsByCategory) + "/{category}")]
 	//[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventsByCategory(string category)
 	{
-		var eventModel = await _eventsServices.GetByCategory(category);
+		var eventModels = await _eventsServices.GetByCategory(category);
 
-		if (eventModel.IsFailure)
-			return BadRequest(eventModel.Error);
+		if (eventModels.IsFailure)
+			return BadRequest(eventModels.Error);
 
-		var response = _mapper.Map<IList<GetEventResponse>>(eventModel.Value);
+		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels.Value);
 
-		return Ok(response);
+		for (int i = 0; i < responses.Count; i++)
+		{
+			var eventModel = eventModels.Value[i]; // Получаем соответствующий элемент из eventModels
+			if (eventModel.Image != null) // Проверяем наличие изображения
+				responses[i].Image = Convert.ToBase64String(eventModel.Image); // Конвертируем изображение
+			else
+				responses[i].Image = "";
+		}
+
+		return Ok(responses);
 	}
 
-	[HttpGet(nameof(GetEventParticipants) + "/{id:Guid}")]
+	[HttpGet(nameof(GetParticipantsByEvent) + "/{id:Guid}")]
 	//[Authorize(Policy = "UserOrAdmin")]
-	public async Task<IActionResult> GetEventParticipants(Guid id)
+	public async Task<IActionResult> GetParticipantsByEvent(Guid id)
 	{
 		var users = await _eventsServices.GetEventParticipants(id);
 
@@ -127,13 +179,22 @@ public class EventsController : BaseController
 	//[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> CreateEvent([FromBody] CreateEventRequest request)
 	{
-		var eventId = await _eventsServices.Create(request.Title, request.Description, request.EventDateTime, request.Location, request.Category, request.MaxParticipants, request.ImageUrl);
+		var eventId = await _eventsServices.Create(
+			request.Title,
+			request.Description,
+			request.EventDateTime,
+			request.Location,
+			request.Category,
+			request.MaxParticipants,
+			request.Image
+		);
 
 		if (eventId.IsFailure)
 			return BadRequest(eventId.Error);
 
 		return Ok(eventId.Value);
 	}
+
 
 	[HttpPost($"{nameof(RegistrationOnEvent)}")]
 	//[Authorize(Policy = "UserOnly")]
@@ -163,7 +224,7 @@ public class EventsController : BaseController
 	//[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> Update([FromBody] UpdateEventRequest request)
 	{
-		var result =  await _eventsServices.Update(request.Id, request.Title, request.Description, request.EventDateTime, request.Location, request.Category, request.MaxParticipants, request.ImageUrl);
+		var result =  await _eventsServices.Update(request.Id, request.Title, request.Description, request.EventDateTime, request.Location, request.Category, request.MaxParticipants, request.Image);
 
 		if (result.IsFailure)
 			return BadRequest(result.Error);

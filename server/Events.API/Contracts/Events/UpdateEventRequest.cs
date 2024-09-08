@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Events.API.Contracts.Events;
-
 public class UpdateEventRequest
 {
 	[Required]
@@ -28,6 +26,9 @@ public class UpdateEventRequest
 	[Required]
 	public int ParticipantsCount { get; set; }
 
+	//[Required]
+	//public string ImageUrl { get; set; } = string.Empty;
+
 	[Required]
-	public string ImageUrl { get; set; } = string.Empty;
+	public byte[] Image { get; set; }
 }

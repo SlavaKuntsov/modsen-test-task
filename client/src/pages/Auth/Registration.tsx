@@ -13,7 +13,6 @@ import { registration } from '../../utils/api/userApi';
 import { IUser } from '../../utils/types';
 import { userStore } from '../../utils/store/userStore';
 
-// Подключаем плагин для поддержки пользовательского формата
 dayjs.extend(customParseFormat);
 
 const RegistrationSchema = Yup.object().shape({
@@ -232,7 +231,7 @@ export default function Registration() {
 						{/* Submit Button */}
 						<Button
 							htmlType='submit'
-							className='bg-blue-500 mt-3'
+							className='!bg-[#1e293b] mt-3'
 							type='primary'
 							size='large'
 							disabled={isSubmitting}

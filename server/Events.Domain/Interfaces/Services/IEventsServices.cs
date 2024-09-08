@@ -15,13 +15,13 @@ public interface IEventsServices
 	public Task<Result<IList<EventModel>>> GetByCategory(string title);
 	public Task<Result<IList<ParticipantModel>>> GetEventParticipants(Guid eventId);
 
-	public Task<Result<Guid>> Create(string title, string description, string eventDateTime, string location, string category, int maxParticipants, string imageUrl);
+	public Task<Result<Guid>> Create(string title, string description, string eventDateTime, string location, string category, int maxParticipants, byte[] imageUrl);
 
 	public Task<Result> AddParticipantToEvent(string eventId, string participantId);
 
 	public Task<Result> RemoveParticipantFromEvent(string eventId, string participantId);
 
-	public Task<Result<Guid>> Update(Guid id, string title, string description, string eventDateTime, string location, string category, int maxParticipants, string imageUrl);
+	public Task<Result<Guid>> Update(Guid id, string title, string description, string eventDateTime, string location, string category, int maxParticipants, byte[] imageUrl);
 
 	public Task<Result> Delete(Guid eventId);
 }

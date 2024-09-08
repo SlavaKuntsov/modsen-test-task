@@ -1,9 +1,10 @@
 import { HTTPError } from 'ky'; // Убедитесь, что HTTPError импортирован
 import kyCore from '../core/kyCore';
-import { IAuthResult, IUser } from '../types';
+import { IAuthResult, IUser, IUserUpdate } from '../types';
+import { getAccessToken } from '../tokens';
 
 export const login = async (userData: IUser): Promise<boolean | string> => {
-	console.log('login')
+	console.log('login');
 	try {
 		const response = kyCore.post('Users/Login', {
 			json: userData,
@@ -51,33 +52,31 @@ export const registration = async (
 	}
 };
 
-// export const fetchUsers = async (): Promise<User[]> => {
-// 	try {
-// 		const response = await kyCore.get('users').json<User[]>();
-// 		return response;
-// 	} catch (error) {
-// 		console.error('Failed to fetch users:', error);
-// 		throw error;
-// 	}
-// };
+export const updateParticipant = async (
+	userData: IUserUpdate
+): Promise<IUser | string> => {
+	const accessToken = getAccessToken();
+	try {
+		console.log('userData reg: ', userData);
 
-// export const createUser = async (userData: Omit<User, 'id'>): Promise<User> => {
-// 	try {
-// 		const response = await kyCore
-// 			.post('users', { json: userData })
-// 			.json<User>();
-// 		return response;
-// 	} catch (error) {
-// 		console.error('Failed to create user:', error);
-// 		throw error;
-// 	}
-// };
+		const response = await kyCore
+			.put('Users/Update', {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+				json: userData,
+			})
+			.json<IUser>();
 
-// export const deleteUser = async (userId: string): Promise<void> => {
-// 	try {
-// 		await kyCore.delete(`users/${userId}`);
-// 	} catch (error) {
-// 		console.error('Failed to delete user:', error);
-// 		throw error;
-// 	}
-// };
+		return response;
+	} catch (error: unknown) {
+		if (error instanceof HTTPError && error.response) {
+			const errorMessage = await error.response.text();
+			console.error('Failed to update:', errorMessage);
+			return errorMessage;
+		}
+
+		console.error('Unexpected error:', error);
+		return 'An unexpected error occurred';
+	}
+};
