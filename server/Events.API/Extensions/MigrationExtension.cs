@@ -11,8 +11,18 @@ public static class MigrationExtension
 		using IServiceScope scope = app.ApplicationServices.CreateAsyncScope();
 
 		using EventsDBContext eventsDbContext =
-				scope.ServiceProvider.GetRequiredService<EventsDBContext>();
+			scope.ServiceProvider.GetRequiredService<EventsDBContext>();
 
-		eventsDbContext.Database.Migrate();
+		try
+		{
+			eventsDbContext.Database.Migrate();
+		}
+		catch (Exception ex)
+		{
+			// Логируйте исключение или выводите его в консоль
+			Console.WriteLine($"Migration error: {ex.Message}");
+			throw; // или обработайте по своему усмотрению
+		}
 	}
+
 }

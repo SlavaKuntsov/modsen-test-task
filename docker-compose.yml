@@ -1,0 +1,55 @@
+# version: '3.8'
+
+networks:
+  events:
+    driver: bridge
+
+services:
+
+  client:
+    container_name: client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    networks:
+     - events
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+
+  server:
+    container_name: server
+    build:
+      context: ./server
+      dockerfile: Events.API/Dockerfile
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    networks:
+     - events
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=postgres;Database=events;User Id=postgres;Password=1;
+      - ASPNETCORE_ENVIRONMENT=Development
+      # - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      # - ASPNETCORE_HTTPS_PORT=8081
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: events
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+     - events
+
+volumes:
+  postgres-data:
