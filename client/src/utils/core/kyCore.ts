@@ -1,5 +1,5 @@
 import ky from 'ky';
-import { API_URL } from '../constants';
+import { API_URL } from '../constants.js';
 
 const kyCore = ky.create({
 	prefixUrl: API_URL,

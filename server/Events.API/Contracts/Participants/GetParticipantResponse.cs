@@ -19,17 +19,19 @@ public class GetParticipantResponse
 		get => _dateOfBirth.ToString("dd-MM-yyyy");
 		set
 		{
-			if (DateTime.TryParseExact(value, new[] { "dd-MM-yyyy", "dd.MM.yyyy HH:mm:ss" },
+			if (DateTime.TryParseExact(value,
+				new[] { "dd-MM-yyyy", "dd.MM.yyyy HH:mm:ss", "MM/dd/yyyy", "MM/dd/yyyy HH:mm:ss" }, // Добавьте нужные форматы
 				CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
 			{
 				_dateOfBirth = date;
 			}
 			else
 			{
-				throw new FormatException($"Invalid date format1: {value}");
+				throw new FormatException($"Invalid date format12: {value}");
 			}
 		}
 	}
+
 
 	public string AccessToken { get; set; }
 
