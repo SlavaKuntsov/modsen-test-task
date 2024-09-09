@@ -3,11 +3,16 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { ErrorMessage, Field, FieldInputProps, Formik } from 'formik';
-import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
+import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
+import AdminItem from '../../components/AdminItem';
 import Button from '../../components/Button';
+import Loader from '../../components/Loader';
 import useCustomToast from '../../components/Toast';
 import { createEvent } from '../../utils/api/eventsApi';
+import { getAdmins } from '../../utils/api/userApi';
+import { userStore } from '../../utils/store/userStore';
 import { IEvent } from '../../utils/types';
 
 dayjs.extend(customParseFormat);
@@ -23,10 +28,24 @@ const EventSchema = Yup.object().shape({
 		.min(1, 'At least one participant is required'),
 });
 
-export default function Admin() {
+const Admin = observer(() => {
 	document.title = 'Admin';
 
+	const { admins, setAdmins, isAdminsLoading, user } = userStore;
+	console.log('isAdminsLoading: ', isAdminsLoading);
+
 	const { showToast } = useCustomToast();
+
+	useEffect(() => {
+		const fetchAdmins = async () => {
+			console.log('fetchAdmins void');
+			const data = await getAdmins();
+			console.log('data all a: ', data);
+			setAdmins(data);
+		};
+
+		fetchAdmins();
+	}, [setAdmins]);
 
 	const [file, setFile] = useState<File | null>(null);
 
@@ -84,6 +103,13 @@ export default function Admin() {
 				console.error('Error uploading event:', error);
 			}
 		};
+	};
+
+	const refreshAdmins = async () => {
+		console.log('refreshAdmins------------: ');
+
+		const data = await getAdmins();
+		setAdmins(data);
 	};
 
 	return (
@@ -238,7 +264,33 @@ export default function Admin() {
 				)}
 			</Formik>
 			<h1 className='text-2xl font-semibold mt-5'>Активация Администраторов</h1>
-			
+			<div className='flex flex-col gap-4 items-center justify-center'>
+				{isAdminsLoading ? (
+					admins!.length > 0 ? (
+						admins?.map((item, id) => {
+							return (
+								item.id !== user?.id && (
+									<AdminItem
+										key={id}
+										item={item}
+										refreshAdmins={refreshAdmins}
+									/>
+								)
+							);
+						})
+					) : (
+						<div className='w-full h-full flex items-center justify-center text-center'>
+							<h3 className='text-lg font-medium p-2'>
+								2Других администраторов не найдено...
+							</h3>
+						</div>
+					)
+				) : (
+					<Loader size='medium' />
+				)}
+			</div>
 		</>
 	);
-}
+});
+
+export default Admin;

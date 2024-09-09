@@ -24,4 +24,5 @@ public interface IUsersServices
 
 	public Task<Result<ParticipantModel>> GetOrAuthorize(Guid id);
 	public Task<Result<AdminModel>> GetOrAuthorizeAdmin(Guid id);
+	public Task<IList<AdminModel>> GetAdmins();
 }

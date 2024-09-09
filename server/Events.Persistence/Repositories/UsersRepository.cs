@@ -48,6 +48,16 @@ public class UsersRepository : IUsersRepository
 		return _mapper.Map<AdminModel>(participantEntitiy);
 	}
 
+	public async Task<IList<AdminModel>> GetAdmins()
+	{
+		var adminEntities = await _context
+			.Admins
+			.AsNoTracking()
+			.ToListAsync();
+
+		return _mapper.Map<IList<AdminModel>>(adminEntities);
+	}
+
 	public async Task<ParticipantModel?> Get(string email)
 	{
 		var participantEntitiy = await _context

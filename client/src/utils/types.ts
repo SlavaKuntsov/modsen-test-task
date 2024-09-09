@@ -20,6 +20,7 @@ export interface IDelete {
 	id?: string | null | undefined;
 }
 
+
 export enum IUserRole {
 	Admin = 'Admin',
 	User = 'User',
@@ -31,11 +32,10 @@ export enum IEventsFetch {
 	// All = 'All',
 }
 
-export interface IUser {
+export interface IAdmin {
 	id?: string | null | undefined;
 	email: string;
-	password: string;
-	role?: string;
+	isActiveAdmin: boolean;
 }
 
 // export type IEventsFetch = 'allEvents' | 'UserEvents'
@@ -49,7 +49,7 @@ export interface IEvent {
 	category: string;
 	maxParticipants: number;
 	participantsCount: number;
-	image?: string; 
+	image?: string;
 }
 
 export interface IAuthResult {

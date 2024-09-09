@@ -1,7 +1,7 @@
 import { HTTPError } from 'ky'; // Убедитесь, что HTTPError импортирован
 import kyCore from '../core/kyCore';
 import { getAccessToken } from '../tokens';
-import { IAuthResult, IDelete, IUser, IUserUpdate } from '../types';
+import { IAdmin, IAuthResult, IDelete, IUser, IUserUpdate } from '../types';
 
 export const login = async (userData: IUser): Promise<boolean | string> => {
 	console.log('login');
@@ -97,6 +97,75 @@ export const deleteUser = async (id: IDelete): Promise<boolean | string> => {
 		if (error instanceof HTTPError && error.response) {
 			const errorMessage = await error.response.text();
 			console.error('Failed to delete:', errorMessage);
+			return errorMessage;
+		}
+
+		console.error('Unexpected error:', error);
+		return 'An unexpected error occurred';
+	}
+};
+
+export const getAdmins = async (): Promise<IAdmin[]> => {
+	console.log('getAdmins void');
+	const accessToken = getAccessToken();
+	try {
+		return await kyCore
+			.get('Users/GetAdmins', {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+			})
+			.json<IAdmin[]>();
+	} catch (error) {
+		console.error('Failed to fetch admins:', error);
+		throw error;
+	}
+};
+
+export const activateAdmin = async (id: IDelete): Promise<boolean | string> => {
+	console.log('getAdmins void');
+	const accessToken = getAccessToken();
+	try {
+		const response = await kyCore
+			.get(`Users/AdminActivation/${id.id}`, {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+			})
+			.json<string>();
+
+		return true;
+	} catch (error: unknown) {
+		if (error instanceof HTTPError && error.response) {
+			const errorMessage = await error.response.text();
+			console.error('Failed to get:', errorMessage);
+			return errorMessage;
+		}
+
+		console.error('Unexpected error:', error);
+		return 'An unexpected error occurred';
+	}
+};
+
+export const deactivateAdmin = async (
+	id: IDelete
+): Promise<boolean | string> => {
+	console.log('getAdmins void');
+	const accessToken = getAccessToken();
+	try {
+		const response = await kyCore
+			.get(`Users/AdminDeactivation/${id.id}`, {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+			})
+			.json<string>();
+
+		return true;
+	} catch (error: unknown) {
+		if (error instanceof HTTPError && error.response) {
+			const errorMessage = await error.response.text();
+			console.error('Failed to get:', errorMessage);
 			return errorMessage;
 		}
 

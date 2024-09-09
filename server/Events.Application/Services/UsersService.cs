@@ -71,6 +71,9 @@ public class UsersService : IUsersServices
 
 		if (existAdmin != null)
 		{
+			if(!existAdmin.IsActiveAdmin)
+				return Result.Failure<AuthResultModel>("Admin doesn't have active role");
+
 			var isCorrectPassword = _passwordHash.Verify(password, existAdmin.Password);
 
 			if (!isCorrectPassword)
@@ -237,7 +240,7 @@ public class UsersService : IUsersServices
 
 	public async Task<Result<AdminModel>> ChangeAdminActivation(Guid id, bool isActive)
 	{
-		var existUser = await _usersRepository.Get(id);
+		var existUser = await _usersRepository.GetAdmin(id);
 
 		if (existUser == null)
 			return Result.Failure<AdminModel>("User with this id doesn't exists");
@@ -297,5 +300,10 @@ public class UsersService : IUsersServices
 			return Result.Failure<AdminModel>("User not found");
 
 		return user;
+	}
+
+	public async Task<IList<AdminModel>> GetAdmins()
+	{
+		return await _usersRepository.GetAdmins();
 	}
 }

@@ -1,24 +1,31 @@
-import { makeAutoObservable } from 'mobx';
+import { action, computed, makeAutoObservable } from 'mobx';
 import { unauthorize } from '../api/authApi';
-import { IUser } from '../types';
+import { IAdmin, IUser } from '../types';
 
 class UserStore {
 	user: IUser | null = null;
-	admins: IAdmin | null = null;
+	admins: IAdmin[] | null = null;
 	isAuth: boolean = false;
 	isAuth2: boolean = false;
 
 	constructor() {
 		makeAutoObservable(this, {
-			setUser: true,
-			setAuth: true,
-			setAuth2: true,
-			logout: true,
+			setUser: action,
+			setAuth: action,
+			setAdmins: action,
+			setAuth2: action,
+			logout: action,
+			isLoggedIn: computed,
+			isAdminsLoading: computed,
 		});
 	}
 
 	setUser = (user: IUser | null) => {
 		this.user = user;
+	};
+
+	setAdmins = (admins: IAdmin[] | null) => {
+		this.admins = admins;
 	};
 
 	setAuth = (bool: boolean) => {
@@ -39,6 +46,10 @@ class UserStore {
 
 	get isLoggedIn() {
 		return this.user !== null;
+	}
+
+	get isAdminsLoading() {
+		return this.admins !== null;
 	}
 }
 

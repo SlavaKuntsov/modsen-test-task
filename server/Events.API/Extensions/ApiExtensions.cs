@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+
+using Events.API.Handlers;
 using Events.Infrastructure.Auth;
 
 using Mapster;
@@ -82,16 +84,29 @@ public static class ApiExtensions
             });
         });
 
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+		services.AddAuthorization(options =>
+		{
+			// Политика только для активных администраторов
+			options.AddPolicy("AdminOnly", policy =>
+			{
+				policy.RequireRole("Admin");
+				policy.AddRequirements(new ActiveAdminRequirement());
+			});
 
-            options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+			// Политика для пользователей и активных администраторов
+			options.AddPolicy("UserOrAdmin", policy =>
+			{
+				policy.RequireRole("User", "Admin");
+				policy.AddRequirements(new ActiveAdminRequirement()); // Проверка активности администратора
+			});
 
-            options.AddPolicy("UserOrAdmin", policy =>
-                policy.RequireRole("User", "Admin"));
-        });
+			// Политика только для пользователей
+			options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+		});
 
-        return services;
+		services.AddScoped<IAuthorizationHandler, ActiveAdminHandler>();
+
+
+		return services;
     }
 }

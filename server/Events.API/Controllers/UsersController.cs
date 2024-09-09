@@ -1,10 +1,8 @@
 ﻿using System.Security.Claims;
 
-using Events.API.Contracts.Events;
 using Events.API.Contracts.Participants;
 using Events.API.Contracts.Users;
 using Events.API.Extensions;
-using Events.Application.Services;
 using Events.Domain.Enums;
 using Events.Domain.Interfaces.Services;
 
@@ -119,9 +117,9 @@ public class UsersController : BaseController
 		if (model.IsFailure)
 			return BadRequest(model.Error);
 
-		var result = _mapper.Map<GetAuthResultResponse>(model.Value);
+		//var result = _mapper.Map<GetAuthResultResponse>(model.Value);
 
-		return Ok(result);
+		return Ok();
 	}
 
 	[HttpGet(nameof(AdminDeactivation) + "/{id:Guid}")]
@@ -133,9 +131,9 @@ public class UsersController : BaseController
 		if (model.IsFailure)
 			return BadRequest(model.Error);
 
-		var result = _mapper.Map<GetAuthResultResponse>(model.Value);
+		//var result = _mapper.Map<GetAuthResultResponse>(model.Value);
 
-		return Ok(result);
+		return Ok();
 	}
 
 	[HttpPost(nameof(RefreshToken))]
@@ -202,5 +200,15 @@ public class UsersController : BaseController
 		var response = _mapper.Map<GetParticipantResponse>(user.Value);
 
 		return Ok(response);
+	}
+
+	[HttpGet(nameof(GetAdmins))]
+	[Authorize(Policy = "AdminOnly")]
+	public async Task<IActionResult> GetAdmins()
+	{
+		var adminModels = await _usersServices.GetAdmins();
+		var responses = _mapper.Map<IList<GetAdminResponse>>(adminModels);
+
+		return Ok(responses);
 	}
 }

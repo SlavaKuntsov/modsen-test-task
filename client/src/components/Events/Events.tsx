@@ -46,13 +46,10 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 			setEvents(data);
 		};
 
-		console.log('prevPage: ', prevPage);
-		console.log('fetch: ', fetch);
-		// if (prevPage !== fetch) {
 		resetStore();
 		refreshEvents();
 		setPrevPage(fetch);
-		// }
+
 		if (fetch === IEventsFetch.AllEvents) {
 			fetchEvents();
 		} else if (fetch === IEventsFetch.UserEvents) {

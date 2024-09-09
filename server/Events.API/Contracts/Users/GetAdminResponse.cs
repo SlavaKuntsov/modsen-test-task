@@ -1,4 +1,4 @@
-﻿namespace Events.API.Contracts.Participants;
+﻿namespace Events.API.Contracts.Users;
 
 public class GetAdminResponse
 {
@@ -6,5 +6,5 @@ public class GetAdminResponse
 
 	public string Email { get; set; }
 
-	public string Role { get; set; }
+	public bool IsActiveAdmin { get; set; }
 }
