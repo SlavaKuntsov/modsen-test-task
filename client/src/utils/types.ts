@@ -16,6 +16,10 @@ export interface IUserUpdate {
 	dateOfBirth?: string | undefined | null;
 }
 
+export interface IDelete {
+	id?: string | null | undefined;
+}
+
 export enum IUserRole {
 	Admin = 'Admin',
 	User = 'User',
@@ -25,6 +29,13 @@ export enum IEventsFetch {
 	AllEvents = 'AllEvents',
 	UserEvents = 'UserEvents',
 	// All = 'All',
+}
+
+export interface IUser {
+	id?: string | null | undefined;
+	email: string;
+	password: string;
+	role?: string;
 }
 
 // export type IEventsFetch = 'allEvents' | 'UserEvents'

@@ -1,6 +1,5 @@
-import { makeAutoObservable } from 'mobx';
+import { action, computed, makeAutoObservable } from 'mobx';
 import { IEvent } from '../types';
-
 class EventStore {
 	events: Array<IEvent> | null = null;
 	selectedEvent: string | null = null;
@@ -8,12 +7,12 @@ class EventStore {
 
 	constructor() {
 		makeAutoObservable(this, {
-			setEvents: true,
-			setSelectEvent: true,
-			isEventLoading: true,
-			setSearchingEvent: true,
-			removeEventById: true,
-			resetStore: true,
+			setEvents: action,
+			setSelectEvent: action,
+			isEventLoading: computed,
+			setSearchingEvent: action,
+			removeEventById: action,
+			resetStore: action,
 		});
 	}
 
@@ -25,7 +24,6 @@ class EventStore {
 		) {
 			this.selectedEvent = null;
 		}
-
 		this.events = event;
 	};
 

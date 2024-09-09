@@ -6,6 +6,7 @@ using Events.Persistence.Entities;
 using MapsterMapper;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Events.Persistence.Repositories;
 
@@ -35,7 +36,7 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 	{
 		var events = await _context.EventsParticipants
 			.Where(ep => ep.ParticipantId == participantId)
-			.Select(ep => ep.EventId)
+			.Select(ep => ep.Event)
 			.ToListAsync();
 
 		return _mapper.Map<IList<EventModel>>(events);
@@ -49,10 +50,15 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 		{
 			EventId = eventId,
 			ParticipantId = participantId,
-			EventRegistrationDate = date
+			EventRegistrationDate = date,
 		};
 
 		await _context.EventsParticipants.AddAsync(entity);
+
+		var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId);
+		if (eventEntity!.ParticipantsCount < eventEntity.MaxParticipants)
+			eventEntity!.ParticipantsCount++;
+
 		await _context.SaveChangesAsync();
 	}
 
@@ -64,9 +70,48 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 		if (entity != null)
 		{
 			_context.EventsParticipants.Remove(entity);
+
+			var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId);
+			if (eventEntity!.ParticipantsCount != 0)
+				eventEntity!.ParticipantsCount--;
+
 			await _context.SaveChangesAsync();
 		}
 	}
+
+	public async Task RemoveParticipantFromEvents(Guid participantId, IList<EventModel> events)
+	{
+		// Извлекаем EventId из модели
+		var eventIds = events.Select(e => e.Id).ToList();
+
+		// Загружаем связанные EventEntity напрямую из контекста
+		var eventEntities = await _context.Events
+		.Where(e => eventIds.Contains(e.Id))
+		.ToListAsync();
+
+		foreach (var eventEntity in eventEntities)
+		{
+			// Ищем участие участника в событии
+			var participantEvent = await _context.EventsParticipants
+			.FirstOrDefaultAsync(e => e.EventId == eventEntity.Id && e.ParticipantId == participantId);
+
+			if (participantEvent != null)
+			{
+				// Удаляем участие
+				//_context.EventsParticipants.Remove(participantEvent);
+
+				// Уменьшаем счетчик участников
+				if (eventEntity.ParticipantsCount > 0)
+				{
+					eventEntity.ParticipantsCount--;
+				}
+			}
+		}
+
+		// Сохраняем все изменения
+		await _context.SaveChangesAsync();
+	}
+
 
 	public async Task<bool> IsExists(Guid eventId, Guid participantId)
 	{

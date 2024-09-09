@@ -31,8 +31,6 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Server=postgres;Database=events;User Id=postgres;Password=1;
       - ASPNETCORE_ENVIRONMENT=Development
-      # - ASPNETCORE_URLS=https://+:8081;http://+:8080
-      # - ASPNETCORE_HTTPS_PORT=8081
     depends_on:
       - postgres
 

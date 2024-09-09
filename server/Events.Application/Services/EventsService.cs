@@ -102,6 +102,7 @@ public class EventsService : IEventsServices
 		DateTime dateTime = DateTime.Now;
 
 		await _eventsParticipantsRepository.AddEventParticipant(Guid.Parse(eventId), Guid.Parse(participantId), dateTime);
+
 		return Result.Success();
 	}
 

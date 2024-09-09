@@ -12,7 +12,6 @@ import { IEvent } from '../../utils/types';
 
 dayjs.extend(customParseFormat);
 
-// Event validation schema using Yup
 const EventSchema = Yup.object().shape({
 	title: Yup.string().required('Title is required'),
 	description: Yup.string().required('Description is required'),
@@ -89,6 +88,7 @@ export default function Admin() {
 
 	return (
 		<>
+			<h1 className='text-2xl font-semibold mt-5'>Создание Событий</h1>
 			<Formik
 				initialValues={{
 					title: '',
@@ -229,14 +229,16 @@ export default function Admin() {
 							htmlType='submit'
 							className='!bg-[#1e293b] mt-3'
 							type='primary'
-							size='large'
+							size='middle'
 							disabled={isSubmitting}
 						>
-							Create Event
+							Создать Событие
 						</Button>
 					</form>
 				)}
 			</Formik>
+			<h1 className='text-2xl font-semibold mt-5'>Активация Администраторов</h1>
+			
 		</>
 	);
 }

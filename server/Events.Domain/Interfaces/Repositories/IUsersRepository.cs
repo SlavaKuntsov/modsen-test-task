@@ -18,6 +18,9 @@ public interface IUsersRepository
 
 	public Task<ParticipantModel> Update(ParticipantModel particantModel);
 
+	public Task Delete(Guid eventId);
+	public Task DeleteAdmin(Guid eventId);
+
 	public Task<AdminModel> ChangeAdminActivation(Guid id, bool isActive);
 
 	public Task<bool> IsExists(Guid eventId);

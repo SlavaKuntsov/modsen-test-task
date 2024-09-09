@@ -85,7 +85,7 @@ public class UsersController : BaseController
 	}
 
 	[HttpPut(nameof(Update))]
-	//[Authorize(Policy = "AdminOnly")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> Update([FromBody] UpdateParticipantRequest request)
 	{
 		var particantModel =  await _usersServices.Update(request.Id, request.FirstName, request.LastName, request.DateOfBirth);
@@ -96,6 +96,18 @@ public class UsersController : BaseController
 		var result = _mapper.Map<GetParticipantResponse>(particantModel.Value);
 
 		return Ok(result);
+	}
+
+	[HttpDelete(nameof(Delete) + "/{id:Guid}")]
+	[Authorize(Policy = "UserOrAdmin")]
+	public async Task<IActionResult> Delete(Guid id)
+	{
+		var user =  await _usersServices.Delete(id);
+
+		if (user.IsFailure)
+			return BadRequest(user.Error);
+
+		return Ok();
 	}
 
 	[HttpGet(nameof(AdminActivation) + "/{id:Guid}")]
@@ -179,7 +191,7 @@ public class UsersController : BaseController
 	}
 
 	[HttpGet(nameof(GetParticipant) + "/{id:Guid}")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetParticipant(Guid id)
 	{
 		var user = await _usersServices.GetOrAuthorize(id);

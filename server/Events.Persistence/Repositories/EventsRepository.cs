@@ -23,7 +23,7 @@ public class EventsRepository : IEventsRepository
 
 	public async Task<IList<EventModel>> Get()
 	{
-		IList<EventEntity> eventsEntities = await _context
+		var eventsEntities = await _context
 			.Events
 			.AsNoTracking()
 			.ToListAsync();

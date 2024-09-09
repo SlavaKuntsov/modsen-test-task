@@ -4,6 +4,7 @@ import { IUser } from '../types';
 
 class UserStore {
 	user: IUser | null = null;
+	admins: IAdmin | null = null;
 	isAuth: boolean = false;
 	isAuth2: boolean = false;
 

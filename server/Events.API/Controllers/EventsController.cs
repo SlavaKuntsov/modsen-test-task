@@ -40,18 +40,8 @@ public class EventsController : BaseController
 		return Ok(responses);
 	}
 
-	//[HttpGet(nameof(GetEventsForParticipant) + " /{id: Guid}")]
-	//[Authorize(Policy = "UserOrAdmin")]
-	//public async Task<IActionResult> GetEventsForParticipant(Guid particiapntId)
-	//{
-	//	var events = await _eventsServices.GetByParticipantId(particiapntId);
-	//	var response = _mapper.Map<IList<GetEventResponse>>(events);
-
-	//	return Ok(response);
-	//}
-
 	[HttpGet(nameof(GetEvent) + "/{id:Guid}")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEvent(Guid id)
 	{
 		var eventModel = await _eventsServices.Get(id);
@@ -70,7 +60,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpGet(nameof(GetEventsByParticipant) + "/{id:Guid}")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventsByParticipant(Guid id)
 	{
 		var eventModels = await _eventsServices.GetByParticipantId(id);
@@ -93,7 +83,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpGet(nameof(GetEventByTitle) + "/{title}")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventByTitle(string title)
 	{
 		var eventModels = await _eventsServices.GetByTitle(title);
@@ -116,7 +106,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpGet(nameof(GetEventsByLocation) + "/{location}")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventsByLocation(string location)
 	{
 		var eventModels = await _eventsServices.GetByLocation(location);
@@ -139,7 +129,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpGet(nameof(GetEventsByCategory) + "/{category}")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventsByCategory(string category)
 	{
 		var eventModels = await _eventsServices.GetByCategory(category);
@@ -162,7 +152,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpGet(nameof(GetParticipantsByEvent) + "/{id:Guid}")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetParticipantsByEvent(Guid id)
 	{
 		var users = await _eventsServices.GetEventParticipants(id);
@@ -176,7 +166,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpPost($"{nameof(CreateEvent)}")]
-	//[Authorize(Policy = "AdminOnly")]
+	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> CreateEvent([FromBody] CreateEventRequest request)
 	{
 		var eventId = await _eventsServices.Create(
@@ -195,9 +185,8 @@ public class EventsController : BaseController
 		return Ok(eventId.Value);
 	}
 
-
 	[HttpPost($"{nameof(RegistrationOnEvent)}")]
-	//[Authorize(Policy = "UserOnly")]
+	[Authorize(Policy = "UserOnly")]
 	public async Task<IActionResult> RegistrationOnEvent([FromBody] CreateRegistrationOnEventRequest request)
 	{
 		var result =  await _eventsServices.AddParticipantToEvent(request.EventId, request.ParticipantId);
@@ -209,7 +198,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpPost($"{nameof(UnregistrationOnEvent)}")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> UnregistrationOnEvent([FromBody] CreateRegistrationOnEventRequest request)
 	{
 		var result =  await _eventsServices.RemoveParticipantFromEvent(request.EventId, request.ParticipantId);
@@ -221,7 +210,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpPut(nameof(Update))]
-	//[Authorize(Policy = "AdminOnly")]
+	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> Update([FromBody] UpdateEventRequest request)
 	{
 		var result =  await _eventsServices.Update(request.Id, request.Title, request.Description, request.EventDateTime, request.Location, request.Category, request.MaxParticipants, request.Image);
@@ -233,7 +222,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpDelete(nameof(Delete) + "/{id:Guid}")]
-	//[Authorize(Policy = "AdminOnly")]
+	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> Delete(Guid id)
 	{
 		var result =  await _eventsServices.Delete(id);

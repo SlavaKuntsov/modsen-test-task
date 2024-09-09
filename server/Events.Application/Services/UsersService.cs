@@ -18,6 +18,7 @@ public class UsersService : IUsersServices
 {
 	private readonly IUsersRepository _usersRepository;
 	private readonly ITokensRepository _tokensRepository;
+	private readonly IEventsParticipantsRepository _eventsParticipantsRepository;
 	private readonly IMapper _mapper;
 	private readonly IPasswordHash _passwordHash;
 	private readonly IJwt _jwt;
@@ -25,12 +26,14 @@ public class UsersService : IUsersServices
 	public UsersService(
 		IUsersRepository usersRepository,
 		ITokensRepository tokensRepository,
+		IEventsParticipantsRepository eventsParticipantsRepository,
 		IMapper mapper,
 		IPasswordHash passwordHash,
 		IJwt jwt)
 	{
 		_usersRepository = usersRepository;
 		_tokensRepository = tokensRepository;
+		_eventsParticipantsRepository = eventsParticipantsRepository;
 		_mapper = mapper;
 		_passwordHash = passwordHash;
 		_jwt = jwt;
@@ -39,10 +42,6 @@ public class UsersService : IUsersServices
 	public async Task<Result<AuthResultModel>> Login(string email, string password)
 	{
 		var existUser = await _usersRepository.Get(email);
-		var existAdmin = await _usersRepository.GetAdmin(email);
-
-		//if (existUser == null && existAdmin == null)
-		//	return Result.Failure<AuthResultModel>("User with this email doesn't exists");
 
 		if (existUser != null)
 		{
@@ -67,6 +66,9 @@ public class UsersService : IUsersServices
 				RefreshToken = refreshToken,
 			};
 		}
+
+		var existAdmin = await _usersRepository.GetAdmin(email);
+
 		if (existAdmin != null)
 		{
 			var isCorrectPassword = _passwordHash.Verify(password, existAdmin.Password);
@@ -90,8 +92,8 @@ public class UsersService : IUsersServices
 				RefreshToken = refreshToken,
 			};
 		}
-		return Result.Failure<AuthResultModel>("User with this email doesn't exists");
 
+		return Result.Failure<AuthResultModel>("User with this email doesn't exists");
 	}
 
 	//public async Task<Result<AuthResultModel>> LoginAdmin(string email, string password)
@@ -161,7 +163,7 @@ public class UsersService : IUsersServices
 		var existParticipant = await _usersRepository.Get(email);
 
 		if (existParticipant != null)
-			return Result.Failure<AuthResultModel>("User with this email already exists");
+			return Result.Failure<AuthResultModel>("Participant with this email already exists");
 
 		var existAdmin = await _usersRepository.GetAdmin(email);
 
@@ -203,6 +205,34 @@ public class UsersService : IUsersServices
 			return Result.Failure<ParticipantModel>(particantModel.Error);
 
 		return await _usersRepository.Update(particantModel.Value);
+	}
+
+	public async Task<Result> Delete(Guid id)
+	{
+		var existParticipant = await _usersRepository.Get(id);
+
+		if (existParticipant != null)
+		{
+			// TODO - транзакция
+			var events = _eventsParticipantsRepository.GetEventsByParticipant(id);
+
+			if (events.Result.Count == 0)
+				return Result.Success();
+
+			await _eventsParticipantsRepository.RemoveParticipantFromEvents(id, events.Result);
+			await _usersRepository.Delete(id);
+			return Result.Success();
+		}
+
+		var existAdmin = await _usersRepository.GetAdmin(id);
+
+		if (existAdmin != null)
+		{
+			await _usersRepository.DeleteAdmin(id);
+			return Result.Success();
+		}
+
+		return Result.Failure<Guid>("User with this id doesn't exists");
 	}
 
 	public async Task<Result<AdminModel>> ChangeAdminActivation(Guid id, bool isActive)

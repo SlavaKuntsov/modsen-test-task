@@ -150,6 +150,22 @@ public class UsersRepository : IUsersRepository
 		return _mapper.Map<ParticipantModel>(entity);
 	}
 
+	public async Task Delete(Guid eventId)
+	{
+		var entity = await _context.Participants.FindAsync(eventId);
+
+		_context.Participants.Remove(entity!);
+		await _context.SaveChangesAsync();
+	}
+
+	public async Task DeleteAdmin(Guid eventId)
+	{
+		var entity = await _context.Admins.FindAsync(eventId);
+
+		_context.Admins.Remove(entity!);
+		await _context.SaveChangesAsync();
+	}
+
 	public async Task<AdminModel> ChangeAdminActivation(Guid id, bool isActive)
 	{
 		var entity = await _context.Admins.FindAsync(id);

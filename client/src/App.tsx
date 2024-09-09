@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Loader from './components/Loader';
 import {
@@ -14,15 +14,22 @@ import Registration from './pages/Auth/Registration';
 import Admin from './pages/Main/Admin';
 import Home from './pages/Main/Home';
 import Participant from './pages/Main/Participant';
+import Profile from './pages/Main/Profile';
 import NotFoundPage from './pages/NotFoundPage';
 import { checkAccessToken } from './utils/api/authApi';
+import { eventStore } from './utils/store/eventsStore';
 import { userStore } from './utils/store/userStore';
 import { IUserRole } from './utils/types';
-import Profile from './pages/Main/Profile';
 
 const App = observer(() => {
 	const { user, setUser, isAuth, setAuth, isAuth2, setAuth2 } = userStore;
+	const { resetStore, events, selectedEvent } = eventStore;
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+
+	useEffect(() => {
+		// Сброс состояния через action после монтирования компонента
+		resetStore();
+	}, [resetStore]);
 
 	useLayoutEffect(() => {
 		const fetchUserData = async () => {

@@ -36,6 +36,9 @@ public partial class EventConfiguration : IEntityTypeConfiguration<EventEntity>
 		builder.Property(e => e.MaxParticipants)
 			.IsRequired();
 
+		builder.Property(e => e.ParticipantsCount)
+			.IsRequired();
+
 		builder.Property(e => e.Image)
 			.HasColumnType ("bytea")
 			.IsRequired(false);

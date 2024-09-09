@@ -16,6 +16,8 @@ public interface IUsersServices
 
 	public Task<Result<ParticipantModel>> Update(Guid id, string firstName, string lastName, string DateOfBirth);
 
+	public Task<Result> Delete(Guid id);
+
 	public Task<Result<AdminModel>> ChangeAdminActivation(Guid id, bool isActive);
 
 	public Task<Result<AuthResultModel>> RefreshToken(string refreshToken);

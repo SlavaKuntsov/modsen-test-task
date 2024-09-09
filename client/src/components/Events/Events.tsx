@@ -20,11 +20,16 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 		setSelectEvent,
 	} = eventStore;
 
+	console.log('selectedEvent: ', selectedEvent);
+
 	const [prevPage, setPrevPage] = useState<IEventsFetch>(fetch);
 
 	const { user } = userStore;
 
-	const { isLoading, eventItem, refetch  } = useEventItem(selectedEvent);
+	const { isLoading, eventItem, refetch, clearEventData } =
+		useEventItem(selectedEvent);
+
+	clearEventData();
 
 	useEffect(() => {
 		const fetchEvents = async () => {
@@ -43,10 +48,11 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 
 		console.log('prevPage: ', prevPage);
 		console.log('fetch: ', fetch);
-		if (prevPage !== fetch) {
-			resetStore();
-			setPrevPage(fetch);
-		}
+		// if (prevPage !== fetch) {
+		resetStore();
+		refreshEvents();
+		setPrevPage(fetch);
+		// }
 		if (fetch === IEventsFetch.AllEvents) {
 			fetchEvents();
 		} else if (fetch === IEventsFetch.UserEvents) {
@@ -61,10 +67,13 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 		: events;
 
 	useEffect(() => {
-		if (filteredEvents && filteredEvents?.length < 1) setSelectEvent(null);
-	}, [filteredEvents, setSelectEvent]); 
+		if (filteredEvents && filteredEvents?.length < 1)
+			setSelectEvent(selectedEvent);
+	}, [filteredEvents, setSelectEvent]);
 
 	const refreshEvents = async () => {
+		console.log('refreshEvents------------: ');
+
 		if (fetch === IEventsFetch.AllEvents) {
 			const data = await getEvents();
 			setEvents(data);
@@ -73,7 +82,8 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 			setEvents(data);
 		}
 
-		refetch();
+		clearEventData();
+		await refetch();
 	};
 
 	return (

@@ -204,7 +204,6 @@ export default function Registration() {
 									{...field}
 									value={field.value ? dayjs(field.value) : null}
 									onChange={date => {
-										// Проверяем, если date существует и преобразуем его в объект Date
 										setFieldValue('dateOfBirth', date ? date.toDate() : null);
 										console.log(date.toDate())
 									}}

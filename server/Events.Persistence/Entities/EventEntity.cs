@@ -16,6 +16,8 @@ public class EventEntity
 
 	public int MaxParticipants { get; set; }
 
+	public int ParticipantsCount { get; set; }
+
 	//public string ImageUrl { get; set; } = string.Empty;
 	public byte[] Image { get; set; } = [];
 

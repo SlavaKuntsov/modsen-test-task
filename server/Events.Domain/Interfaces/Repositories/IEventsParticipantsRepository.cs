@@ -11,6 +11,7 @@ public interface IEventsParticipantsRepository
 	public Task AddEventParticipant(Guid eventId, Guid participantId, DateTime date);
 
 	public Task RemoveEventParticipant(Guid eventId, Guid participantId);
+	public Task RemoveParticipantFromEvents(Guid participantId, IList<EventModel> events);
 
 	public Task<bool> IsExists(Guid eventId, Guid participantId);
 }

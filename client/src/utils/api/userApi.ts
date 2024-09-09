@@ -1,7 +1,7 @@
 import { HTTPError } from 'ky'; // Убедитесь, что HTTPError импортирован
 import kyCore from '../core/kyCore';
-import { IAuthResult, IUser, IUserUpdate } from '../types';
 import { getAccessToken } from '../tokens';
+import { IAuthResult, IDelete, IUser, IUserUpdate } from '../types';
 
 export const login = async (userData: IUser): Promise<boolean | string> => {
 	console.log('login');
@@ -73,6 +73,30 @@ export const updateParticipant = async (
 		if (error instanceof HTTPError && error.response) {
 			const errorMessage = await error.response.text();
 			console.error('Failed to update:', errorMessage);
+			return errorMessage;
+		}
+
+		console.error('Unexpected error:', error);
+		return 'An unexpected error occurred';
+	}
+};
+
+export const deleteUser = async (id: IDelete): Promise<boolean | string> => {
+	const accessToken = getAccessToken();
+	try {
+		const response = await kyCore
+			.delete(`Users/Delete/${id.id}`, {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+			})
+			.json<string>();
+
+		return true;
+	} catch (error: unknown) {
+		if (error instanceof HTTPError && error.response) {
+			const errorMessage = await error.response.text();
+			console.error('Failed to delete:', errorMessage);
 			return errorMessage;
 		}
 

@@ -1,4 +1,5 @@
-import { DatePicker } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import { DatePicker, Popconfirm } from 'antd';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -6,13 +7,14 @@ import { ErrorMessage, Field, FieldInputProps, Formik } from 'formik';
 import { useState } from 'react';
 import * as Yup from 'yup';
 import {
+	deleteEvent,
 	eventRegistration,
 	eventUnregistration,
 	updateEvent,
 } from '../../utils/api/eventsApi';
 import { eventStore } from '../../utils/store/eventsStore';
 import { userStore } from '../../utils/store/userStore';
-import { IEvent, IEventsFetch, IUserRole } from '../../utils/types';
+import { IDelete, IEvent, IEventsFetch, IUserRole } from '../../utils/types';
 import Button from '../Button';
 import useCustomToast from '../Toast';
 
@@ -44,7 +46,7 @@ const SelectedEventItem = ({
 	console.log('item: ', item);
 
 	const { user } = userStore;
-	const { removeEventById, setSelectEvent } = eventStore;
+	const { removeEventById } = eventStore;
 
 	const { showToast } = useCustomToast();
 
@@ -67,6 +69,7 @@ const SelectedEventItem = ({
 			});
 
 			if (result === true) {
+				refreshEvents();
 				showToast({
 					title: 'Успешно!',
 					description: 'Вы зарегистрированы на это событие!',
@@ -92,8 +95,9 @@ const SelectedEventItem = ({
 			});
 
 			if (result === true) {
-				removeEventById(item.id); // Remove the event by ID
-				// setSelectEvent(null);
+				removeEventById(item.id); // Удалить событие по ID
+				await refreshEvents(); // Повторно запросить обновленный список событий
+
 				showToast({
 					title: 'Успешно!',
 					description: 'Событие удалено из вашего списка!',
@@ -106,8 +110,11 @@ const SelectedEventItem = ({
 				});
 			}
 		} catch (error) {
-			console.error('Error reg on event:', error);
-			throw error;
+			console.error('Ошибка при отписке от события:', error);
+			showToast({
+				title: 'Произошла ошибка при отмене регистрации!',
+				status: 'error',
+			});
 		}
 	};
 
@@ -151,7 +158,7 @@ const SelectedEventItem = ({
 			if (result) {
 				setIsChanged(false);
 				// resetStore()
-				refreshEvents()
+				refreshEvents();
 				showToast({
 					title: 'Событие успешно обновлено!',
 					status: 'success',
@@ -166,6 +173,37 @@ const SelectedEventItem = ({
 			console.error('Error updating event:', error);
 			showToast({
 				title: 'Произошла ошибка при обновлении события!',
+				status: 'error',
+			});
+		}
+	};
+
+	const handleDelete = async () => {
+		try {
+			const eventData: IDelete = {
+				id: item?.id,
+			};
+
+			const result = await deleteEvent(eventData);
+
+			// Проверяем, что result является объектом IUser
+			if (result) {
+				showToast({
+					title: 'Успешно!',
+					status: 'success',
+				});
+				refreshEvents();
+			} else if (typeof result === 'string') {
+				// Если result — это строка (ошибка), выводим сообщение об ошибке
+				showToast({
+					title: result,
+					status: 'error',
+				});
+			}
+		} catch (error) {
+			console.error('Error deleting user:', error);
+			showToast({
+				title: 'An unexpected error occurred',
 				status: 'error',
 			});
 		}
@@ -265,6 +303,22 @@ const SelectedEventItem = ({
 											>
 												Изменить
 											</Button>
+											<Popconfirm
+												onConfirm={handleDelete}
+												title='Удаление события'
+												description='Вы уверены что хотите удалить событие?'
+												icon={
+													<QuestionCircleOutlined style={{ color: 'red' }} />
+												}
+											>
+												<Button
+													onClick={() => console.log('object')}
+													className='!bg-red-500'
+													type='primary'
+												>
+													Удалить
+												</Button>
+											</Popconfirm>
 										</>
 									)}
 								</div>
