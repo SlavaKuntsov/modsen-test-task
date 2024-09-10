@@ -16,7 +16,7 @@ export default function EventListItem({ item }: Props) {
 		<button
 			onClick={() => setSelectEvent(item.id)}
 			className={classNames(
-				'ease-in-out px-5 py-4 min-w-80 max-w-10 text-start',
+				'ease-in-out px-5 py-4 w-full text-start',
 				{
 					'bg-zinc-100': selectedEvent == item.id,
 				}

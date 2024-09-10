@@ -64,3 +64,5 @@ export interface IRoute {
 	path: string;
 	role: IUserRole;
 }
+
+export type SortType = 'title' | 'date' | 'participantCount'

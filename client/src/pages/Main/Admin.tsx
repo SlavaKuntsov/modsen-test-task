@@ -84,20 +84,22 @@ const Admin = observer(() => {
 					image: base64data.split(',')[1],
 				};
 
-				const result = await createEvent(userData);
-				console.log('Event created:', result);
+				for (let input = 0; input < 20; input++) {
+					const result = await createEvent(userData);
+					console.log('Event created:', result);
 
-				if (result !== null) {
-					showToast({
-						title: 'Успешно!',
-						status: 'success',
-					});
-				} else if (typeof result === 'string') {
-					// Если result — это строка (ошибка), выводим сообщение об ошибке
-					showToast({
-						title: result,
-						status: 'error',
-					});
+					if (result !== null) {
+						showToast({
+							title: 'Успешно!',
+							status: 'success',
+						});
+					} else if (typeof result === 'string') {
+						// Если result — это строка (ошибка), выводим сообщение об ошибке
+						showToast({
+							title: result,
+							status: 'error',
+						});
+					}
 				}
 			} catch (error) {
 				console.error('Error uploading event:', error);

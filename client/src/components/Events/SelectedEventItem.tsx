@@ -232,7 +232,7 @@ const SelectedEventItem = ({
 				<>
 					<form
 						onSubmit={handleSubmit}
-						className='flex flex-col items-start gap-1 w-full h-full'
+						className='flex flex-col items-start gap-1 w-full overflow-y-auto overflow-x-hidden'
 					>
 						<div className='top-block w-full relative'>
 							<img
