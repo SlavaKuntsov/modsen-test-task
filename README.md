@@ -20,6 +20,7 @@ http://localhost:3000/
 http://localhost:5000/swagger
 ```
 ### Commands for EF Core migrations:
+###### Для запуска из докера они не нужны!
 ``` shell
 dotnet ef migrations add initial -s Events.API -p Events.Persistence
 ```
