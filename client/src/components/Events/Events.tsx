@@ -52,8 +52,15 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 				break;
 		}
 
-		// Если включён реверс, разворачиваем отсортированный массив
 		return reverseOrder ? sortedEvents.reverse() : sortedEvents;
+	};
+
+	const removeEventById = (id: string) => {
+		if (events) {
+			setEvents(events.filter(event => event.id !== id));
+		} else {
+			setEvents(null);
+		}
 	};
 
 	const onSwitchChange = (checked: boolean) => {
@@ -181,6 +188,7 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 								item={eventItem!}
 								fetch={fetch}
 								refreshEvents={refreshEvents}
+								onDelete={removeEventById}
 							/>
 						) : (
 							<div className='flex items-center justify-center w-full'>

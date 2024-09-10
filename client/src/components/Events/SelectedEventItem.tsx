@@ -36,16 +36,19 @@ interface SelectedEventItemProps {
 	item: IEvent;
 	fetch: IEventsFetch;
 	refreshEvents: () => Promise<void>;
+	onDelete: (id: string) => void;
 }
 
 const SelectedEventItem = ({
 	item,
 	fetch,
 	refreshEvents,
+	onDelete
 }: SelectedEventItemProps) => {
 	console.log('item: ', item);
 
 	const { user } = userStore;
+	const { events, setEvents } = eventStore;
 	const { removeEventById } = eventStore;
 
 	const { showToast } = useCustomToast();
@@ -191,7 +194,8 @@ const SelectedEventItem = ({
 					title: 'Успешно!',
 					status: 'success',
 				});
-				refreshEvents();
+				// refreshEvents();
+				onDelete(item.id); 
 			} else if (typeof result === 'string') {
 				// Если result — это строка (ошибка), выводим сообщение об ошибке
 				showToast({
