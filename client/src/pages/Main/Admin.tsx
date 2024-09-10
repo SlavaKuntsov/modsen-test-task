@@ -94,7 +94,6 @@ const Admin = observer(() => {
 							status: 'success',
 						});
 					} else if (typeof result === 'string') {
-						// Если result — это строка (ошибка), выводим сообщение об ошибке
 						showToast({
 							title: result,
 							status: 'error',

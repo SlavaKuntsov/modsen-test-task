@@ -43,7 +43,6 @@ public partial class EventConfiguration : IEntityTypeConfiguration<EventEntity>
 			.HasColumnType ("bytea")
 			.IsRequired(false);
 
-		// Настройка связи с участниками через EventParticipant
 		builder.HasMany(e => e.EventParticipants)
 			.WithOne(ep => ep.Event)
 			.HasForeignKey(ep => ep.EventId);

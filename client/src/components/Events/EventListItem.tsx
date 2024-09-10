@@ -15,12 +15,9 @@ export default function EventListItem({ item }: Props) {
 	return (
 		<button
 			onClick={() => setSelectEvent(item.id)}
-			className={classNames(
-				'ease-in-out px-5 py-4 w-full text-start',
-				{
-					'bg-zinc-100': selectedEvent == item.id,
-				}
-			)}
+			className={classNames('ease-in-out px-5 py-4 w-full text-start', {
+				'bg-zinc-100': selectedEvent == item.id,
+			})}
 		>
 			<div className='flex flex-row items-center justify-between'>
 				<h3 className='text-nowrap text-lg font-medium'>{item.title}</h3>

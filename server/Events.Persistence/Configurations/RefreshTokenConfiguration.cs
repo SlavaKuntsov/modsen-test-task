@@ -23,16 +23,14 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshTokenEn
 		builder.Property(rt => rt.IsRevoked)
 			   .IsRequired();
 
-		// Настройка связей с AdminEntity (один-к-одному)
 		builder.HasOne(rt => rt.Admin)
 			   .WithOne(a => a.RefreshToken)
 			   .HasForeignKey<RefreshTokenEntity>(rt => rt.AdminId)
-			   .OnDelete(DeleteBehavior.Cascade); // При удалении Admin удалять его RefreshToken
+			   .OnDelete(DeleteBehavior.Cascade); 
 
-		// Настройка связей с ParticipantEntity (один-к-одному)
 		builder.HasOne(rt => rt.Participant)
 			   .WithOne(p => p.RefreshToken)
 			   .HasForeignKey<RefreshTokenEntity>(rt => rt.UserId)
-			   .OnDelete(DeleteBehavior.Cascade); // При удалении Participant удалять его RefreshToken
+			   .OnDelete(DeleteBehavior.Cascade); 
 	}
 }

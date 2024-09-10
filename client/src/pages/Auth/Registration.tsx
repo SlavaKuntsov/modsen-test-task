@@ -9,9 +9,8 @@ import Button from '../../components/Button';
 import FormBlock from '../../components/FormBlock';
 import useCustomToast from '../../components/Toast';
 import { registration } from '../../utils/api/userApi';
-// import { useUserStore } from '../../utils/store/UserStoreContext';
-import { IUser } from '../../utils/types';
 import { userStore } from '../../utils/store/userStore';
+import { IUser } from '../../utils/types';
 
 dayjs.extend(customParseFormat);
 
@@ -38,24 +37,25 @@ const RegistrationSchema = Yup.object().shape({
 export default function Registration() {
 	document.title = 'Registration';
 
-	// const userStore = useUserStore();
 	const { setAuth } = userStore;
 	const { showToast } = useCustomToast();
 
 	const handleRegistration = async (values: IUser) => {
 		try {
-			const formattedDateOfBirth = dayjs(values.dateOfBirth).format('DD-MM-YYYY');
+			const formattedDateOfBirth = dayjs(values.dateOfBirth).format(
+				'DD-MM-YYYY'
+			);
 
 			const userData: IUser = {
 				firstName: values.firstName,
 				lastName: values.lastName,
-				dateOfBirth:  formattedDateOfBirth,
+				dateOfBirth: formattedDateOfBirth,
 				email: values.email,
 				password: values.password,
 				passwordConfirmation: values.passwordConfirmation,
-				role: 'User'
+				role: 'User',
 			};
-	
+
 			const result = await registration(userData); // Используем новый объект
 
 			if (result === true) {
@@ -101,7 +101,6 @@ export default function Registration() {
 						onSubmit={handleSubmit}
 						className='flex flex-col items-start gap-1 max-w-80'
 					>
-						{/* FirstName Field */}
 						<Field
 							placeholder='FirstName'
 							className={classNames(
@@ -119,7 +118,6 @@ export default function Registration() {
 							className='text-red-400 text-base leading-3 text-start pt-1'
 						/>
 
-						{/* LastName Field */}
 						<Field
 							placeholder='LastName'
 							className={classNames(
@@ -137,7 +135,6 @@ export default function Registration() {
 							className='text-red-400 text-base leading-3 text-start pt-1'
 						/>
 
-						{/* Email Field */}
 						<Field
 							type='email'
 							placeholder='Email'
@@ -156,7 +153,6 @@ export default function Registration() {
 							className='text-red-400 text-base leading-3 text-start pt-1'
 						/>
 
-						{/* Password Field */}
 						<Field
 							type='password'
 							placeholder='Password'
@@ -175,7 +171,6 @@ export default function Registration() {
 							className='text-red-400 text-base leading-3 text-start pt-1'
 						/>
 
-						{/* Confirm Password Field */}
 						<Field
 							type='password'
 							placeholder='Confirm Password'
@@ -197,7 +192,6 @@ export default function Registration() {
 							className='text-red-400 text-base leading-4 text-start pt-1'
 						/>
 
-						{/* Date of Birth Field */}
 						<Field name='dateOfBirth'>
 							{({ field }: { field: FieldInputProps<Date | null> }) => (
 								<DatePicker
@@ -205,7 +199,7 @@ export default function Registration() {
 									value={field.value ? dayjs(field.value) : null}
 									onChange={date => {
 										setFieldValue('dateOfBirth', date ? date.toDate() : null);
-										console.log(date.toDate())
+										console.log(date.toDate());
 									}}
 									format='DD-MM-YYYY'
 									size='middle'
@@ -227,7 +221,6 @@ export default function Registration() {
 							className='text-red-400 text-base leading-4 text-start pt-1'
 						/>
 
-						{/* Submit Button */}
 						<Button
 							htmlType='submit'
 							className='!bg-[#1e293b] mt-3'
@@ -238,7 +231,10 @@ export default function Registration() {
 							Зарегистрироваться
 						</Button>
 
-						<Link to='/auth/login' className='text-gray-500 mt-3 text-center w-full'>
+						<Link
+							to='/auth/login'
+							className='text-gray-500 mt-3 text-center w-full'
+						>
 							Войти в аккаунт
 						</Link>
 					</Form>

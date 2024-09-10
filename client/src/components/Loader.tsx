@@ -17,7 +17,7 @@ export default function Loader({ size, className }: LoaderProps) {
 				className
 			)}
 			indicator={<LoadingOutlined spin />}
-			size={spinSize} // Используем корректный тип 'small' | 'large' | 'default'
+			size={spinSize}
 		/>
 	);
 }

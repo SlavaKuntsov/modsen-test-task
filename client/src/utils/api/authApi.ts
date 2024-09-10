@@ -4,7 +4,6 @@ import { getAccessToken, getRefreshToken } from '../tokens';
 import { IAuthResult, IUser } from '../types';
 
 export const checkAccessToken = async (): Promise<IUser | null> => {
-	// UseGlobalNavigate();
 	console.log('access token');
 
 	const accessToken = getAccessToken();
@@ -23,8 +22,7 @@ export const checkAccessToken = async (): Promise<IUser | null> => {
 		} catch (error: unknown) {
 			// Указываем, что error может быть неизвестного типа
 			if (error instanceof HTTPError && error.response) {
-				// Используем HTTPError
-				const errorMessage = await error.response.text(); // Извлекаем текст ошибки
+				const errorMessage = await error.response.text();
 				console.error('Failed to reg admin:', errorMessage);
 			}
 

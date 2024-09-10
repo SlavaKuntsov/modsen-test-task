@@ -189,7 +189,7 @@ public class UsersController : BaseController
 	}
 
 	[HttpGet(nameof(GetParticipant) + "/{id:Guid}")]
-	[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> GetParticipant(Guid id)
 	{
 		var user = await _usersServices.GetOrAuthorize(id);

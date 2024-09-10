@@ -3,8 +3,8 @@ import classNames from 'classnames';
 import { FC, ReactNode } from 'react';
 
 interface ButtonProps extends AntButtonProps {
-	children: ReactNode; 
-	className?: string; 
+	children: ReactNode;
+	className?: string;
 	size?: 'small' | 'middle' | 'large';
 }
 

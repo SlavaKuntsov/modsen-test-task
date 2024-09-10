@@ -1,6 +1,4 @@
-﻿using System.Security.AccessControl;
-
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 
 using Events.Application.Auth;
 using Events.Application.Interfaces.Auth;

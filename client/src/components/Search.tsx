@@ -18,16 +18,16 @@ export default function Search() {
 
 	return (
 		<>
-		<Search
-			size='large'
-			placeholder='Поиск событий'
-			// placeholder='Input search event'
-			allowClear
-			onSearch={onSearch}
-			// onChange={data => handleSearch(data.target.value)}
-			// enterButton={true}
-			style={{ width: 400 }}
+			<Search
+				size='large'
+				placeholder='Поиск событий'
+				// placeholder='Input search event'
+				allowClear
+				onSearch={onSearch}
+				// onChange={data => handleSearch(data.target.value)}
+				// enterButton={true}
+				style={{ width: 400 }}
 			/>
-			</>
+		</>
 	);
 }

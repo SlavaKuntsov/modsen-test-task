@@ -166,10 +166,7 @@ export const updateEvent = async (event: IEvent): Promise<string | boolean> => {
 	}
 };
 
-
-export const deleteEvent = async (
-	id: IDelete
-): Promise<boolean | string> => {
+export const deleteEvent = async (id: IDelete): Promise<boolean | string> => {
 	const accessToken = getAccessToken();
 	try {
 		const response = await kyCore

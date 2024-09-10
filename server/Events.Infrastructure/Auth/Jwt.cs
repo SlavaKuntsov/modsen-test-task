@@ -26,8 +26,6 @@ public class Jwt : IJwt
 
 	public string GenerateAccessToken(Guid id, Role role)
 	{
-		Debug.WriteLine("-------------------" + EnumExtensions.GetDescription(role));
-
 		var claims = new[]
 		{
 			new Claim(ClaimTypes.NameIdentifier, id.ToString()),

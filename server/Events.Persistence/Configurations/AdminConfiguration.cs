@@ -8,26 +8,25 @@ public partial class AdminConfiguration : IEntityTypeConfiguration<AdminEntity>
 {
 	public void Configure(EntityTypeBuilder<AdminEntity> builder)
 	{
-		builder.ToTable("Admin"); // Таблица для администраторов
+		builder.ToTable("Admin");
 
-		builder.HasKey(a => a.Id); // Уникальный ключ
+		builder.HasKey(a => a.Id);
 
 		builder.Property(a => a.Email)
 			.HasMaxLength(100)
-			.IsRequired(); // Обязательное поле
+			.IsRequired();
 
 		builder.Property(a => a.Password)
-			.IsRequired(); // Обязательное поле
+			.IsRequired();
 
 		//builder.Property(a => a.Role)
 		//	.IsRequired(); // Обязательное поле
 
 		builder.Property(a => a.IsActiveAdmin)
-			.IsRequired(); // Обязательное поле
+			.IsRequired();
 
-		// Настройка связи с RefreshTokenEntity (один-к-одному)
 		builder.HasOne(a => a.RefreshToken)
 			   .WithOne(rt => rt.Admin)
-			   .HasForeignKey<RefreshTokenEntity>(rt => rt.AdminId); // Внешний ключ
+			   .HasForeignKey<RefreshTokenEntity>(rt => rt.AdminId);
 	}
 }

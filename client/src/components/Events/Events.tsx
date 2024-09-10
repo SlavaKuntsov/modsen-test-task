@@ -22,7 +22,7 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 	} = eventStore;
 
 	const [sort, setSort] = useState<SortType>('title');
-	const [reverseOrder, setReverseOrder] = useState<boolean>(false); // Состояние для переключателя
+	const [reverseOrder, setReverseOrder] = useState<boolean>(false);
 
 	const handleSortChange = (e: RadioChangeEvent) => {
 		setSort(e.target.value);
@@ -30,9 +30,9 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 
 	// Проверка на null перед сортировкой
 	const sortEvents = (events: (typeof eventStore)['events'] | null) => {
-		if (!events) return []; // Возвращаем пустой массив, если events === null
+		if (!events) return [];
 
-		const sortedEvents = [...events]; // Создаём копию массива перед сортировкой
+		const sortedEvents = [...events];
 
 		switch (sort) {
 			case 'title':
@@ -133,7 +133,6 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 					{isEventLoading ? (
 						sortedEvents!.length > 0 ? (
 							<>
-								{/* Radio group for sorting */}
 								<div className='w-full flex flex-col items-center justify-center py-2 border-b-[1px] border-solid border-zinc-200 gap-2'>
 									<Radio.Group
 										value={sort}

@@ -20,7 +20,7 @@ public static class MigrationExtension
 		catch (Exception ex)
 		{
 			Console.WriteLine($"Migration error: {ex.Message}");
-			throw; 
+			throw;
 		}
 	}
 

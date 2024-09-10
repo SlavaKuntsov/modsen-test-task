@@ -27,7 +27,6 @@ const App = observer(() => {
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
-		// Сброс состояния через action после монтирования компонента
 		resetStore();
 	}, [resetStore]);
 
@@ -50,7 +49,7 @@ const App = observer(() => {
 	}, [isAuth, setAuth, isAuth2, setAuth2]);
 
 	if (isLoading) {
-		return <Loader size='large' />;
+		return <Loader size='large' className='h-full'/>;
 	}
 
 	return (
@@ -63,14 +62,12 @@ const App = observer(() => {
 					</Layout>
 				}
 			>
-				{/* Домашняя страница */}
 				<Route
 					index
 					path='/'
 					element={<AuthGuard user={user} component={<Home />} />}
 				/>
 
-				{/* Страница для участников */}
 				<Route
 					path='/participant'
 					element={
@@ -82,7 +79,6 @@ const App = observer(() => {
 					}
 				/>
 
-				{/* Страница для участников */}
 				<Route
 					path='/profile'
 					element={
@@ -94,7 +90,6 @@ const App = observer(() => {
 					}
 				/>
 
-				{/* Страница для администраторов */}
 				<Route
 					path='/admin'
 					element={
@@ -107,7 +102,6 @@ const App = observer(() => {
 				/>
 			</Route>
 
-			{/* Авторизация */}
 			<Route
 				path='/auth'
 				element={
@@ -126,7 +120,6 @@ const App = observer(() => {
 				/>
 			</Route>
 
-			{/* Страница не найдена */}
 			<Route path='*' element={<NotFoundPage />} />
 		</Routes>
 	);

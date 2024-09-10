@@ -1,7 +1,4 @@
-﻿using System.Data.SqlTypes;
-using System.Diagnostics;
-
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 
 using Events.Application.Cache;
 using Events.Domain.Interfaces.Repositories;
@@ -51,12 +48,6 @@ public class EventsService : IEventsServices
 		var existEventsId = await _eventsRepository.GetIdsByParticipantId(id);
 
 		return Result.Success(await CheckImageInCache(existEventsId));
-
-		//if (existEvents == null)
-		//	//return Result.Failure<IList<EventModel>>("Events for this participant doesn't exists");
-		//	return Result.Success<IList<EventModel>>([]);
-
-		//return Result.Success(existEvents);
 	}
 
 	public async Task<Result<IList<EventModel>>> GetByTitle(string title)
@@ -64,27 +55,13 @@ public class EventsService : IEventsServices
 		var existEventsId = await _eventsRepository.GetIdsByTitle(title);
 
 		return Result.Success(await CheckImageInCache(existEventsId));
-
-		//var existEvents = await _eventsRepository.GetByTitle(title);
-
-		//if (existEvents == null)
-		//	return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
-
-		//return Result.Success(existEvents);
 	}
 
 	public async Task<Result<IList<EventModel>>> GetByLocation(string location)
 	{
 		var existEventsId = await _eventsRepository.GetIdsByLocation(location);
 
-
 		return Result.Success(await CheckImageInCache(existEventsId));
-		//var existEvents = await _eventsRepository.GetByLocation(location);
-
-		//if (existEvents == null)
-		//	return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
-
-		//return Result.Success(existEvents);
 	}
 
 	public async Task<Result<IList<EventModel>>> GetByCategory(string category)
@@ -92,13 +69,6 @@ public class EventsService : IEventsServices
 		var existEventsId = await _eventsRepository.GetIdsByCategory(category);
 
 		return Result.Success(await CheckImageInCache(existEventsId));
-
-		//var existEvents = await _eventsRepository.GetByCategory(category);
-
-		//if (existEvents == null)
-		//	return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
-
-		//return Result.Success(existEvents);
 	}
 
 	public async Task<Result<IList<ParticipantModel>>> GetEventParticipants(Guid eventId)

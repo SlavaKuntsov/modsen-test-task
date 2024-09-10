@@ -6,7 +6,6 @@ import Button from '../../components/Button';
 import FormBlock from '../../components/FormBlock';
 import useCustomToast from '../../components/Toast';
 import { login } from '../../utils/api/userApi';
-// import { useUserStore } from '../../utils/store/UserStoreContext';
 import { userStore } from '../../utils/store/userStore';
 import { IUser } from '../../utils/types';
 
@@ -25,7 +24,6 @@ const LoginSchema = Yup.object().shape({
 export default function Login() {
 	document.title = 'Login';
 
-	// const userStore = useUserStore();
 	const { setAuth } = userStore;
 
 	const { showToast } = useCustomToast();

@@ -18,7 +18,6 @@ public class EventEntity
 
 	public int ParticipantsCount { get; set; }
 
-	//public string ImageUrl { get; set; } = string.Empty;
 	public byte[] Image { get; set; } = [];
 
 	public virtual IList<EventParticipantEntity> EventParticipants { get; set; } = [];

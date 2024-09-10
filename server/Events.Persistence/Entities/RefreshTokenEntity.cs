@@ -2,20 +2,19 @@
 
 public class RefreshTokenEntity
 {
-	public Guid Id { get; set; } // Уникальный идентификатор для каждого токена
+	public Guid Id { get; set; } 
 
-	public string Token { get; set; } = string.Empty; // Сам refresh token
+	public string Token { get; set; } = string.Empty; 
 
-	public DateTime ExpiresAt { get; set; } // Дата истечения срока действия токена
+	public DateTime ExpiresAt { get; set; } 
 
-	public bool IsRevoked { get; set; } // Флаг, показывающий, был ли токен отозван
+	public bool IsRevoked { get; set; } 
 
-	public DateTime CreatedAt { get; set; } // Дата создания токена
+	public DateTime CreatedAt { get; set; } 
 
-	public Guid? AdminId { get; set; } // Идентификатор администратора, к которому привязан токен
-	public Guid? UserId { get; set; } // Идентификатор участника, к которому привязан токен
+	public Guid? AdminId { get; set; } 
+	public Guid? UserId { get; set; } 
 
-	// Навигационные свойства
-	public virtual AdminEntity Admin { get; set; } // Убедитесь, что связь виртуальная
-	public virtual ParticipantEntity Participant { get; set; } // Убедитесь, что связь виртуальная
+	public virtual AdminEntity Admin { get; set; } 
+	public virtual ParticipantEntity Participant { get; set; } 
 }

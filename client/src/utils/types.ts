@@ -20,7 +20,6 @@ export interface IDelete {
 	id?: string | null | undefined;
 }
 
-
 export enum IUserRole {
 	Admin = 'Admin',
 	User = 'User',
@@ -37,8 +36,6 @@ export interface IAdmin {
 	email: string;
 	isActiveAdmin: boolean;
 }
-
-// export type IEventsFetch = 'allEvents' | 'UserEvents'
 
 export interface IEvent {
 	id: string;
@@ -65,4 +62,4 @@ export interface IRoute {
 	role: IUserRole;
 }
 
-export type SortType = 'title' | 'date' | 'participantCount'
+export type SortType = 'title' | 'date' | 'participantCount';

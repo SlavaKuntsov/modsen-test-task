@@ -1,6 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider } from 'antd';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
@@ -18,9 +17,9 @@ if (rootElement) {
 		<QueryClientProvider client={queryClient}>
 			<BrowserRouter>
 				{/* <ConfigProvider direction='ltr'> */}
-					<ChakraProvider>
-						<App />
-					</ChakraProvider>
+				<ChakraProvider>
+					<App />
+				</ChakraProvider>
 				{/* </ConfigProvider> */}
 			</BrowserRouter>
 		</QueryClientProvider>

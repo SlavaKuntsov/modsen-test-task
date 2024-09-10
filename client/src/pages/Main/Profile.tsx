@@ -7,9 +7,9 @@ import { ErrorMessage, Field, FieldInputProps, Formik } from 'formik';
 import * as Yup from 'yup';
 import useCustomToast from '../../components/Toast';
 import { deleteUser, updateParticipant } from '../../utils/api/userApi';
+import { eventStore } from '../../utils/store/eventsStore';
 import { userStore } from '../../utils/store/userStore';
 import { IDelete, IUserUpdate } from '../../utils/types';
-import { eventStore } from '../../utils/store/eventsStore';
 
 dayjs.extend(customParseFormat);
 
@@ -27,7 +27,7 @@ export default function Profile() {
 	const { resetStore } = eventStore;
 
 	const { showToast } = useCustomToast();
-	
+
 	const handleUpdate = async (values: IUserUpdate) => {
 		console.log('values: ', values);
 
@@ -45,7 +45,7 @@ export default function Profile() {
 
 			// Проверяем, что result является объектом IUser
 			if (result !== null) {
-				setUser(result); // Устанавливаем пользователя только если это объект
+				setUser(result);
 				showToast({
 					title: 'Успешно!',
 					status: 'success',

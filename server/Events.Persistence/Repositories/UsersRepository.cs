@@ -153,8 +153,6 @@ public class UsersRepository : IUsersRepository
 	{
 		var entity = await _context.Participants.FindAsync(particantModel.Id);
 
-		//entity!.Email = particantModel.Email;
-		//entity!.Password = particantModel.Password;
 		entity!.FirstName = particantModel.FirstName;
 		entity!.LastName = particantModel.LastName;
 		entity!.DateOfBirth = particantModel.DateOfBirth;

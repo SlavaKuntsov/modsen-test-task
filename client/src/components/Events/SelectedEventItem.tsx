@@ -95,8 +95,8 @@ const SelectedEventItem = ({
 			});
 
 			if (result === true) {
-				removeEventById(item.id); // Удалить событие по ID
-				await refreshEvents(); // Повторно запросить обновленный список событий
+				removeEventById(item.id);
+				await refreshEvents();
 
 				showToast({
 					title: 'Успешно!',
@@ -133,8 +133,7 @@ const SelectedEventItem = ({
 						reject(error);
 					};
 				})
-			: item.image; // Используем предыдущее изображение, если новое не выбрано
-
+			: item.image;
 		try {
 			const formattedEventDateTime = dayjs(values.eventDateTime).format(
 				'DD-MM-YYYY'

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
@@ -10,7 +8,6 @@ using Events.Persistence.Entities;
 using MapsterMapper;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Events.Persistence.Repositories;
 
@@ -35,7 +32,6 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 		return _mapper.Map<IList<ParticipantModel>>(participants);
 	}
 
-	// TODO - нет по ТЗ
 	public async Task<IList<EventModel>> GetEventsByParticipant(Guid participantId)
 	{
 		var events = await _context.EventsParticipants
@@ -77,8 +73,6 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 			{
 
 				await transaction.RollbackAsync();
-				Debug.WriteLine("----------------------------------------------- 1111111");
-				Debug.WriteLine(ex.Message);
 				//return Result.Failure<Guid>($"An error occurred while creating user and saving token: {ex.Message}");
 			}
 		}
@@ -104,27 +98,22 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 
 	public async Task RemoveParticipantFromEvents(Guid participantId, IList<EventModel> events)
 	{
-		// Извлекаем EventId из модели
 		var eventIds = events.Select(e => e.Id).ToList();
 
-		// Загружаем связанные EventEntity напрямую из контекста
 		var eventEntities = await _context.Events
 		.Where(e => eventIds.Contains(e.Id))
 		.ToListAsync();
 
 		foreach (var eventEntity in eventEntities)
 		{
-			// Ищем участие участника в событии
 			var participantEvent = await _context
 				.EventsParticipants
 				.FirstOrDefaultAsync(e => e.EventId == eventEntity.Id && e.ParticipantId == participantId);
 
 			if (participantEvent != null)
 			{
-				// Удаляем участие
 				//_context.EventsParticipants.Remove(participantEvent);
 
-				// Уменьшаем счетчик участников
 				if (eventEntity.ParticipantsCount > 0)
 				{
 					eventEntity.ParticipantsCount--;
@@ -132,7 +121,6 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 			}
 		}
 
-		// Сохраняем все изменения
 		await _context.SaveChangesAsync();
 	}
 

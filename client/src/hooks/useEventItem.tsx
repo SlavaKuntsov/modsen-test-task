@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEvent } from '../utils/api/eventsApi';
 import { IEvent } from '../utils/types';
-import { LayoutGroup } from 'framer-motion';
 
 export function useEventItem(id: string | null) {
 	const queryClient = useQueryClient();
@@ -23,8 +22,7 @@ export function useEventItem(id: string | null) {
 	});
 
 	const clearEventData = () => {
-		queryClient.setQueryData(['event', id], undefined); // Обнуляем кеш
-		console.log('clearEventData ------------------')
+		queryClient.setQueryData(['event', id], undefined);
 	};
 
 	return {
@@ -32,6 +30,6 @@ export function useEventItem(id: string | null) {
 		isLoading: isInitialLoading,
 		error: error,
 		refetch,
-		clearEventData, // Функция для обнуления данных
+		clearEventData,
 	};
 }

@@ -6,7 +6,7 @@ export default function Participant() {
 	return (
 		<>
 			<Search />
-			<Events fetch={IEventsFetch.UserEvents}/>
+			<Events fetch={IEventsFetch.UserEvents} />
 		</>
 	);
 }

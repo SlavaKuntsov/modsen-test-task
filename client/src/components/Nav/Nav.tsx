@@ -5,14 +5,13 @@ import { IRoute, IUserRole } from '../../utils/types';
 import NavProfile from './NavProfile';
 
 export default function Nav() {
-	const location = useLocation(); // Получаем текущее местоположение
+	const location = useLocation(); 
 	const { user } = userStore;
 
 	const routes: Array<IRoute> = [
 		{ name: 'Все события', path: '/', role: IUserRole.All },
 		{ name: 'Мои события', path: '/participant', role: IUserRole.User },
 		{ name: 'Админ панель', path: '/admin', role: IUserRole.Admin },
-		// name: '', path: '/events'
 	];
 
 	return (

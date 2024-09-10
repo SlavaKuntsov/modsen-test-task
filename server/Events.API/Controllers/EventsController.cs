@@ -81,7 +81,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpGet(nameof(GetEventByTitle) + "/{title}")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventByTitle(string title)
 	{
 		var eventModels = await _eventsServices.GetByTitle(title);

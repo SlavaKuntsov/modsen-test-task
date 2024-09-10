@@ -8,7 +8,7 @@ export default function Home() {
 	return (
 		<>
 			<Search />
-			<Events fetch={IEventsFetch.AllEvents}/>
+			<Events fetch={IEventsFetch.AllEvents} />
 		</>
 	);
 }
