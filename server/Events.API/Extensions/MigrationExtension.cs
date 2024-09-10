@@ -19,9 +19,8 @@ public static class MigrationExtension
 		}
 		catch (Exception ex)
 		{
-			// Логируйте исключение или выводите его в консоль
 			Console.WriteLine($"Migration error: {ex.Message}");
-			throw; // или обработайте по своему усмотрению
+			throw; 
 		}
 	}
 

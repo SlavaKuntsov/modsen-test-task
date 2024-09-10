@@ -1,7 +1,5 @@
 ﻿using Events.API.Contracts.Events;
 using Events.Domain.Interfaces.Services;
-using Events.Domain.Models;
-using Events.Persistence.Entities;
 
 using MapsterMapper;
 
@@ -30,9 +28,9 @@ public class EventsController : BaseController
 
 		for (int i = 0; i < responses.Count; i++)
 		{
-			var eventModel = eventModels[i]; // Получаем соответствующий элемент из eventModels
-			if (eventModel.Image != null) // Проверяем наличие изображения
-				responses[i].Image = Convert.ToBase64String(eventModel.Image); // Конвертируем изображение
+			var eventModel = eventModels[i]; 
+			if (eventModel.Image != null) 
+				responses[i].Image = Convert.ToBase64String(eventModel.Image); 
 			else
 				responses[i].Image = "";
 		}
@@ -52,7 +50,7 @@ public class EventsController : BaseController
 		var response = _mapper.Map<GetEventResponse>(eventModel.Value);
 
 		if (eventModel.Value.Image != null)
-			response.Image = Convert.ToBase64String(eventModel.Value.Image); // Конвертируем изображение в Base64
+			response.Image = Convert.ToBase64String(eventModel.Value.Image); 
 		else
 			response.Image = "";
 
@@ -72,9 +70,9 @@ public class EventsController : BaseController
 
 		for (int i = 0; i < responses.Count; i++)
 		{
-			var eventModel = eventModels.Value[i]; // Получаем соответствующий элемент из eventModels
-			if (eventModel.Image != null) // Проверяем наличие изображения
-				responses[i].Image = Convert.ToBase64String(eventModel.Image); // Конвертируем изображение
+			var eventModel = eventModels.Value[i]; 
+			if (eventModel.Image != null) 
+				responses[i].Image = Convert.ToBase64String(eventModel.Image); 
 			else
 				responses[i].Image = "";
 		}
@@ -83,7 +81,7 @@ public class EventsController : BaseController
 	}
 
 	[HttpGet(nameof(GetEventByTitle) + "/{title}")]
-	[Authorize(Policy = "UserOrAdmin")]
+	//[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventByTitle(string title)
 	{
 		var eventModels = await _eventsServices.GetByTitle(title);
@@ -95,9 +93,9 @@ public class EventsController : BaseController
 
 		for (int i = 0; i < responses.Count; i++)
 		{
-			var eventModel = eventModels.Value[i]; // Получаем соответствующий элемент из eventModels
-			if (eventModel.Image != null) // Проверяем наличие изображения
-				responses[i].Image = Convert.ToBase64String(eventModel.Image); // Конвертируем изображение
+			var eventModel = eventModels.Value[i]; 
+			if (eventModel.Image != null) 
+				responses[i].Image = Convert.ToBase64String(eventModel.Image);
 			else
 				responses[i].Image = "";
 		}
@@ -118,9 +116,9 @@ public class EventsController : BaseController
 
 		for (int i = 0; i < responses.Count; i++)
 		{
-			var eventModel = eventModels.Value[i]; // Получаем соответствующий элемент из eventModels
-			if (eventModel.Image != null) // Проверяем наличие изображения
-				responses[i].Image = Convert.ToBase64String(eventModel.Image); // Конвертируем изображение
+			var eventModel = eventModels.Value[i]; 
+			if (eventModel.Image != null) 
+				responses[i].Image = Convert.ToBase64String(eventModel.Image); 
 			else
 				responses[i].Image = "";
 		}
@@ -141,9 +139,9 @@ public class EventsController : BaseController
 
 		for (int i = 0; i < responses.Count; i++)
 		{
-			var eventModel = eventModels.Value[i]; // Получаем соответствующий элемент из eventModels
-			if (eventModel.Image != null) // Проверяем наличие изображения
-				responses[i].Image = Convert.ToBase64String(eventModel.Image); // Конвертируем изображение
+			var eventModel = eventModels.Value[i]; 
+			if (eventModel.Image != null) 
+				responses[i].Image = Convert.ToBase64String(eventModel.Image); 
 			else
 				responses[i].Image = "";
 		}

@@ -27,12 +27,13 @@ services:
       - "5000:8080"
       - "5001:8081"
     networks:
-     - events
+      - events
     environment:
       - ConnectionStrings__DefaultConnection=Server=postgres;Database=events;User Id=postgres;Password=1;
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - postgres
+      - redis
 
   postgres:
     container_name: postgres
@@ -48,6 +49,17 @@ services:
       - postgres-data:/var/lib/postgresql/data
     networks:
      - events
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    restart: always
+    environment:
+      REDIS_PASSWORD: 1
+    ports:
+      - 6379:6379
+    networks:
+      - events
 
 volumes:
   postgres-data:

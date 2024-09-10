@@ -1,6 +1,5 @@
 ﻿services:
   postgres:
-    container_name: postgres
     image: postgres
     restart: always
     environment:
@@ -11,6 +10,22 @@
       - 5432:5432
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  redis:
+    image: redis:latest
+    restart: always
+    environment:
+      REDIS_PASSWORD: 1
+    ports:
+      - 6379:6379
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   postgres-data:

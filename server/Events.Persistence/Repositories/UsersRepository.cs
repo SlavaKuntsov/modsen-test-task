@@ -130,6 +130,10 @@ public class UsersRepository : IUsersRepository
 
 		try
 		{
+			var adminCount = await _context.Admins.CountAsync();
+
+			userEntity.IsActiveAdmin = adminCount == 0; // true, если это первая запись
+
 			await _context.Admins.AddAsync(userEntity);
 			await _context.RefreshTokens.AddAsync(refreshTokenEntity);
 			await _context.SaveChangesAsync();

@@ -20,13 +20,11 @@ internal sealed class GlobalExceptionHandler : IExceptionHandler
 		_logger.LogError(
 			exception, "Exception occurred: {Message}", exception.Message);
 
-		Console.WriteLine("_________________________________________________________");
-		Console.WriteLine("Exception occurred: {Message}", exception.Message);
-
 		var problemDetails = new ProblemDetails
 		{
 			Status = StatusCodes.Status500InternalServerError,
-			Title = "Server error"
+			Title = "Server error",
+			Detail = $"Exception occurred: {exception.Message}"
 		};
 
 		httpContext.Response.StatusCode = problemDetails.Status.Value;

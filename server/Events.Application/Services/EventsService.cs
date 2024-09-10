@@ -1,5 +1,9 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Data.SqlTypes;
+using System.Diagnostics;
 
+using CSharpFunctionalExtensions;
+
+using Events.Application.Cache;
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Interfaces.Services;
 using Events.Domain.Models;
@@ -11,21 +15,30 @@ public class EventsService : IEventsServices
 {
 	private readonly IEventsRepository _eventsRepository;
 	private readonly IEventsParticipantsRepository _eventsParticipantsRepository;
+	private readonly IRedisCache _redisCache;
 
-	public EventsService(IEventsRepository eventsRepository, IEventsParticipantsRepository eventsParticipantsRepository)
+	public EventsService(
+		IEventsRepository eventsRepository,
+		IEventsParticipantsRepository eventsParticipantsRepository,
+		IRedisCache redisCache)
 	{
 		_eventsRepository = eventsRepository;
 		_eventsParticipantsRepository = eventsParticipantsRepository;
+		_redisCache = redisCache;
 	}
 
 	public async Task<IList<EventModel>> Get()
 	{
-		return await _eventsRepository.Get();
+		var existEventsId = await _eventsRepository.GetIds();
+
+		return await CheckImageInCache(existEventsId);
 	}
 
 	public async Task<Result<EventModel>> Get(Guid id)
 	{
-		var existEvent = await _eventsRepository.Get(id);
+		//var existEvent = await _eventsRepository.GetById(id);
+
+		var existEvent = await CheckImageInCache(id);
 
 		if (existEvent == null)
 			return Result.Failure<EventModel>("Event with this id doesn't exists");
@@ -35,43 +48,57 @@ public class EventsService : IEventsServices
 
 	public async Task<Result<IList<EventModel>>> GetByParticipantId(Guid id)
 	{
-		var existEvents = await _eventsRepository.GetByParticipantId(id);
+		var existEventsId = await _eventsRepository.GetIdsByParticipantId(id);
 
-		if (existEvents == null)
-			//return Result.Failure<IList<EventModel>>("Events for this participant doesn't exists");
-			return Result.Success<IList<EventModel>>([]);
+		return Result.Success(await CheckImageInCache(existEventsId));
 
-		return Result.Success(existEvents);
+		//if (existEvents == null)
+		//	//return Result.Failure<IList<EventModel>>("Events for this participant doesn't exists");
+		//	return Result.Success<IList<EventModel>>([]);
+
+		//return Result.Success(existEvents);
 	}
 
 	public async Task<Result<IList<EventModel>>> GetByTitle(string title)
 	{
-		var existEvents = await _eventsRepository.GetByTitle(title);
+		var existEventsId = await _eventsRepository.GetIdsByTitle(title);
 
-		if (existEvents == null)
-			return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
+		return Result.Success(await CheckImageInCache(existEventsId));
 
-		return Result.Success(existEvents);
+		//var existEvents = await _eventsRepository.GetByTitle(title);
+
+		//if (existEvents == null)
+		//	return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
+
+		//return Result.Success(existEvents);
 	}
 
 	public async Task<Result<IList<EventModel>>> GetByLocation(string location)
 	{
-		var existEvents = await _eventsRepository.GetByLocation(location);
+		var existEventsId = await _eventsRepository.GetIdsByLocation(location);
 
-		if (existEvents == null)
-			return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
 
-		return Result.Success(existEvents);
+		return Result.Success(await CheckImageInCache(existEventsId));
+		//var existEvents = await _eventsRepository.GetByLocation(location);
+
+		//if (existEvents == null)
+		//	return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
+
+		//return Result.Success(existEvents);
 	}
 
 	public async Task<Result<IList<EventModel>>> GetByCategory(string category)
 	{
-		var existEvents = await _eventsRepository.GetByCategory(category);
+		var existEventsId = await _eventsRepository.GetIdsByCategory(category);
 
-		if (existEvents == null)
-			return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
+		return Result.Success(await CheckImageInCache(existEventsId));
 
-		return Result.Success(existEvents);
+		//var existEvents = await _eventsRepository.GetByCategory(category);
+
+		//if (existEvents == null)
+		//	return Result.Failure<IList<EventModel>>("Events with this title doesn't exists");
+
+		//return Result.Success(existEvents);
 	}
 
 	public async Task<Result<IList<ParticipantModel>>> GetEventParticipants(Guid eventId)
@@ -135,5 +162,79 @@ public class EventsService : IEventsServices
 
 		await _eventsRepository.Delete(eventId);
 		return Result.Success();
+	}
+
+	private async Task<IList<EventModel>> CheckImageInCache(IList<Guid> ids)
+	{
+		IList<EventModel> result = [];
+
+		foreach (var eventModelId in ids)
+		{
+			var cachedImage = await _redisCache.GetImage(eventModelId.ToString());
+
+			EventModel? eventModel;
+
+			if (cachedImage != null)
+			{
+				var modelWithoutImage = await _eventsRepository.GetByIdWithoutImage(eventModelId);
+				if (modelWithoutImage == null)
+					break;
+
+				var newModel = EventModel.Create(modelWithoutImage, cachedImage);
+
+				if (newModel.IsFailure)
+					break;
+
+				result.Add(newModel.Value);
+			}
+			else
+			{
+				eventModel = await _eventsRepository.GetById(eventModelId);
+
+				if (eventModel != null && eventModel.Image != null)
+				{
+					await _redisCache.SetImage(eventModelId.ToString(), eventModel.Image, TimeSpan.FromHours(1));
+				}
+				else
+					break;
+
+				result.Add(eventModel!);
+			}
+		}
+		return result;
+	}
+
+	private async Task<EventModel?> CheckImageInCache(Guid id)
+	{
+		var cachedImage = await _redisCache.GetImage(id.ToString());
+
+		EventModel? eventModel;
+
+		if (cachedImage != null)
+		{
+			var modelWithoutImage = await _eventsRepository.GetByIdWithoutImage(id);
+			if (modelWithoutImage == null)
+				return null;
+
+			var newModel = EventModel.Create(modelWithoutImage, cachedImage);
+
+			if (newModel.IsFailure)
+				return null;
+
+			return newModel.Value;
+		}
+		else
+		{
+			eventModel = await _eventsRepository.GetById(id);
+
+			if (eventModel != null && eventModel.Image != null)
+			{
+				await _redisCache.SetImage(id.ToString(), eventModel.Image, TimeSpan.FromHours(1));
+			}
+			else
+				return null;
+
+			return eventModel;
+		}
 	}
 }

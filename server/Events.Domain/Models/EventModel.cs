@@ -44,6 +44,18 @@ public class EventModel
 		MaxParticipants = maxParticipants;
 		Image = imageUrl;
 	}
+	private EventModel(Guid id, string title, string description, DateTime eventDateTime, string location, string category, int maxParticipants, int participantsCount, byte[] imageUrl)
+	{
+		Id = id;
+		Title = title;
+		Description = description;
+		EventDateTime = eventDateTime;
+		Location = location;
+		Category = category;
+		MaxParticipants = maxParticipants;
+		ParticipantsCount = participantsCount;
+		Image = imageUrl;
+	}
 
 	public static Result<EventModel> Create(Guid id, string title, string description, string eventDateTime, string location, string category, int maxParticipants, byte[] imageUrl)
 	{
@@ -60,5 +72,21 @@ public class EventModel
 			return Result.Failure<EventModel>(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
 
 		return model;
+	}
+
+	public static Result<EventModel> Create(EventModel model, byte[] imageUrl)
+	{
+		if (model == null)
+			return Result.Failure<EventModel>("Model cannot be null");
+
+		EventModel newModel = new(model.Id, model.Title, model.Description, model.EventDateTime, model.Location, model.Category, model.MaxParticipants, model.ParticipantsCount, imageUrl);
+
+		var validator = new EventModelValidator();
+		var validationResult = validator.Validate(newModel);
+
+		if (!validationResult.IsValid)
+			return Result.Failure<EventModel>(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
+
+		return newModel;
 	}
 }

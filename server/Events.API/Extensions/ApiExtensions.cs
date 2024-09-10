@@ -17,72 +17,72 @@ namespace Events.API.Extensions;
 
 public static class ApiExtensions
 {
-    public const string COOKIE_NAME = "yummy-cackes";
+	public const string COOKIE_NAME = "yummy-cackes";
 
-    public static IServiceCollection AddAPI(this IServiceCollection services, IConfiguration configuration)
-    {
-        var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
-        typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
+	public static IServiceCollection AddAPI(this IServiceCollection services, IConfiguration configuration)
+	{
+		var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
+		typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
 
-        var mapperConfig = new Mapper(typeAdapterConfig);
-        services.AddSingleton<IMapper>(mapperConfig);
+		var mapperConfig = new Mapper(typeAdapterConfig);
+		services.AddSingleton<IMapper>(mapperConfig);
 
-        var jwtOptions = configuration.GetSection(nameof(JwtModel)).Get<JwtModel>();
+		var jwtOptions = configuration.GetSection(nameof(JwtModel)).Get<JwtModel>();
 
-        services
-            .AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.RequireHttpsMetadata = true;
-                options.SaveToken = true;
-                options.TokenValidationParameters = new()
-                {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtOptions!.SecretKey))
-                };
-                options.Events = new JwtBearerEvents
-                {
-                    OnAuthenticationFailed = context =>
-                    {
-                        Debug.WriteLine("Authentication failed: " + context.Exception.Message);
-                        return Task.CompletedTask;
-                    },
-                    OnTokenValidated = context =>
-                    {
-                        Debug.WriteLine("Token is valid.");
-                        return Task.CompletedTask;
-                    },
-                    OnMessageReceived = context =>
-                    {
-                        context.Token = context.Request.Cookies[COOKIE_NAME]; // если токен передается в cookie
-                        return Task.CompletedTask;
-                    }
-                };
-            });
+		services
+			.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+			.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+			{
+				options.RequireHttpsMetadata = true;
+				options.SaveToken = true;
+				options.TokenValidationParameters = new()
+				{
+					ValidateIssuer = false,
+					ValidateAudience = false,
+					ValidateLifetime = true,
+					ValidateIssuerSigningKey = true,
+					IssuerSigningKey = new SymmetricSecurityKey(
+						Encoding.UTF8.GetBytes(jwtOptions!.SecretKey))
+				};
+				options.Events = new JwtBearerEvents
+				{
+					OnAuthenticationFailed = context =>
+					{
+						Debug.WriteLine("Authentication failed: " + context.Exception.Message);
+						return Task.CompletedTask;
+					},
+					OnTokenValidated = context =>
+					{
+						Debug.WriteLine("Token is valid.");
+						return Task.CompletedTask;
+					},
+					OnMessageReceived = context =>
+					{
+						context.Token = context.Request.Cookies[COOKIE_NAME]; // если токен передается в cookie
+						return Task.CompletedTask;
+					}
+				};
+			});
 
-        services.Configure<JwtModel>(configuration.GetSection(nameof(JwtModel)));
-        services.Configure<AuthorizationOptions>(configuration.GetSection(nameof(AuthorizationOptions)));
+		services.Configure<JwtModel>(configuration.GetSection(nameof(JwtModel)));
+		services.Configure<AuthorizationOptions>(configuration.GetSection(nameof(AuthorizationOptions)));
 
-        services.AddCors(options =>
-        {
-            options.AddDefaultPolicy(policy =>
-            {
-                policy.WithOrigins("http://localhost:3000");
-                policy.WithOrigins("http://localhost:5000");
-                policy.AllowAnyHeader();
-                policy.AllowAnyMethod();
-                policy.AllowCredentials();
-            });
-        });
+		services.AddCors(options =>
+		{
+			options.AddDefaultPolicy(policy =>
+			{
+				policy.WithOrigins("http://localhost:3000");
+				policy.WithOrigins("http://localhost:5000");
+				policy.AllowAnyHeader();
+				policy.AllowAnyMethod();
+				policy.AllowCredentials();
+			});
+		});
 
 		services.AddAuthorization(options =>
 		{
@@ -106,7 +106,11 @@ public static class ApiExtensions
 
 		services.AddScoped<IAuthorizationHandler, ActiveAdminHandler>();
 
+		services.AddStackExchangeRedisCache(options =>
+		{
+			options.Configuration = configuration.GetConnectionString("RedisCache");
+		});
 
 		return services;
-    }
+	}
 }

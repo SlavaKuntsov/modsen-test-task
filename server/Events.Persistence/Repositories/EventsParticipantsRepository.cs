@@ -1,4 +1,8 @@
-﻿using Events.Domain.Interfaces.Repositories;
+﻿using System.Diagnostics;
+
+using CSharpFunctionalExtensions;
+
+using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
 using Events.Domain.Models.Users;
 using Events.Persistence.Entities;
@@ -53,18 +57,37 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 			EventRegistrationDate = date,
 		};
 
-		await _context.EventsParticipants.AddAsync(entity);
+		if (entity != null)
+		{
+			using var transaction = _context.Database.BeginTransaction();
 
-		var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId);
-		if (eventEntity!.ParticipantsCount < eventEntity.MaxParticipants)
-			eventEntity!.ParticipantsCount++;
+			try
+			{
+				await _context.EventsParticipants.AddAsync(entity);
 
-		await _context.SaveChangesAsync();
+				var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId);
+				if (eventEntity!.ParticipantsCount < eventEntity.MaxParticipants)
+					eventEntity.ParticipantsCount++;
+
+				await _context.SaveChangesAsync();
+
+				transaction.Commit();
+			}
+			catch (Exception ex)
+			{
+
+				await transaction.RollbackAsync();
+				Debug.WriteLine("----------------------------------------------- 1111111");
+				Debug.WriteLine(ex.Message);
+				//return Result.Failure<Guid>($"An error occurred while creating user and saving token: {ex.Message}");
+			}
+		}
 	}
 
 	public async Task RemoveEventParticipant(Guid eventId, Guid participantId)
 	{
-		var entity = await _context.EventsParticipants
+		var entity = await _context
+			.EventsParticipants
 			.FirstOrDefaultAsync(e => e.EventId == eventId && e.ParticipantId == participantId);
 
 		if (entity != null)
@@ -92,8 +115,9 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 		foreach (var eventEntity in eventEntities)
 		{
 			// Ищем участие участника в событии
-			var participantEvent = await _context.EventsParticipants
-			.FirstOrDefaultAsync(e => e.EventId == eventEntity.Id && e.ParticipantId == participantId);
+			var participantEvent = await _context
+				.EventsParticipants
+				.FirstOrDefaultAsync(e => e.EventId == eventEntity.Id && e.ParticipantId == participantId);
 
 			if (participantEvent != null)
 			{

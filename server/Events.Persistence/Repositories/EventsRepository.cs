@@ -31,7 +31,66 @@ public class EventsRepository : IEventsRepository
 		return _mapper.Map<IList<EventModel>>(eventsEntities);
 	}
 
-	public async Task<EventModel?> Get(Guid id)
+	public async Task<IList<Guid>> GetIds()
+	{
+		var eventsEntities = await _context
+			.Events
+			.AsNoTracking()
+			.Select(e => e.Id)
+			.ToListAsync();
+
+		return _mapper.Map<IList<Guid>>(eventsEntities);
+	}
+
+	public async Task<IList<Guid>> GetIdsByParticipantId(Guid id)
+	{
+		var eventsEntities = await _context
+			.EventsParticipants
+			.AsNoTracking()
+			.Where(p => p.ParticipantId == id)
+			.Select(e => e.EventId)
+			.ToListAsync();
+
+		return _mapper.Map<IList<Guid>>(eventsEntities);
+	}
+
+	public async Task<IList<Guid>> GetIdsByTitle(string title)
+	{
+		var eventsEntities = await _context
+			.Events
+			.AsNoTracking()
+			.Where(p => p.Title == title)
+			.Select(e => e.Id)
+			.ToListAsync();
+
+		return _mapper.Map<IList<Guid>>(eventsEntities);
+	}
+
+	public async Task<IList<Guid>> GetIdsByLocation(string location)
+	{
+		var eventsEntities = await _context
+			.Events
+			.AsNoTracking()
+			.Where(p => p.Location == location)
+			.Select(e => e.Id)
+			.ToListAsync();
+
+		return _mapper.Map<IList<Guid>>(eventsEntities);
+	}
+
+	public async Task<IList<Guid>> GetIdsByCategory(string category)
+	{
+		var eventsEntities = await _context
+			.Events
+			.AsNoTracking()
+			.Where(p => p.Category == category)
+			.Select(e => e.Id)
+			.ToListAsync();
+
+		return _mapper.Map<IList<Guid>>(eventsEntities);
+	}
+
+	public async Task<EventModel?> GetById(Guid id)
 	{
 		var eventEntitiy = await _context
 			.Events
@@ -44,26 +103,49 @@ public class EventsRepository : IEventsRepository
 		return _mapper.Map<EventModel>(eventEntitiy);
 	}
 
+	public async Task<EventModel?> GetByIdWithoutImage(Guid id)
+	{
+		var eventEntitiy = await _context
+			.Events
+			.AsNoTracking()
+			.Select(e => new EventEntity
+			{
+				Id = e.Id,
+				Title = e.Title,
+				Description = e.Description,
+				EventDateTime = e.EventDateTime,
+				Location = e.Location,
+				Category = e.Category,
+				MaxParticipants = e.MaxParticipants,
+				ParticipantsCount = e.ParticipantsCount
+			})
+			.FirstOrDefaultAsync(p => p.Id == id);
+
+		if (eventEntitiy == null)
+			return null;
+
+		return _mapper.Map<EventModel>(eventEntitiy);
+	}
+
 	public async Task<IList<EventModel>?> GetByParticipantId(Guid id)
 	{
 		var eventEntitiesId = await _context
-		.EventsParticipants
-		.AsNoTracking()
-		.Where(p => p.ParticipantId == id)
-		.Select(p => p.EventId)
-		.ToListAsync();
+			.EventsParticipants
+			.AsNoTracking()
+			.Where(p => p.ParticipantId == id)
+			.Select(p => p.EventId)
+			.ToListAsync();
 
 		if (eventEntitiesId == null || eventEntitiesId.Count == 0)
 			return null;
 
 		var events = await _context
-		.Events
-		.Where(e => eventEntitiesId.Contains(e.Id))
-		.ToListAsync();
-		
+			.Events
+			.Where(e => eventEntitiesId.Contains(e.Id))
+			.ToListAsync();
+
 		return _mapper.Map<IList<EventModel>>(events);
 	}
-
 
 	public async Task<IList<EventModel>?> GetByTitle(string title)
 	{

@@ -5,7 +5,15 @@ namespace Events.Domain.Interfaces.Repositories;
 public interface IEventsRepository
 {
 	public Task<IList<EventModel>> Get();
-	public Task<EventModel?> Get(Guid id);
+
+	public Task<IList<Guid>> GetIds();
+	public Task<IList<Guid>> GetIdsByParticipantId(Guid id);
+	public Task<IList<Guid>> GetIdsByTitle(string title);
+	public Task<IList<Guid>> GetIdsByLocation(string location);
+	public Task<IList<Guid>> GetIdsByCategory(string category);
+
+	public Task<EventModel?> GetById(Guid id);
+	public Task<EventModel?> GetByIdWithoutImage(Guid id);
 	public Task<IList<EventModel>?> GetByParticipantId(Guid id);
 	public Task<IList<EventModel>?> GetByTitle(string title);
 	public Task<IList<EventModel>?> GetByLocation(string location);

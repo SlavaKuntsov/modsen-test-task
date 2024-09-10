@@ -47,7 +47,7 @@ const Events = observer(({ fetch }: { fetch: IEventsFetch }) => {
 		};
 
 		resetStore();
-		refreshEvents();
+		// refreshEvents();
 		setPrevPage(fetch);
 
 		if (fetch === IEventsFetch.AllEvents) {
