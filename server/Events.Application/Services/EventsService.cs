@@ -31,10 +31,14 @@ public class EventsService : IEventsServices
 		return await CheckImageInCache(existEventsId);
 	}
 
+	// возвращает события без изображения
+	public async Task<IList<EventModel>> GetWithoutImage()
+	{
+		return await _eventsRepository.GetWithoutImage();
+	}
+
 	public async Task<Result<EventModel>> Get(Guid id)
 	{
-		//var existEvent = await _eventsRepository.GetById(id);
-
 		var existEvent = await CheckImageInCache(id);
 
 		if (existEvent == null)

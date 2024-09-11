@@ -23,14 +23,18 @@ public class EventsController : BaseController
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEvents()
 	{
+		//var eventModels = await _eventsServices.Get();
+
+	    // изменил на получение событий без изображений, чтобы оптимизировать запросы
 		var eventModels = await _eventsServices.Get();
+
 		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels);
 
 		for (int i = 0; i < responses.Count; i++)
 		{
-			var eventModel = eventModels[i]; 
-			if (eventModel.Image != null) 
-				responses[i].Image = Convert.ToBase64String(eventModel.Image); 
+			var eventModel = eventModels[i];
+			if (eventModel.Image != null)
+				responses[i].Image = Convert.ToBase64String(eventModel.Image);
 			else
 				responses[i].Image = "";
 		}

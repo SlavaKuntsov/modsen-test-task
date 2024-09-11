@@ -5,6 +5,7 @@ namespace Events.Domain.Interfaces.Repositories;
 public interface IEventsRepository
 {
 	public Task<IList<EventModel>> Get();
+	public Task<IList<EventModel>> GetWithoutImage();
 
 	public Task<IList<Guid>> GetIds();
 	public Task<IList<Guid>> GetIdsByParticipantId(Guid id);
@@ -13,7 +14,6 @@ public interface IEventsRepository
 	public Task<IList<Guid>> GetIdsByCategory(string category);
 
 	public Task<EventModel?> GetById(Guid id);
-	public Task<EventModel?> GetByIdWithoutImage(Guid id);
 	public Task<IList<EventModel>?> GetByParticipantId(Guid id);
 	public Task<IList<EventModel>?> GetByTitle(string title);
 	public Task<IList<EventModel>?> GetByLocation(string location);

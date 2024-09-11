@@ -8,6 +8,7 @@ namespace Events.Domain.Interfaces.Services;
 public interface IEventsServices
 {
 	public Task<IList<EventModel>> Get();
+	public Task<IList<EventModel>> GetWithoutImage();
 	public Task<Result<EventModel>> Get(Guid id);
 	public Task<Result<IList<EventModel>>> GetByParticipantId(Guid id);
 	public Task<Result<IList<EventModel>>> GetByTitle(string title);

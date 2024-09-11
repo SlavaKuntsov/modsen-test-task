@@ -31,6 +31,27 @@ public class EventsRepository : IEventsRepository
 		return _mapper.Map<IList<EventModel>>(eventsEntities);
 	}
 
+	public async Task<IList<EventModel>> GetWithoutImage()
+	{
+		var eventsEntities = await _context
+			.Events
+			.AsNoTracking()
+			.Select(e => new EventEntity
+			{
+				Id = e.Id,
+				Title = e.Title,
+				Description = e.Description,
+				EventDateTime = e.EventDateTime,
+				Location = e.Location,
+				Category = e.Category,
+				MaxParticipants = e.MaxParticipants,
+				ParticipantsCount = e.ParticipantsCount
+			})
+			.ToListAsync();
+
+		return _mapper.Map<IList<EventModel>>(eventsEntities);
+	}
+
 	public async Task<IList<Guid>> GetIds()
 	{
 		var eventsEntities = await _context
