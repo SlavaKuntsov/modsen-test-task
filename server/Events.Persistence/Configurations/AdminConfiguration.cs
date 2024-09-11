@@ -28,5 +28,15 @@ public partial class AdminConfiguration : IEntityTypeConfiguration<AdminEntity>
 		builder.HasOne(a => a.RefreshToken)
 			   .WithOne(rt => rt.Admin)
 			   .HasForeignKey<RefreshTokenEntity>(rt => rt.AdminId);
+
+		builder.HasData(
+			new AdminEntity
+			{
+				Id = Guid.NewGuid(),
+				Email = "user@example.com",
+				Password = "qweQWE123",
+				Role = Domain.Enums.Role.Admin,
+				IsActiveAdmin = true
+			});
 	}
 }
