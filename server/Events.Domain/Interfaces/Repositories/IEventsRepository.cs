@@ -14,6 +14,7 @@ public interface IEventsRepository
 	public Task<IList<Guid>> GetIdsByCategory(string category);
 
 	public Task<EventModel?> GetById(Guid id);
+	public Task<EventModel?> GetByIdWithoutImage(Guid id);
 	public Task<IList<EventModel>?> GetByParticipantId(Guid id);
 	public Task<IList<EventModel>?> GetByTitle(string title);
 	public Task<IList<EventModel>?> GetByLocation(string location);
