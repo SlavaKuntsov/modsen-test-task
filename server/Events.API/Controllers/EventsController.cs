@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers;
 
-public class EventsController : BaseController
+[ApiController]
+[Route("[controller]")]
+public class EventsController : ControllerBase
 {
 	private readonly IEventsServices _eventsServices;
 	private readonly IMapper _mapper;

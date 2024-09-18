@@ -13,7 +13,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers;
 
-public class UsersController : BaseController
+[ApiController]
+[Route("[controller]")]
+public class UsersController : ControllerBase
 {
 	private readonly IUsersServices _usersServices;
 	private readonly IMapper _mapper;
