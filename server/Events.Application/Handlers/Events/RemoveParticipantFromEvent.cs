@@ -17,7 +17,7 @@ public class RemoveParticipantFromEventCommandHandler(IEventsParticipantsReposit
 
 	public async Task Handle(RemoveParticipantFromEventCommand request, CancellationToken cancellationToken)
 	{
-		if (await _eventsParticipantsRepository.IsExists(request.EventId, request.ParticipantId))
+		if (!await _eventsParticipantsRepository.IsExists(request.EventId, request.ParticipantId))
 			throw new RegistrationExistsException("Same registration doesn't exists");
 
 		await _eventsParticipantsRepository.RemoveEventParticipant(request.EventId, request.ParticipantId);

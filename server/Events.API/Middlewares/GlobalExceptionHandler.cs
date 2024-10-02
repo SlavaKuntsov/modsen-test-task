@@ -84,6 +84,15 @@ internal sealed class GlobalExceptionHandler : IExceptionHandler
 				};
 				break;
 
+			case DeleteException:
+				problemDetails = new ProblemDetails
+				{
+					Status = StatusCodes.Status400BadRequest,
+					Title = "Cannot Delete",
+					Detail = $"{exception.Message}"
+				};
+				break;
+
 			default:
 				problemDetails = new ProblemDetails
 				{

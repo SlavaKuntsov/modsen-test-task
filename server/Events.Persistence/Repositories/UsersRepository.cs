@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 
+using Events.Application.Exceptions;
 using Events.Domain.Interfaces;
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
@@ -183,6 +184,11 @@ public class UsersRepository : IUsersRepository
 		}
 		else if (typeof(T) == typeof(AdminModel))
 		{
+			var adminCount = await _context.Admins.CountAsync();
+
+			if (adminCount == 1)
+				throw new DeleteException("Сannot delete the last Admin");
+
 			var entity = await _context.Admins.FindAsync(eventId);
 
 			_context.Admins.Remove(entity!);
