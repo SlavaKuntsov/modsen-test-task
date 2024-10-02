@@ -247,8 +247,8 @@ public class EventsRepository : IEventsRepository
 	{
 		var entity = _mapper.Map<EventEntity>(eventModel);
 		await _context.Events.AddAsync(entity, cancellationToken);
-
 		await _context.SaveChangesAsync(cancellationToken);
+
 		return entity.Id;
 	}
 

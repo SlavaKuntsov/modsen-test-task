@@ -47,6 +47,6 @@ public class UpdateEventCommandHandler(IEventsRepository eventsRepository) : IRe
 			request.ParticipantsCount,
 			request.Image);
 
-		return await _eventsRepository.Create(eventModel, cancellationToken);
+		return await _eventsRepository.Update(eventModel, cancellationToken);
 	}
 }
