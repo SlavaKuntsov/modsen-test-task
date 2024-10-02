@@ -1,18 +1,22 @@
-﻿using Events.Domain.Interfaces.Services;
+﻿using Events.API.Middlewares;
+using Events.Application.Handlers.Users;
+using Events.Domain.Models.Users;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 
 using System.Security.Claims;
 
-namespace Events.API.Handlers;
+namespace Events.API.Middlewares;
 
 public class ActiveAdminHandler : AuthorizationHandler<ActiveAdminRequirement>
 {
-	private readonly IUsersServices _usersServices;
+	private readonly IMediator _mediator;
 
-	public ActiveAdminHandler(IUsersServices usersServices)
+	public ActiveAdminHandler(IMediator mediator)
 	{
-		_usersServices = usersServices;
+		_mediator = mediator;
 	}
 
 	protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ActiveAdminRequirement requirement)
@@ -29,9 +33,9 @@ public class ActiveAdminHandler : AuthorizationHandler<ActiveAdminRequirement>
 
 		if (context.User.IsInRole("Admin"))
 		{
-			var admin = await _usersServices.GetOrAuthorizeAdmin(userId);
+			var admin = await _mediator.Send(new GetOrAuthorizeUserQuery<AdminModel>(userId));
 
-			if (admin.IsFailure || !admin.Value.IsActiveAdmin)
+			if (admin != null || !admin!.IsActiveAdmin)
 			{
 				context.Fail(); // Администратор неактивен
 				return;

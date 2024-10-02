@@ -2,12 +2,21 @@
 using System.Reflection;
 using System.Text;
 
-using Events.Application.Handlers;
+using Events.API.Behaviors;
+using Events.API.Middlewares;
+using Events.API.Validators;
+using Events.Application.Handlers.Events;
+using Events.Application.Handlers.Users;
+using Events.Domain.Models.Users;
 using Events.Infrastructure.Auth;
+
+using FluentValidation;
 
 using Mapster;
 
 using MapsterMapper;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -26,6 +35,7 @@ public static class ApiExtensions
 
 		var mapperConfig = new Mapper(typeAdapterConfig);
 		services.AddSingleton<IMapper>(mapperConfig);
+
 
 		var jwtOptions = configuration.GetSection(nameof(JwtModel)).Get<JwtModel>();
 
@@ -63,14 +73,16 @@ public static class ApiExtensions
 					},
 					OnMessageReceived = context =>
 					{
-						context.Token = context.Request.Cookies[COOKIE_NAME]; // если токен передается в cookie
+						context.Token = context.Request.Cookies[COOKIE_NAME];
 						return Task.CompletedTask;
 					}
 				};
 			});
 
+
 		services.Configure<JwtModel>(configuration.GetSection(nameof(JwtModel)));
 		services.Configure<AuthorizationOptions>(configuration.GetSection(nameof(AuthorizationOptions)));
+
 
 		services.AddCors(options =>
 		{
@@ -84,6 +96,7 @@ public static class ApiExtensions
 			});
 		});
 
+
 		services.AddAuthorizationBuilder()
 			.AddPolicy("AdminOnly", policy =>
 			{
@@ -93,9 +106,10 @@ public static class ApiExtensions
 			.AddPolicy("UserOrAdmin", policy =>
 			{
 				policy.RequireRole("User", "Admin");
-				policy.AddRequirements(new ActiveAdminRequirement()); // Проверка активности администратора
+				policy.AddRequirements(new ActiveAdminRequirement());
 			})
 			.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+
 
 		services.AddScoped<IAuthorizationHandler, ActiveAdminHandler>();
 
@@ -103,6 +117,17 @@ public static class ApiExtensions
 		{
 			options.Configuration = configuration.GetConnectionString("RedisCache");
 		});
+
+		services.AddMediatR(cfg =>
+		{
+			cfg.RegisterServicesFromAssemblyContaining<ActiveAdminHandler>(); // Обязательно добавьте обработчик здесь
+			cfg.RegisterServicesFromAssemblyContaining<GetUserByFilterQueryHandler<ParticipantModel>>();
+		});
+
+		services.AddValidatorsFromAssemblyContaining<BaseCommandValidator<CreateEventCommand>>();
+
+		services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
 
 		return services;
 	}
