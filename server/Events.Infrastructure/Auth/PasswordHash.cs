@@ -1,4 +1,4 @@
-﻿using Events.Application.Interfaces.Auth;
+﻿using Events.Application.Common.Auth;
 
 namespace Events.Infrastructure.Auth;
 

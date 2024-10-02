@@ -2,8 +2,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-
-using Events.Application.Auth;
+using Events.Application.Common.Auth;
 using Events.Domain.Enums;
 using Events.Domain.Interfaces.Repositories;
 

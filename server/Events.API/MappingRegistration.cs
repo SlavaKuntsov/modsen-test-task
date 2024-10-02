@@ -1,12 +1,17 @@
-﻿using Mapster;
+﻿using Events.Application.DTOs;
+using Events.Domain.Models;
 
-namespace Events.API;
+using Mapster;
 
-public class MappingRegistration : IRegister
+namespace Events.Application.Common.Mappings;
+
+public class EventMappingConfig : IRegister
 {
-	void IRegister.Register(TypeAdapterConfig config)
+	public void Register(TypeAdapterConfig config)
 	{
-		//config.NewConfig<EventEntity, EventModel>();
-		//config.NewConfig<EventModel, GetEventResponse>();
+		config.NewConfig<EventModel, EventDto>()
+			.Map(dest => dest.Image, src => src.Image != null && src.Image.Length > 0
+				? Convert.ToBase64String(src.Image)
+				: string.Empty);
 	}
 }
