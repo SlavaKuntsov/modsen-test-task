@@ -1,7 +1,13 @@
-﻿using Events.API.Contracts.Events;
-using Events.Domain.Interfaces.Services;
+﻿using System.Globalization;
+
+using Events.API.Contracts.Events;
+using Events.Application.Handlers.Events;
+using Events.Application.Quries.Events;
+using Events.Domain.Constants;
 
 using MapsterMapper;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,191 +18,102 @@ namespace Events.API.Controllers;
 [Route("[controller]")]
 public class EventsController : ControllerBase
 {
-	private readonly IEventsServices _eventsServices;
 	private readonly IMapper _mapper;
+	private readonly IMediator _mediator;
 
-	public EventsController(IEventsServices eventsServices, IMapper mapper)
+	public EventsController(IMapper mapper, IMediator mediator)
 	{
-		_eventsServices = eventsServices;
 		_mapper = mapper;
+		_mediator = mediator;
 	}
 
 	[HttpGet($"{nameof(GetEvents)}")]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEvents()
 	{
-		//var eventModels = await _eventsServices.Get();
+		var eventDtos = await _mediator.Send(new GetEventsQuery());
 
-	    // изменил на получение событий без изображений, чтобы оптимизировать запросы
-		var eventModels = await _eventsServices.Get();
-
-		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels);
-
-		for (int i = 0; i < responses.Count; i++)
-		{
-			var eventModel = eventModels[i];
-			if (eventModel.Image != null)
-				responses[i].Image = Convert.ToBase64String(eventModel.Image);
-			else
-				responses[i].Image = "";
-		}
-
-		return Ok(responses);
+		return Ok(eventDtos);
 	}
 
 	[HttpGet(nameof(GetEvent) + "/{id:Guid}")]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEvent(Guid id)
 	{
-		var eventModel = await _eventsServices.Get(id);
+		var eventDto = await _mediator.Send(new GetEventByIdQuery(id));
 
-		if (eventModel.IsFailure)
-			return BadRequest(eventModel.Error);
-
-		var response = _mapper.Map<GetEventResponse>(eventModel.Value);
-
-		if (eventModel.Value.Image != null)
-			response.Image = Convert.ToBase64String(eventModel.Value.Image); 
-		else
-			response.Image = "";
-
-		return Ok(response);
+		return Ok(eventDto);
 	}
 
 	[HttpGet(nameof(GetEventsByParticipant) + "/{id:Guid}")]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventsByParticipant(Guid id)
 	{
-		var eventModels = await _eventsServices.GetByParticipantId(id);
+		var eventDtos = await _mediator.Send(new GetEventsByFilterQuery(participantId: id));
 
-		if (eventModels.IsFailure)
-			return BadRequest(eventModels.Error);
-
-		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels.Value);
-
-		for (int i = 0; i < responses.Count; i++)
-		{
-			var eventModel = eventModels.Value[i]; 
-			if (eventModel.Image != null) 
-				responses[i].Image = Convert.ToBase64String(eventModel.Image); 
-			else
-				responses[i].Image = "";
-		}
-
-		return Ok(responses);
+		return Ok(eventDtos);
 	}
 
 	[HttpGet(nameof(GetEventByTitle) + "/{title}")]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventByTitle(string title)
 	{
-		var eventModels = await _eventsServices.GetByTitle(title);
+		var eventDtos = await _mediator.Send(new GetEventsByFilterQuery(title: title));
 
-		if (eventModels.IsFailure)
-			return BadRequest(eventModels.Error);
-
-		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels.Value);
-
-		for (int i = 0; i < responses.Count; i++)
-		{
-			var eventModel = eventModels.Value[i]; 
-			if (eventModel.Image != null) 
-				responses[i].Image = Convert.ToBase64String(eventModel.Image);
-			else
-				responses[i].Image = "";
-		}
-
-		return Ok(responses);
+		return Ok(eventDtos);
 	}
 
 	[HttpGet(nameof(GetEventsByLocation) + "/{location}")]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventsByLocation(string location)
 	{
-		var eventModels = await _eventsServices.GetByLocation(location);
+		var eventDtos = await _mediator.Send(new GetEventsByFilterQuery(location: location));
 
-		if (eventModels.IsFailure)
-			return BadRequest(eventModels.Error);
-
-		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels.Value);
-
-		for (int i = 0; i < responses.Count; i++)
-		{
-			var eventModel = eventModels.Value[i]; 
-			if (eventModel.Image != null) 
-				responses[i].Image = Convert.ToBase64String(eventModel.Image); 
-			else
-				responses[i].Image = "";
-		}
-
-		return Ok(responses);
+		return Ok(eventDtos);
 	}
 
 	[HttpGet(nameof(GetEventsByCategory) + "/{category}")]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEventsByCategory(string category)
 	{
-		var eventModels = await _eventsServices.GetByCategory(category);
+		var eventDtos = await _mediator.Send(new GetEventsByFilterQuery(category : category));
 
-		if (eventModels.IsFailure)
-			return BadRequest(eventModels.Error);
-
-		var responses = _mapper.Map<IList<GetEventResponse>>(eventModels.Value);
-
-		for (int i = 0; i < responses.Count; i++)
-		{
-			var eventModel = eventModels.Value[i]; 
-			if (eventModel.Image != null) 
-				responses[i].Image = Convert.ToBase64String(eventModel.Image); 
-			else
-				responses[i].Image = "";
-		}
-
-		return Ok(responses);
+		return Ok(eventDtos);
 	}
 
 	[HttpGet(nameof(GetParticipantsByEvent) + "/{id:Guid}")]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetParticipantsByEvent(Guid id)
 	{
-		var users = await _eventsServices.GetEventParticipants(id);
+		var users = await _mediator.Send(new GetEventParticipantsQuery(id));
 
-		if (users.IsFailure)
-			return BadRequest(users.Error);
-
-		var response = _mapper.Map<IList<GetParticipantResponse>>(users.Value);
-
-		return Ok(response);
+		return Ok(users);
 	}
 
 	[HttpPost($"{nameof(CreateEvent)}")]
 	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> CreateEvent([FromBody] CreateEventRequest request)
 	{
-		var eventId = await _eventsServices.Create(
+		if (!DateTime.TryParseExact(request.EventDateTime, DateTimeConst.DATE_TIME_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateTime))
+			return BadRequest("Invalid date format.");
+
+		var eventId = await _mediator.Send(new CreateEventCommand(
 			request.Title,
 			request.Description,
-			request.EventDateTime,
+			parsedDateTime,
 			request.Location,
 			request.Category,
 			request.MaxParticipants,
-			request.Image
-		);
+			request.Image));
 
-		if (eventId.IsFailure)
-			return BadRequest(eventId.Error);
-
-		return Ok(eventId.Value);
+		return Ok(eventId);
 	}
 
 	[HttpPost($"{nameof(RegistrationOnEvent)}")]
 	[Authorize(Policy = "UserOnly")]
 	public async Task<IActionResult> RegistrationOnEvent([FromBody] CreateRegistrationOnEventRequest request)
 	{
-		var result =  await _eventsServices.AddParticipantToEvent(request.EventId, request.ParticipantId);
-
-		if (result.IsFailure)
-			return BadRequest(result.Error);
+		await _mediator.Send(new AddParticipantToEventCommand(request.EventId, request.ParticipantId));
 
 		return Ok();
 	}
@@ -205,10 +122,7 @@ public class EventsController : ControllerBase
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> UnregistrationOnEvent([FromBody] CreateRegistrationOnEventRequest request)
 	{
-		var result =  await _eventsServices.RemoveParticipantFromEvent(request.EventId, request.ParticipantId);
-
-		if (result.IsFailure)
-			return BadRequest(result.Error);
+		await _mediator.Send(new RemoveParticipantFromEventCommand(request.EventId, request.ParticipantId));
 
 		return Ok();
 	}
@@ -217,22 +131,28 @@ public class EventsController : ControllerBase
 	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> Update([FromBody] UpdateEventRequest request)
 	{
-		var result =  await _eventsServices.Update(request.Id, request.Title, request.Description, request.EventDateTime, request.Location, request.Category, request.MaxParticipants, request.Image);
+		if (!DateTime.TryParseExact(request.EventDateTime, DateTimeConst.DATE_TIME_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateTime))
+			return BadRequest("Invalid date format.");
 
-		if (result.IsFailure)
-			return BadRequest(result.Error);
+		var eventId = await _mediator.Send(new UpdateEventCommand(
+			request.Id,
+			request.Title,
+			request.Description,
+			parsedDateTime,
+			request.Location,
+			request.Category,
+			request.MaxParticipants,
+			request.ParticipantsCount,
+			request.Image));
 
-		return Ok(result.Value);
+		return Ok(eventId);
 	}
 
 	[HttpDelete(nameof(Delete) + "/{id:Guid}")]
 	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> Delete(Guid id)
 	{
-		var result =  await _eventsServices.Delete(id);
-
-		if (result.IsFailure)
-			return BadRequest(result.Error);
+		await _mediator.Send(new DeleteEventCommand(id));
 
 		return Ok();
 	}

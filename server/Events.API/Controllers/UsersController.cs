@@ -1,12 +1,20 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 
 using Events.API.Contracts.Participants;
 using Events.API.Contracts.Users;
 using Events.API.Extensions;
+using Events.Application.DTOs;
+using Events.Application.Exceptions;
+using Events.Application.Handlers.Tokens;
+using Events.Application.Handlers.Users;
+using Events.Domain.Constants;
 using Events.Domain.Enums;
-using Events.Domain.Interfaces.Services;
+using Events.Domain.Models.Users;
 
 using MapsterMapper;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,28 +25,45 @@ namespace Events.API.Controllers;
 [Route("[controller]")]
 public class UsersController : ControllerBase
 {
-	private readonly IUsersServices _usersServices;
 	private readonly IMapper _mapper;
+	private readonly IMediator _mediator;
 
-	public UsersController(IUsersServices usersServices, IMapper mapper)
+	public UsersController(IMapper mapper, IMediator mediator)
 	{
-		_usersServices = usersServices;
 		_mapper = mapper;
+		_mediator = mediator;
 	}
 
 	[HttpPost(nameof(Login))]
 	public async Task<IActionResult> Login([FromBody] CreateLoginRequest request)
 	{
-		var authResult  = await _usersServices.Login(request.Email, request.Password);
+		var participantModel = await _mediator.Send(new GetUserByFilterQuery<ParticipantModel>(email: request.Email));
 
-		if (authResult.IsFailure)
-			return Unauthorized(authResult.Error);
+		if (participantModel != null)
+		{
+			await _mediator.Send(new LoginUserQuery<ParticipantModel>(participantModel, request.Password));
 
-		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
+			var authResultDto = await _mediator.Send(new GenerateAndUpdateTokensCommand(participantModel.Id, participantModel.Role));
 
-		var result = _mapper.Map<GetAuthResultResponse>(authResult.Value);
+			HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResultDto.RefreshToken);
 
-		return Ok(result);
+			return Ok(authResultDto);
+		}
+
+		var adminModel = await _mediator.Send(new GetUserByFilterQuery<AdminModel>(email: request.Email));
+
+		if (adminModel != null)
+		{
+			await _mediator.Send(new LoginUserQuery<AdminModel>(adminModel, request.Password));
+
+			var authResultDto = await _mediator.Send(new GenerateAndUpdateTokensCommand(adminModel.Id, adminModel.Role));
+
+			HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResultDto.RefreshToken);
+
+			return Ok(authResultDto);
+		}
+
+		return Unauthorized("User with this email doesn't exists");
 	}
 
 	[HttpPost(nameof(ParticipantRegistration))]
@@ -50,76 +75,72 @@ public class UsersController : ControllerBase
 		if (role != Role.User)
 			return (BadRequest("Role does not equal the necessary one"));
 
-		var authResult = await _usersServices.ParticipantRegistration(request.Email, request.Password, role, request.FirstName, request.LastName, request.DateOfBirth);
+		if (!DateTime.TryParseExact(request.DateOfBirth, DateTimeConst.DATE_TIME_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateTime))
+			return BadRequest("Invalid date format.");
 
-		if (authResult.IsFailure)
-			return Unauthorized(authResult.Error);
+		var authResult = await _mediator.Send(new UserRegistrationCommand<ParticipantModel>(request.Email, request.Password, role, request.FirstName, request.LastName, parsedDateTime));
 
-		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
+		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.RefreshToken);
 
-		var result = _mapper.Map<GetAuthResultResponse>(authResult.Value);
-
-		return Ok(result);
+		return Ok(authResult);
 	}
 
 	[HttpPost(nameof(AdminRegistration))]
 	public async Task<IActionResult> AdminRegistration([FromBody] CreateAdminRequest request)
 	{
 		if (!Enum.TryParse<Role>(request.Role, out var role))
-			//throw new BadHttpRequestException("Such role does not exist");
 			return BadRequest("Such role does not exist");
 
 		if (role != Role.Admin)
 			return BadRequest("Role does not equal the necessary one");
 
-		var authResult = await _usersServices.AdminRegistration(request.Email, request.Password, role);
+		var authResult = await _mediator.Send(new UserRegistrationCommand<AdminModel>(request.Email, request.Password, role));
 
-		if (authResult.IsFailure)
-			return Unauthorized(authResult.Error);
+		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.RefreshToken);
 
-		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
-
-		var result = _mapper.Map<GetAuthResultResponse>(authResult.Value);
-
-		return Ok(result);
+		return Ok(authResult);
 	}
 
 	[HttpPut(nameof(Update))]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> Update([FromBody] UpdateParticipantRequest request)
 	{
-		var particantModel =  await _usersServices.Update(request.Id, request.FirstName, request.LastName, request.DateOfBirth);
+		if (!DateTime.TryParseExact(request.DateOfBirth, DateTimeConst.DATE_TIME_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateTime))
+			return BadRequest("Invalid date format.");
 
-		if (particantModel.IsFailure)
-			return BadRequest(particantModel.Error);
+		var particantModel =  await _mediator.Send(new UpdateParticipantCommand(request.Id, request.FirstName, request.LastName, parsedDateTime));
 
-		var result = _mapper.Map<GetParticipantResponse>(particantModel.Value);
-
-		return Ok(result);
+		return Ok(particantModel);
 	}
 
 	[HttpDelete(nameof(Delete) + "/{id:Guid}")]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> Delete(Guid id)
 	{
-		var user =  await _usersServices.Delete(id);
+		var participantModel = await _mediator.Send(new GetUserByFilterQuery<ParticipantModel>(userId: id));
 
-		if (user.IsFailure)
-			return BadRequest(user.Error);
+		if (participantModel != null)
+		{
+			await _mediator.Send(new DeleteUserCommand<ParticipantModel>(id));
+			return Ok();
+		}
 
-		return Ok();
+		var adminModel = await _mediator.Send(new GetUserByFilterQuery<AdminModel>(userId: id));
+
+		if (adminModel != null)
+		{
+			await _mediator.Send(new DeleteUserCommand<AdminModel>(id));
+			return Ok();
+		}
+
+		return Unauthorized("User with this id doesn't exists");
 	}
 
 	[HttpGet(nameof(AdminActivation) + "/{id:Guid}")]
 	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> AdminActivation(Guid id)
 	{
-		var model = await _usersServices.ChangeAdminActivation(id, true);
-
-		if (model.IsFailure)
-			return BadRequest(model.Error);
-
-		//var result = _mapper.Map<GetAuthResultResponse>(model.Value);
+		await _mediator.Send(new ChangeAdminActivationCommand(id, true));
 
 		return Ok();
 	}
@@ -128,12 +149,7 @@ public class UsersController : ControllerBase
 	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> AdminDeactivation(Guid id)
 	{
-		var model = await _usersServices.ChangeAdminActivation(id, false);
-
-		if (model.IsFailure)
-			return BadRequest(model.Error);
-
-		//var result = _mapper.Map<GetAuthResultResponse>(model.Value);
+		await _mediator.Send(new ChangeAdminActivationCommand(id, false));
 
 		return Ok();
 	}
@@ -146,16 +162,13 @@ public class UsersController : ControllerBase
 		if (string.IsNullOrEmpty(refreshToken))
 			return Unauthorized("Refresh token is missing.");
 
-		var authResult = await _usersServices.RefreshToken(refreshToken);
+		var userDto = await _mediator.Send(new RefreshTokenCommand(refreshToken));
 
-		if (authResult.IsFailure)
-			return Unauthorized(authResult.Error);
+		var authResult = await _mediator.Send(new GenerateAndUpdateTokensCommand(userDto.Id, userDto.Role));
 
-		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.Value.RefreshToken);
+		HttpContext.Response.Cookies.Append(ApiExtensions.COOKIE_NAME, authResult.RefreshToken);
 
-		var result = _mapper.Map<GetAuthResultResponse>(authResult.Value);
-
-		return Ok(result);
+		return Ok(authResult);
 	}
 
 	[HttpGet(nameof(Authorize))]
@@ -163,26 +176,26 @@ public class UsersController : ControllerBase
 	public async Task<IActionResult> Authorize()
 	{
 		var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-		//var userRoleClaim = User.FindFirst(ClaimTypes.Role);
 
 		if (userIdClaim == null)
 			return Unauthorized("User ID not found in claims.");
 
 		Guid userId = Guid.Parse(userIdClaim.Value);
 
-		var participant = await _usersServices.GetOrAuthorize(userId);
-		var admin = await _usersServices.GetOrAuthorizeAdmin(userId);
+		var participant = await _mediator.Send(new GetOrAuthorizeUserQuery<ParticipantModel>(userId));
 
-		if (participant.IsSuccess)
-			return Ok(_mapper.Map<GetParticipantResponse>(participant.Value));
-		if (admin.IsSuccess)
-			return Ok(_mapper.Map<GetParticipantResponse>(admin.Value));
-		else
-			return BadRequest(participant.Error);
+		if (participant != null)
+			return Ok(_mapper.Map<ParticipantDto>(participant));
+
+		var admin = await _mediator.Send(new GetOrAuthorizeUserQuery<AdminModel>(userId));
+
+		if (admin != null)
+			return Ok(_mapper.Map<AdminDto>(admin));
+
+		return BadRequest("User not found");
 	}
 
 	[HttpGet(nameof(Unauthorize))]
-	//[Authorize(Policy = "UserOrAdmin")]
 	public IActionResult Unauthorize()
 	{
 		HttpContext.Response.Cookies.Delete(ApiExtensions.COOKIE_NAME);
@@ -194,22 +207,30 @@ public class UsersController : ControllerBase
 	[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> GetParticipant(Guid id)
 	{
-		var user = await _usersServices.GetOrAuthorize(id);
+		var user = await _mediator.Send(new GetOrAuthorizeUserQuery<ParticipantModel>(id));
 
-		if (user.IsFailure)
-			return Unauthorized(user.Error);
+		if (user == null)
+			throw new NotFoundException($"Participant not found");
 
-		var response = _mapper.Map<GetParticipantResponse>(user.Value);
+		return Ok(_mapper.Map<ParticipantDto>(user));
+	}
 
-		return Ok(response);
+	[HttpGet(nameof(GetParticipants))]
+	//[Authorize(Policy = "AdminOnly")]
+	public async Task<IActionResult> GetParticipants()
+	{
+		var adminModels = await _mediator.Send(new GetUsersQuery<ParticipantModel>());
+		var responses = _mapper.Map<IList<ParticipantDto>>(adminModels);
+
+		return Ok(responses);
 	}
 
 	[HttpGet(nameof(GetAdmins))]
-	[Authorize(Policy = "AdminOnly")]
+	//[Authorize(Policy = "AdminOnly")]
 	public async Task<IActionResult> GetAdmins()
 	{
-		var adminModels = await _usersServices.GetAdmins();
-		var responses = _mapper.Map<IList<GetAdminResponse>>(adminModels);
+		var adminModels = await _mediator.Send(new GetUsersQuery<AdminModel>());
+		var responses = _mapper.Map<IList<AdminDto>>(adminModels);
 
 		return Ok(responses);
 	}
