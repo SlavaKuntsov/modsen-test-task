@@ -9,7 +9,7 @@
 docker compose up -d --build
 ```
 
-###### Если нужно запустить только Postgresql и Redis в Docker, то нужно сделать docker compose в директории **server**
+###### Если нужно запустить только Postgresql и Redis в Docker, то нужно сделать docker compose в директории **./server**
 ### Ports
 Клиент доступен по адресу:
 ```
@@ -32,7 +32,7 @@ dotnet ef database update -s Events.API -p Events.Persistence
 Есть разделение на две роли, **Admin** и **User**(Participant).
 #### Клиент:
 ###### При запуске будет иметься Admin user@example.com с паролем qweQWE123
-###### А также учатник kuncovs19@gmail.com с паролем qweQWE123
+###### А также участник kuncovs19@gmail.com с паролем qweQWE123
 Зарегистрироваться можно только от имени участника. Чтобы сделать это от роли Admin, нужно делать это через Swagger, например:
 ``` json
 {

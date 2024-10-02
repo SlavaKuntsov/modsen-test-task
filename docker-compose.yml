@@ -1,5 +1,3 @@
-# version: '3.8'
-
 networks:
   events:
     driver: bridge
@@ -34,6 +32,8 @@ services:
     depends_on:
       - postgres
       - redis
+    # volumes:
+    # - ./server:/app
 
   postgres:
     container_name: postgres
