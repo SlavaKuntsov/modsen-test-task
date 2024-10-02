@@ -33,7 +33,9 @@ public class EventsRepository : IEventsRepository
 
 	public async Task<IList<EventModel>> GetWithoutImage()
 	{
-		var eventsEntities = await _context
+		try
+		{
+			var eventsEntities = await _context
 			.Events
 			.AsNoTracking()
 			.Select(e => new EventEntity
@@ -49,7 +51,13 @@ public class EventsRepository : IEventsRepository
 			})
 			.ToListAsync();
 
-		return _mapper.Map<IList<EventModel>>(eventsEntities);
+			return _mapper.Map<IList<EventModel>>(eventsEntities);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error : {ex.Message}");
+			throw;
+		}
 	}
 
 	public async Task<IList<Guid>> GetIds()
@@ -126,7 +134,9 @@ public class EventsRepository : IEventsRepository
 
 	public async Task<EventModel?> GetByIdWithoutImage(Guid id)
 	{
-		var eventEntitiy = await _context
+		try
+		{
+			var eventEntitiy = await _context
 			.Events
 			.AsNoTracking()
 			.Select(e => new EventEntity
@@ -142,10 +152,19 @@ public class EventsRepository : IEventsRepository
 			})
 			.FirstOrDefaultAsync(p => p.Id == id);
 
-		if (eventEntitiy == null)
-			return null;
+			if (eventEntitiy == null)
+			{
+				Console.WriteLine($"Event with ID {id} not found.");
+				return null;
+			}
 
-		return _mapper.Map<EventModel>(eventEntitiy);
+			return _mapper.Map<EventModel>(eventEntitiy);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error : {ex.Message}");
+			throw;
+		}
 	}
 
 	public async Task<IList<EventModel>?> GetByParticipantId(Guid id)
@@ -209,20 +228,6 @@ public class EventsRepository : IEventsRepository
 
 		return _mapper.Map<IList<EventModel>>(eventEntities);
 	}
-
-	//public async Task<EventModel?> Get<T>(T value, Func<EventModel, bool> predicate)
-	//{
-	//	var eventEntity = await _context
-	//	.Events
-	//	.AsNoTracking()
-	//	.FirstOrDefaultAsync(e => predicate(e));
-
-	//	if (eventEntity == null)
-	//		return null;
-
-	//	var model = _mapper.Map<EventModel>(eventEntity);
-	//	return model;
-	//}
 
 	public async Task<Guid> Create(EventModel eventModel)
 	{

@@ -71,9 +71,8 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 			}
 			catch (Exception ex)
 			{
-
 				await transaction.RollbackAsync();
-				//return Result.Failure<Guid>($"An error occurred while creating user and saving token: {ex.Message}");
+				throw new InvalidOperationException($"An error occurred while adding event for participant and saving token: {ex.Message}", ex);
 			}
 		}
 	}

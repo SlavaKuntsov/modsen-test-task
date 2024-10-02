@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 
+using Events.Domain.Interfaces;
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
 using Events.Domain.Models.Users;
@@ -22,30 +23,51 @@ public class UsersRepository : IUsersRepository
 		_mapper = mapper;
 	}
 
-	public async Task<ParticipantModel?> Get(Guid id)
+	public async Task<IList<T>> Get<T>() where T : IUser
 	{
-		var participantEntitiy = await _context
-			.Participants
+		if (typeof(T) == typeof(ParticipantModel))
+		{
+			var participantEntities = await _context.Participants
 			.AsNoTracking()
-			.FirstOrDefaultAsync(p => p.Id == id);
+			.ToListAsync();
 
-		if (participantEntitiy == null)
-			return null;
+			return _mapper.Map<IList<ParticipantModel>>(participantEntities) as IList<T>
+				?? throw new InvalidOperationException("Mapping error for ParticipantModel.");
+		}
+		else if (typeof(T) == typeof(AdminModel))
+		{
+			var adminEntities = await _context.Admins
+			.AsNoTracking()
+			.ToListAsync();
 
-		return _mapper.Map<ParticipantModel>(participantEntitiy);
+			return _mapper.Map<IList<AdminModel>>(adminEntities) as IList<T>
+				?? throw new InvalidOperationException("Mapping error for AdminModel.");
+		}
+
+		throw new InvalidOperationException("The entity was not found.");
 	}
 
-	public async Task<AdminModel?> GetAdmin(Guid id)
+
+	public async Task<T?> Get<T>(Guid id) where T : IUser
 	{
-		var participantEntitiy = await _context
-			.Admins
-			.AsNoTracking()
-			.FirstOrDefaultAsync(p => p.Id == id);
+		if (typeof(T) == typeof(ParticipantModel))
+		{
+			var participantEntity = await _context.Participants
+				.AsNoTracking()
+				.FirstOrDefaultAsync(p => p.Id == id);
 
-		if (participantEntitiy == null)
-			return null;
+			return participantEntity != null ? _mapper.Map<T>(participantEntity) : default;
+		}
+		else if (typeof(T) == typeof(AdminModel))
+		{
+			var adminEntity = await _context.Admins
+				.AsNoTracking()
+				.FirstOrDefaultAsync(a => a.Id == id);
 
-		return _mapper.Map<AdminModel>(participantEntitiy);
+			return adminEntity != null ? _mapper.Map<T>(adminEntity) : default;
+		}
+
+		throw new InvalidOperationException("The entity was not found.");
 	}
 
 	public async Task<IList<AdminModel>> GetAdmins()
@@ -58,30 +80,26 @@ public class UsersRepository : IUsersRepository
 		return _mapper.Map<IList<AdminModel>>(adminEntities);
 	}
 
-	public async Task<ParticipantModel?> Get(string email)
+	public async Task<T?> Get<T>(string email) where T : IUser
 	{
-		var participantEntitiy = await _context
-			.Participants
-			.AsNoTracking()
-			.FirstOrDefaultAsync(p => p.Email == email);
+		if (typeof(T) == typeof(ParticipantModel))
+		{
+			var participantEntity = await _context.Participants
+				.AsNoTracking()
+				.FirstOrDefaultAsync(p => p.Email == email);
 
-		if (participantEntitiy == null)
-			return null;
+			return participantEntity != null ? _mapper.Map<T>(participantEntity) : default;
+		}
+		else if (typeof(T) == typeof(AdminModel))
+		{
+			var adminEntity = await _context.Admins
+				.AsNoTracking()
+				.FirstOrDefaultAsync(a => a.Email == email);
 
-		return _mapper.Map<ParticipantModel>(participantEntitiy);
-	}
+			return adminEntity != null ? _mapper.Map<T>(adminEntity) : default;
+		}
 
-	public async Task<AdminModel?> GetAdmin(string email)
-	{
-		var participantEntitiy = await _context
-			.Admins
-			.AsNoTracking()
-			.FirstOrDefaultAsync(p => p.Email == email);
-
-		if (participantEntitiy == null)
-			return null;
-
-		return _mapper.Map<AdminModel>(participantEntitiy);
+		throw new InvalidOperationException("The entity was not found.");
 	}
 
 	public async Task<ParticipantModel?> Get(string email, string password)
@@ -97,55 +115,47 @@ public class UsersRepository : IUsersRepository
 		return _mapper.Map<ParticipantModel>(participantEntitiy);
 	}
 
-	public async Task<Result<Guid>> Create(ParticipantModel user, RefreshTokenModel refreshTokenModel)
+	public async Task<Result<Guid>> Create<T>(T user, RefreshTokenModel refreshTokenModel) where T : IUser
 	{
-		var userEntity = _mapper.Map<ParticipantEntity>(user);
 		var refreshTokenEntity = _mapper.Map<RefreshTokenEntity>(refreshTokenModel);
 
 		using var transaction = _context.Database.BeginTransaction();
 
 		try
 		{
-			await _context.Participants.AddAsync(userEntity);
-			await _context.RefreshTokens.AddAsync(refreshTokenEntity);
-			await _context.SaveChangesAsync();
+			if (typeof(T) == typeof(ParticipantModel))
+			{
+				var userEntity = _mapper.Map<ParticipantEntity>(user as ParticipantModel);
+				await _context.Participants.AddAsync(userEntity);
+				await _context.RefreshTokens.AddAsync(refreshTokenEntity);
+				await _context.SaveChangesAsync();
 
-			transaction.Commit();
+				transaction.Commit();
 
-			return userEntity.Id;
+				return userEntity.Id;
+			}
+			else if (typeof(T) == typeof(AdminModel))
+			{
+				var userEntity = _mapper.Map<AdminEntity>(user as AdminModel);
+				var adminCount = await _context.Admins.CountAsync();
+
+				userEntity.IsActiveAdmin = adminCount == 0; // true, если это первая запись
+
+				await _context.Admins.AddAsync(userEntity);
+				await _context.RefreshTokens.AddAsync(refreshTokenEntity);
+				await _context.SaveChangesAsync();
+
+				transaction.Commit();
+
+				return userEntity.Id;
+			}
+
+			throw new InvalidOperationException("The user type is not supported.");
 		}
 		catch (Exception ex)
 		{
 			await transaction.RollbackAsync();
-			return Result.Failure<Guid>($"An error occurred while creating user and saving token: {ex.Message}");
-		}
-	}
-
-	public async Task<Result<Guid>> Create(AdminModel user, RefreshTokenModel refreshTokenModel)
-	{
-		var userEntity = _mapper.Map<AdminEntity>(user);
-		var refreshTokenEntity = _mapper.Map<RefreshTokenEntity>(refreshTokenModel);
-
-		using var transaction = _context.Database.BeginTransaction();
-
-		try
-		{
-			var adminCount = await _context.Admins.CountAsync();
-
-			userEntity.IsActiveAdmin = adminCount == 0; // true, если это первая запись
-
-			await _context.Admins.AddAsync(userEntity);
-			await _context.RefreshTokens.AddAsync(refreshTokenEntity);
-			await _context.SaveChangesAsync();
-
-			transaction.Commit();
-
-			return userEntity.Id;
-		}
-		catch (Exception ex)
-		{
-			await transaction.RollbackAsync();
-			return Result.Failure<Guid>($"An error occurred while creating admin and saving token: {ex.Message}");
+			throw new InvalidOperationException($"An error occurred while creating user and saving token: {ex.Message}", ex);
 		}
 	}
 
@@ -162,20 +172,24 @@ public class UsersRepository : IUsersRepository
 		return _mapper.Map<ParticipantModel>(entity);
 	}
 
-	public async Task Delete(Guid eventId)
+	public async Task Delete<T>(Guid eventId)
 	{
-		var entity = await _context.Participants.FindAsync(eventId);
+		if (typeof(T) == typeof(ParticipantModel))
+		{
+			var entity = await _context.Participants.FindAsync(eventId);
 
-		_context.Participants.Remove(entity!);
-		await _context.SaveChangesAsync();
-	}
+			_context.Participants.Remove(entity!);
+			await _context.SaveChangesAsync();
+		}
+		else if (typeof(T) == typeof(AdminModel))
+		{
+			var entity = await _context.Admins.FindAsync(eventId);
 
-	public async Task DeleteAdmin(Guid eventId)
-	{
-		var entity = await _context.Admins.FindAsync(eventId);
+			_context.Admins.Remove(entity!);
+			await _context.SaveChangesAsync();
+		}
 
-		_context.Admins.Remove(entity!);
-		await _context.SaveChangesAsync();
+		throw new InvalidOperationException("The entity was not found.");
 	}
 
 	public async Task<AdminModel> ChangeAdminActivation(Guid id, bool isActive)
