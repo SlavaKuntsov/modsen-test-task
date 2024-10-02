@@ -1,6 +1,5 @@
-﻿using Events.Application.Auth;
-using Events.Application.Cache;
-using Events.Application.Interfaces.Auth;
+﻿using Events.Application.Common.Auth;
+using Events.Application.Common.Cache;
 using Events.Infrastructure.Auth;
 using Events.Infrastructure.Cache;
 
@@ -16,6 +15,7 @@ public static class InfrastructureExtensions
 		services.AddScoped<IJwt, Jwt>();
 
 		services.AddScoped<IRedisCache, RedisCache>();
+		services.AddScoped<IRedisCacheCheck, RedisCacheCheck>();
 
 		return services;
 	}
