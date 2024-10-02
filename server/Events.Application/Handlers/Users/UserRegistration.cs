@@ -7,6 +7,7 @@ using Events.Domain.Models;
 using MediatR;
 using Events.Domain.Enums;
 using Events.Application.Exceptions;
+using Mapster;
 
 namespace Events.Application.Handlers.Users;
 
@@ -62,7 +63,7 @@ public class UserRegistrationCommandHandler<T>(IUsersRepository usersRepository,
 		var refreshToken = _jwt.GenerateRefreshToken();
 
 		var refreshTokenModel = RefreshTokenModel.Create(userModel.Id,
-												   Role.User,
+												   userModel.Role,
 												   refreshToken,
 												   _jwt.GetRefreshTokenExpirationDays());
 

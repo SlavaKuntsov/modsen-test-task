@@ -8,7 +8,7 @@ public  class AdminDto
 
 	public string Email { get; set; } = string.Empty;
 
-	public Role Role { get; set; }
+	public string Role { get; set; } = string.Empty;
 
 	public bool IsActiveAdmin { get; set; }
 }
