@@ -1,16 +1,12 @@
-﻿using Events.Domain.Models;
-
+﻿using Events.Application.Handlers.Events;
 using FluentValidation;
 
-namespace Events.Domain.Validators.Users;
+namespace Events.API.Validators.Events;
 
-public class EventModelValidator : AbstractValidator<EventModel>
+public class UpdateEventCommandValidator : BaseCommandValidator<UpdateEventCommand>
 {
-	public EventModelValidator()
+	public UpdateEventCommandValidator()
 	{
-		RuleFor(user => user.Id)
-			.NotNull();
-
 		RuleFor(x => x.Title)
 			.NotEmpty().WithMessage("Title cannot be null or empty.");
 
@@ -30,15 +26,11 @@ public class EventModelValidator : AbstractValidator<EventModel>
 
 		RuleFor(x => x.ParticipantsCount)
 			.NotNull().WithMessage("ParticipantsCount cannot be null or empty.");
-
-		//RuleFor(x => x.Image)
-		//	.NotEmpty().WithMessage("Image cannot be null or empty.");
 	}
 
 	private bool BeAValidDate(DateTime dateOfBirth)
 	{
 		// Проверяем, что дата соответствует формату
-		return dateOfBirth != default(DateTime);
+		return dateOfBirth != default;
 	}
 }
-

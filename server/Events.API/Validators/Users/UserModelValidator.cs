@@ -2,7 +2,7 @@
 
 using FluentValidation;
 
-namespace Events.Domain.Validators.Users;
+namespace Events.API.Validators.Users;
 
 public class UserModelValidator : AbstractValidator<UserModel>
 {
