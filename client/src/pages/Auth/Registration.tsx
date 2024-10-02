@@ -66,8 +66,9 @@ export default function Registration() {
 				setAuth(true);
 			} else if (typeof result === 'string') {
 				showToast({
-					title: result,
+					title: 'Ошибка!',
 					status: 'error',
+					description: result,
 				});
 			}
 		} catch (error) {

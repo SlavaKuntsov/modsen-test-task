@@ -22,6 +22,8 @@ export default function Nav() {
 			<div className='flex flex-row gap-6 justify-center'>
 				{routes
 					.filter(item => {
+						console.log('ROLEEEEEE')
+						console.log(item.role + ' - ' + user?.role)
 						return item.role === IUserRole.All || user?.role === item.role;
 					})
 					.map((item, id) => {

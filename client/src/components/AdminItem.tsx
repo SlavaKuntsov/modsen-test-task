@@ -30,8 +30,9 @@ const AdminItem = observer(({ item, refreshAdmins }: AdminItemProps) => {
 				});
 			} else if (typeof result === 'string') {
 				showToast({
-					title: result,
+					title: 'Ошибка!',
 					status: 'error',
+					description: result,
 				});
 			}
 		} catch (error) {
@@ -57,8 +58,9 @@ const AdminItem = observer(({ item, refreshAdmins }: AdminItemProps) => {
 				});
 			} else if (typeof result === 'string') {
 				showToast({
-					title: result,
+					title: 'Ошибка!',
 					status: 'error',
+					description: result,
 				});
 			}
 		} catch (error) {

@@ -32,8 +32,10 @@ const App = observer(() => {
 
 	useLayoutEffect(() => {
 		const fetchUserData = async () => {
+			console.log(123)
 			if (!isAuth2) {
 				const userData = await checkAccessToken();
+				console.log('userData: ', userData);
 				if (userData) {
 					setUser(userData);
 					setAuth2(true);
@@ -68,6 +70,7 @@ const App = observer(() => {
 					element={<AuthGuard user={user} component={<Home />} />}
 				/>
 
+				{/* Список событий где зарегистрирован участник */}
 				<Route
 					path='/participant'
 					element={

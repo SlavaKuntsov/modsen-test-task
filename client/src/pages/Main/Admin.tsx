@@ -1,4 +1,5 @@
-import { DatePicker } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import { DatePicker, Popconfirm } from 'antd';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -11,9 +12,10 @@ import Button from '../../components/Button';
 import Loader from '../../components/Loader';
 import useCustomToast from '../../components/Toast';
 import { createEvent } from '../../utils/api/eventsApi';
-import { getAdmins } from '../../utils/api/userApi';
+import { deleteUser, getAdmins } from '../../utils/api/userApi';
+import { eventStore } from '../../utils/store/eventsStore';
 import { userStore } from '../../utils/store/userStore';
-import { IEvent } from '../../utils/types';
+import { IDelete, IEvent } from '../../utils/types';
 
 dayjs.extend(customParseFormat);
 
@@ -31,7 +33,11 @@ const EventSchema = Yup.object().shape({
 const Admin = observer(() => {
 	document.title = 'Admin';
 
-	const { admins, setAdmins, isAdminsLoading, user } = userStore;
+	const { admins, setAuth, setAdmins, isAdminsLoading, user, logout } =
+		userStore;
+
+	const { resetStore } = eventStore;
+
 	console.log('isAdminsLoading: ', isAdminsLoading);
 
 	const { showToast } = useCustomToast();
@@ -109,6 +115,42 @@ const Admin = observer(() => {
 
 		const data = await getAdmins();
 		setAdmins(data);
+	};
+
+	const handleDelete = async () => {
+		try {
+			const userData: IDelete = {
+				id: user?.id,
+			};
+
+			const result = await deleteUser(userData);
+			console.log('result: ', result);
+
+			// Проверяем, что result является объектом IUser
+			if (result === true) {
+				await logout();
+				resetStore();
+				showToast({
+					title: 'Успешно!',
+					status: 'success',
+				});
+			} else if (typeof result === 'string') {
+				// Если result — это строка (ошибка), выводим сообщение об ошибке
+				showToast({
+					title: 'Ошибка!',
+					status: 'error',
+					description: result,
+				});
+			}
+		} catch (error) {
+			console.error('Error deleting user:', error);
+			setAuth(false);
+			showToast({
+				title: 'Ошибка!',
+				description: 'An unexpected error occurred',
+				status: 'error',
+			});
+		}
 	};
 
 	return (
@@ -262,32 +304,38 @@ const Admin = observer(() => {
 					</form>
 				)}
 			</Formik>
+
 			<h1 className='text-2xl font-semibold mt-5'>Активация Администраторов</h1>
 			<div className='flex flex-col gap-4 items-center justify-center'>
-				{isAdminsLoading ? (
-					admins!.length > 0 ? (
-						admins?.map((item, id) => {
-							return (
-								item.id !== user?.id && (
-									<AdminItem
-										key={id}
-										item={item}
-										refreshAdmins={refreshAdmins}
-									/>
-								)
-							);
-						})
-					) : (
-						<div className='w-full h-full flex items-center justify-center text-center'>
-							<h3 className='text-lg font-medium p-2'>
-								2Других администраторов не найдено...
-							</h3>
-						</div>
-					)
-				) : (
+				{!isAdminsLoading ? (
 					<Loader size='medium' />
+				) : admins == null || admins.length == 0 ? (
+					<div className='w-full h-full flex items-center justify-center text-center'>
+						<h3 className='text-lg font-medium p-2'>
+							Других администраторов не найдено...
+						</h3>
+					</div>
+				) : (
+					admins.map((item, id) => {
+						return (
+							item.id !== user?.id && (
+								<AdminItem key={id} item={item} refreshAdmins={refreshAdmins} />
+							)
+						);
+					})
 				)}
 			</div>
+
+			<Popconfirm
+				onConfirm={handleDelete}
+				title='Удаление аккаунт'
+				description='Вы уверены что хотите удалить аккаунт?'
+				icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+			>
+				<Button className='!bg-red-500 mt-3 w-min my-10' type='primary'>
+					Удалить Аккаунт
+				</Button>
+			</Popconfirm>
 		</>
 	);
 });

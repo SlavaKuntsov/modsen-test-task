@@ -54,15 +54,17 @@ export default function Profile() {
 			} else if (typeof result === 'string') {
 				// Если result — это строка (ошибка), выводим сообщение об ошибке
 				showToast({
-					title: result,
+					title: 'Ошибка!',
 					status: 'error',
+					description: result
 				});
 			}
 		} catch (error) {
 			console.error('Error updating user:', error);
 			setAuth(false);
 			showToast({
-				title: 'An unexpected error occurred',
+				title: 'Ошибка!',
+				description: 'An unexpected error occurred',
 				status: 'error',
 			});
 		}
@@ -77,7 +79,7 @@ export default function Profile() {
 			const result = await deleteUser(userData);
 
 			// Проверяем, что result является объектом IUser
-			if (result) {
+			if (result === true) {
 				await logout();
 				resetStore();
 				showToast({
@@ -87,15 +89,17 @@ export default function Profile() {
 			} else if (typeof result === 'string') {
 				// Если result — это строка (ошибка), выводим сообщение об ошибке
 				showToast({
-					title: result,
+					title: 'Ошибка!',
 					status: 'error',
+					description: result
 				});
 			}
 		} catch (error) {
 			console.error('Error deleting user:', error);
 			setAuth(false);
 			showToast({
-				title: 'An unexpected error occurred',
+				title: 'Ошибка!',
+				description: 'An unexpected error occurred',
 				status: 'error',
 			});
 		}

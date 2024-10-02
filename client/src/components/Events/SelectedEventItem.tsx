@@ -7,10 +7,10 @@ import { ErrorMessage, Field, FieldInputProps, Formik } from 'formik';
 import { useState } from 'react';
 import * as Yup from 'yup';
 import {
-    deleteEvent,
-    eventRegistration,
-    eventUnregistration,
-    updateEvent,
+	deleteEvent,
+	eventRegistration,
+	eventUnregistration,
+	updateEvent,
 } from '../../utils/api/eventsApi';
 import { eventStore } from '../../utils/store/eventsStore';
 import { userStore } from '../../utils/store/userStore';
@@ -42,7 +42,7 @@ const SelectedEventItem = ({
 	item,
 	fetch,
 	refreshEvents,
-	onDelete
+	onDelete,
 }: SelectedEventItemProps) => {
 	console.log('item: ', item);
 
@@ -79,8 +79,9 @@ const SelectedEventItem = ({
 				});
 			} else if (typeof result === 'string') {
 				showToast({
-					title: result,
+					title: 'Ошибка!',
 					status: 'error',
+					description: result,
 				});
 			}
 		} catch (error) {
@@ -107,8 +108,9 @@ const SelectedEventItem = ({
 				});
 			} else if (typeof result === 'string') {
 				showToast({
-					title: result,
+					title: 'Ошибка!',
 					status: 'error',
+					description: result,
 				});
 			}
 		} catch (error) {
@@ -156,7 +158,7 @@ const SelectedEventItem = ({
 			const result = await updateEvent(updatedEvent);
 			console.log('Event updated:', result);
 
-			if (result) {
+			if (result === true) {
 				setIsChanged(false);
 				// resetStore()
 				refreshEvents();
@@ -166,8 +168,9 @@ const SelectedEventItem = ({
 				});
 			} else if (typeof result === 'string') {
 				showToast({
-					title: result,
+					title: 'Ошибка!',
 					status: 'error',
+					description: result,
 				});
 			}
 		} catch (error) {
@@ -188,24 +191,26 @@ const SelectedEventItem = ({
 			const result = await deleteEvent(eventData);
 
 			// Проверяем, что result является объектом IUser
-			if (result) {
+			if (result === true) {
 				showToast({
 					title: 'Успешно!',
 					status: 'success',
 				});
 				// refreshEvents();
-				onDelete(item.id); 
+				onDelete(item.id);
 			} else if (typeof result === 'string') {
 				// Если result — это строка (ошибка), выводим сообщение об ошибке
 				showToast({
-					title: result,
+					title: 'Ошибка!',
 					status: 'error',
+					description: result,
 				});
 			}
 		} catch (error) {
 			console.error('Error deleting user:', error);
 			showToast({
-				title: 'An unexpected error occurred',
+				title: 'Ошибка!',
+				description: 'An unexpected error occurred',
 				status: 'error',
 			});
 		}
