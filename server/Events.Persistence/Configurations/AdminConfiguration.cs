@@ -19,9 +19,6 @@ public partial class AdminConfiguration : IEntityTypeConfiguration<AdminEntity>
 		builder.Property(a => a.Password)
 			.IsRequired();
 
-		//builder.Property(a => a.Role)
-		//	.IsRequired(); // Обязательное поле
-
 		builder.Property(a => a.IsActiveAdmin)
 			.IsRequired();
 
@@ -34,7 +31,7 @@ public partial class AdminConfiguration : IEntityTypeConfiguration<AdminEntity>
 			{
 				Id = Guid.NewGuid(),
 				Email = "user@example.com",
-				Password = "qweQWE123",
+				Password = BCrypt.Net.BCrypt.EnhancedHashPassword("qweQWE123"),
 				Role = Domain.Enums.Role.Admin,
 				IsActiveAdmin = true
 			});

@@ -1,5 +1,5 @@
-﻿using Events.Application.Auth;
-using Events.Domain.Enums;
+﻿using Events.Domain.Enums;
+using Events.Domain.Interfaces;
 
 namespace Events.Persistence.Entities;
 

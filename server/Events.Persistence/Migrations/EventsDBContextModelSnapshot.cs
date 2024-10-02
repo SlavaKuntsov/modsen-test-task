@@ -46,6 +46,16 @@ namespace Events.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Admin", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("7e66e13d-b612-49db-82ae-db701cc065b3"),
+                            Email = "user@example.com",
+                            IsActiveAdmin = true,
+                            Password = "$2a$11$.Me4i9gTRY3TpNxxpjkrOu2KUAXh9BXqAzd6P6tRKb8PINsKetYJ.",
+                            Role = 1
+                        });
                 });
 
             modelBuilder.Entity("Events.Persistence.Entities.EventEntity", b =>
@@ -140,6 +150,18 @@ namespace Events.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Participant", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8860c13b-e203-4572-b2e4-0af3223415cf"),
+                            DateOfBirth = new DateTime(2024, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "kuncovs19@gmail.com",
+                            FirstName = "Святослав",
+                            LastName = "Кунцов",
+                            Password = "$2a$11$wxk3QEpVjODAHWckWsMC9uR3tG26nTFO0wFxMAEnUCrO1yGVXcXbW",
+                            Role = 2
+                        });
                 });
 
             modelBuilder.Entity("Events.Persistence.Entities.RefreshTokenEntity", b =>

@@ -20,9 +20,6 @@ public partial class ParticipantConfiguration : IEntityTypeConfiguration<Partici
 		builder.Property(p => p.Password)
 			.IsRequired();
 
-		//builder.Property(p => p.Role)
-		//	.IsRequired();
-
 		builder.Property(p => p.FirstName)
 			.HasMaxLength(100)
 			.IsRequired();
@@ -42,5 +39,17 @@ public partial class ParticipantConfiguration : IEntityTypeConfiguration<Partici
 		builder.HasOne(p => p.RefreshToken)
 			.WithOne(rt => rt.Participant)
 			.HasForeignKey<RefreshTokenEntity>(rt => rt.UserId);
+
+		builder.HasData(
+			new ParticipantEntity
+			{
+				Id = Guid.NewGuid(),
+				Email = "kuncovs19@gmail.com",
+				Password = BCrypt.Net.BCrypt.EnhancedHashPassword("qweQWE123"),
+				Role = Domain.Enums.Role.User,
+				FirstName = "Святослав",
+				LastName = "Кунцов",
+				DateOfBirth = DateTime.UtcNow
+			});
 	}
 }

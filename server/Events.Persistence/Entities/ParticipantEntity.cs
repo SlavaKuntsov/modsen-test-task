@@ -1,25 +1,25 @@
-﻿using Events.Application.Auth;
-using Events.Domain.Enums;
+﻿using Events.Domain.Enums;
+using Events.Domain.Interfaces;
 
 namespace Events.Persistence.Entities;
 
 public class ParticipantEntity : IUser
 {
-	public Guid Id { get; set; } // уникальный идентификатор
+	public Guid Id { get; set; }
 
-	public string Email { get; set; } = string.Empty; // почта
+	public string Email { get; set; } = string.Empty;
 
-	public string Password { get; set; } = string.Empty; // пароль
+	public string Password { get; set; } = string.Empty;
 
-	public Role Role { get; set; } // роль
+	public Role Role { get; set; }
 
-	public string FirstName { get; set; } = string.Empty; // имя
+	public string FirstName { get; set; } = string.Empty;
 
-	public string LastName { get; set; } = string.Empty; // фамилия
+	public string LastName { get; set; } = string.Empty;
 
-	public DateTime DateOfBirth { get; set; } // дата рождения
+	public DateTime DateOfBirth { get; set; }
 
-	public IList<EventParticipantEntity> Events { get; set; } = new List<EventParticipantEntity>(); // связанные события
+	public IList<EventParticipantEntity> Events { get; set; } = [];
 
 	public RefreshTokenEntity RefreshToken { get; set; } = null!;
 }

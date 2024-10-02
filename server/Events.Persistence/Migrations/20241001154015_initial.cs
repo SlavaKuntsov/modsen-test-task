@@ -37,6 +37,7 @@ namespace Events.Persistence.Migrations
                     Location = table.Column<string>(type: "text", nullable: false),
                     Category = table.Column<string>(type: "text", nullable: false),
                     MaxParticipants = table.Column<int>(type: "integer", nullable: false),
+                    ParticipantsCount = table.Column<int>(type: "integer", nullable: false),
                     Image = table.Column<byte[]>(type: "bytea", nullable: true)
                 },
                 constraints: table =>
@@ -114,6 +115,16 @@ namespace Events.Persistence.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Admin",
+                columns: new[] { "Id", "Email", "IsActiveAdmin", "Password", "Role" },
+                values: new object[] { new Guid("7e66e13d-b612-49db-82ae-db701cc065b3"), "user@example.com", true, "$2a$11$.Me4i9gTRY3TpNxxpjkrOu2KUAXh9BXqAzd6P6tRKb8PINsKetYJ.", 1 });
+
+            migrationBuilder.InsertData(
+                table: "Participant",
+                columns: new[] { "Id", "DateOfBirth", "Email", "FirstName", "LastName", "Password", "Role" },
+                values: new object[] { new Guid("8860c13b-e203-4572-b2e4-0af3223415cf"), new DateTime(2024, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc), "kuncovs19@gmail.com", "Святослав", "Кунцов", "$2a$11$wxk3QEpVjODAHWckWsMC9uR3tG26nTFO0wFxMAEnUCrO1yGVXcXbW", 2 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_EventParticipant_ParticipantId",
