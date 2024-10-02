@@ -3,6 +3,8 @@ using Events.Application.Exceptions;
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models.Users;
 
+using Mapster;
+
 using MapsterMapper;
 
 using MediatR;
@@ -29,14 +31,9 @@ public class UpdateParticipantCommandHandler(IUsersRepository usersRepository, I
 		if (existParticipant == null)
 			throw new UserExistsException("User with this id doesn't exists");
 
-		ParticipantModel particantModel = new(request.Id,
-										existParticipant.Email,
-										existParticipant.Password,
-										existParticipant.Role,
-										request.FirstName,
-										request.LastName,
-										request.DateOfBirth);
+		// Adapt() копирует значения из объекта request в существующий объект existParticipant.
+		request.Adapt(existParticipant);
 
-		return _mapper.Map<ParticipantDto>(await _usersRepository.Update(particantModel, cancellationToken));
+		return _mapper.Map<ParticipantDto>(await _usersRepository.Update(existParticipant, cancellationToken));
 	}
 }

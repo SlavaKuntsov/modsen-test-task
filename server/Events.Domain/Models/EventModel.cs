@@ -20,6 +20,8 @@ public class EventModel
 
 	public byte[] Image { get; private set; } = [];
 
+	public void SetImage(byte[] image) => Image = image;
+
 	public EventModel() { }
 
 	public EventModel(Guid id, string title, string description, DateTime eventDateTime, string location, string category, int maxParticipants, byte[] imageUrl)

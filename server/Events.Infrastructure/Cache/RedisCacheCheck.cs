@@ -5,16 +5,22 @@ using Events.Application.Common.Cache;
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
 
+using Mapster;
+
+using MapsterMapper;
+
 namespace Events.Infrastructure.Cache;
 
 public class RedisCacheCheck : IRedisCacheCheck
 {
 	private readonly IEventsRepository _eventsRepository;
+	private readonly IMapper _mapper;
 	private readonly IRedisCache _redisCache;
 
-	public RedisCacheCheck(IEventsRepository eventsRepository, IRedisCache redisCache)
+	public RedisCacheCheck(IEventsRepository eventsRepository, IMapper mapper, IRedisCache redisCache)
 	{
 		_eventsRepository = eventsRepository;
+		_mapper = mapper;
 		_redisCache = redisCache;
 	}
 
@@ -69,15 +75,8 @@ public class RedisCacheCheck : IRedisCacheCheck
 			if (modelWithoutImage == null)
 				return null;
 
-			EventModel newModel = new(modelWithoutImage.Id,
-							  modelWithoutImage.Title,
-							  modelWithoutImage.Description,
-							  modelWithoutImage.EventDateTime,
-							  modelWithoutImage.Location,
-							  modelWithoutImage.Category,
-							  modelWithoutImage.MaxParticipants,
-							  modelWithoutImage.ParticipantsCount,
-							  cachedImage);
+			var newModel = modelWithoutImage.Adapt<EventModel>();
+			newModel.SetImage(cachedImage);
 
 			return newModel;
 		}

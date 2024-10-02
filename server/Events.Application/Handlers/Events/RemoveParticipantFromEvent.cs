@@ -1,6 +1,8 @@
 ﻿using Events.Application.Exceptions;
 using Events.Domain.Interfaces.Repositories;
 
+using MapsterMapper;
+
 using MediatR;
 
 namespace Events.Application.Handlers.Events;

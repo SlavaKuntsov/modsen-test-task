@@ -2,6 +2,8 @@
 using Events.Domain.Interfaces.Repositories;
 using Events.Domain.Models;
 
+using MapsterMapper;
+
 using MediatR;
 
 namespace Events.Application.Handlers.Events;
@@ -27,25 +29,17 @@ public class UpdateEventCommand(Guid id,
 	public byte[] Image { get; private set; } = imageUrl ?? [];
 }
 
-public class UpdateEventCommandHandler(IEventsRepository eventsRepository) : IRequestHandler<UpdateEventCommand, Guid>
+public class UpdateEventCommandHandler(IEventsRepository eventsRepository, IMapper mapper) : IRequestHandler<UpdateEventCommand, Guid>
 {
 	private readonly IEventsRepository _eventsRepository = eventsRepository;
+	private readonly IMapper _mapper = mapper;
 
 	public async Task<Guid> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
 	{
 		if (!await _eventsRepository.IsExists(request.Id, cancellationToken))
 			throw new RegistrationExistsException("Event with this id doesn't exists");
 
-		EventModel eventModel = new(
-			request.Id,
-			request.Title,
-			request.Description,
-			request.EventDateTime,
-			request.Location,
-			request.Category,
-			request.MaxParticipants,
-			request.ParticipantsCount,
-			request.Image);
+		var eventModel = _mapper.Map<EventModel>(request);
 
 		return await _eventsRepository.Update(eventModel, cancellationToken);
 	}

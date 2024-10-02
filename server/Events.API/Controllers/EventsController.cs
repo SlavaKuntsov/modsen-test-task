@@ -107,6 +107,7 @@ public class EventsController : ControllerBase
 			return BadRequest("Invalid date format.");
 
 		var eventId = await _mediator.Send(new CreateEventCommand(
+			Guid.NewGuid(),
 			request.Title,
 			request.Description,
 			parsedDateTime,
