@@ -13,101 +13,35 @@ internal sealed class GlobalExceptionHandler : IExceptionHandler
 	{
 	}
 
-	public async ValueTask<bool> TryHandleAsync(HttpContext httpContext,
-											 Exception exception,
-											 CancellationToken cancellationToken)
+	private static readonly Dictionary<Type, (int StatusCode, string Title)> ExceptionMappings = new()
 	{
-		ProblemDetails problemDetails = new();
+		{ typeof(UnauthorizedAccessException), (StatusCodes.Status401Unauthorized, "Unauthorized Access") },
+		{ typeof(ArgumentException), (StatusCodes.Status400BadRequest, "Invalid Argument") },
+		{ typeof(NullReferenceException), (StatusCodes.Status500InternalServerError, "Null Reference Error") },
+		{ typeof(InvalidOperationException), (StatusCodes.Status409Conflict, "Invalid Operation") },
+		{ typeof(NotFoundException), (StatusCodes.Status404NotFound, "Not Found") },
+		{ typeof(ValidationException), (StatusCodes.Status400BadRequest, "Invalid Data") },
+		{ typeof(RegistrationExistsException), (StatusCodes.Status400BadRequest, "Bad Request") },
+		{ typeof(DeleteException), (StatusCodes.Status400BadRequest, "Cannot Delete") },
+	};
 
-		switch (exception)
+	public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
+	{
+		var (statusCode, title) = ExceptionMappings.TryGetValue(exception.GetType(), out var mapping)
+			? mapping
+			: (StatusCodes.Status500InternalServerError, "Internal Server Error");
+
+		var problemDetails = new ProblemDetails
 		{
-			case UnauthorizedAccessException:
-				problemDetails = new ProblemDetails
-				{
-					Status = StatusCodes.Status401Unauthorized,
-					Title = "Unauthorized Access",
-					Detail = $"Exception occurred: {exception.Message}"
-				};
-				break;
-
-			case ArgumentException:
-				problemDetails = new ProblemDetails
-				{
-					Status = StatusCodes.Status400BadRequest,
-					Title = "Invalid Argument",
-					Detail = $"Invalid argument: {exception.Message}"
-				};
-				break;
-
-			case NullReferenceException:
-				problemDetails = new ProblemDetails
-				{
-					Status = StatusCodes.Status500InternalServerError,
-					Title = "Null Reference Error",
-					Detail = $"A null reference occurred: {exception.Message}"
-				};
-				break;
-
-			case InvalidOperationException:
-				problemDetails = new ProblemDetails
-				{
-					Status = StatusCodes.Status409Conflict,
-					Title = "Invalid Operation",
-					Detail = $"Invalid operation: {exception.Message}"
-				};
-				break;
-
-			case NotFoundException:
-				problemDetails = new ProblemDetails
-				{
-					Status = StatusCodes.Status404NotFound,
-					Title = "Not Found",
-					Detail = $"{exception.Message}"
-				};
-				break;
-
-			case ValidationException:
-				problemDetails = new ProblemDetails
-				{
-					Status = StatusCodes.Status400BadRequest,
-					Title = "Invalid Data",
-					Detail = $"Invalid data: {exception.Message}"
-				};
-				break;
-
-			case RegistrationExistsException:
-				problemDetails = new ProblemDetails
-				{
-					Status = StatusCodes.Status400BadRequest,
-					Title = "Bad Request",
-					Detail = $"{exception.Message}"
-				};
-				break;
-
-			case DeleteException:
-				problemDetails = new ProblemDetails
-				{
-					Status = StatusCodes.Status400BadRequest,
-					Title = "Cannot Delete",
-					Detail = $"{exception.Message}"
-				};
-				break;
-
-			default:
-				problemDetails = new ProblemDetails
-				{
-					Status = StatusCodes.Status500InternalServerError,
-					Title = "Internal Server Error",
-					Detail = $"An unexpected error occurred: {exception.Message}"
-				};
-				break;
-		}
+			Status = statusCode,
+			Title = title,
+			Detail = $"{exception.Message}"
+		};
 
 		httpContext.Response.StatusCode = problemDetails.Status.Value;
 		httpContext.Response.ContentType = "application/json";
 
-		await httpContext.Response
-			.WriteAsJsonAsync(problemDetails, cancellationToken);
+		await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 
 		return true;
 	}
