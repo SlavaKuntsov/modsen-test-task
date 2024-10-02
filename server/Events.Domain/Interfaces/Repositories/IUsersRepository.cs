@@ -7,18 +7,18 @@ namespace Events.Domain.Interfaces.Repositories;
 
 public interface IUsersRepository
 {
-	public Task<IList<T>> Get<T>() where T : IUser;
-	public Task<T?> Get<T>(Guid id) where T : IUser;
-	public Task<T?> Get<T>(string email) where T : IUser;
-	public Task<ParticipantModel?> Get(string email, string password);
+	public Task<IList<T>> Get<T>(CancellationToken cancellationToken) where T : IUser;
+	public Task<T?> Get<T>(Guid id, CancellationToken cancellationToken) where T : IUser;
+	public Task<T?> Get<T>(string email, CancellationToken cancellationToken) where T : IUser;
+	public Task<ParticipantModel?> Get(string email, string password, CancellationToken cancellationToken);
 
-	public Task<Result<Guid>> Create<T>(T user, RefreshTokenModel refreshTokenModel) where T : IUser;
+	public Task<Result<Guid>> Create<T>(T user, RefreshTokenModel refreshTokenModel, CancellationToken cancellationToken) where T : IUser;
 
-	public Task<ParticipantModel> Update(ParticipantModel particantModel);
+	public Task<ParticipantModel> Update(ParticipantModel particantModel, CancellationToken cancellationToken);
 
-	public Task Delete<T>(Guid eventId);
+	public Task Delete<T>(Guid eventId, CancellationToken cancellationToken);
 
-	public Task<AdminModel> ChangeAdminActivation(Guid id, bool isActive);
+	public Task<AdminModel> ChangeAdminActivation(Guid id, bool isActive, CancellationToken cancellationToken);
 
-	public Task<bool> IsExists(Guid eventId);
+	public Task<bool> IsExists(Guid eventId, CancellationToken cancellationToken);
 }

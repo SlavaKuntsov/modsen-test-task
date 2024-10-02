@@ -20,7 +20,7 @@ public class GetEventByIdQueryHandler(IEventsRepository eventsRepository, IMappe
 
 	public async Task<EventDto> Handle(GetEventByIdQuery request, CancellationToken cancellationToken)
 	{
-		var eventModel = await _eventsRepository.GetById(request.Id);
+		var eventModel = await _eventsRepository.GetById(request.Id, cancellationToken);
 
 		if (eventModel == null)
 			throw new NotFoundException($"Event with ID {request.Id} not found");

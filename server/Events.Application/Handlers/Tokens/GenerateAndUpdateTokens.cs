@@ -27,7 +27,7 @@ public class GenerateAndUpdateTokensCommandHandler(ITokensRepository tokensRepos
 												   newRefreshToken,
 												   _jwt.GetRefreshTokenExpirationDays());
 
-		await _tokensRepository.UpdateRefreshToken(request.Id, request.Role, refreshTokenModel.Value);
+		await _tokensRepository.UpdateRefreshToken(request.Id, request.Role, refreshTokenModel.Value, cancellationToken);
 
 		return new AuthDto
 		{

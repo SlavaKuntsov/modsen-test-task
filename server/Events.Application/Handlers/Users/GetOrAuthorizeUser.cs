@@ -20,9 +20,9 @@ public class GetOrAuthorizeUserQueryHandler<T>(IUsersRepository usersRepository)
 		T? userModel = null;
 
 		if (typeof(T) == typeof(ParticipantModel))
-			userModel = await _usersRepository.Get<ParticipantModel>(request.Id) as T;
+			userModel = await _usersRepository.Get<ParticipantModel>(request.Id, cancellationToken) as T;
 		else if (typeof(T) == typeof(AdminModel))
-			userModel = await _usersRepository.Get<AdminModel>(request.Id) as T;
+			userModel = await _usersRepository.Get<AdminModel>(request.Id, cancellationToken) as T;
 
 		// Не выкидываем исключение потому что нам надо перейти к коду ниже в родительском блоке
 		//if (userModel == null)

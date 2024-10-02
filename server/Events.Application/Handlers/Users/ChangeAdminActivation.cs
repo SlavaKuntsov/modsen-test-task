@@ -18,11 +18,11 @@ public class ChangeAdminActivationCommandHandler(IUsersRepository usersRepositor
 
 	public async Task Handle(ChangeAdminActivationCommand request, CancellationToken cancellationToken)
 	{
-		var existUser = await _usersRepository.Get<AdminModel>(request.Id);
+		var existUser = await _usersRepository.Get<AdminModel>(request.Id, cancellationToken);
 
 		if (existUser == null)
 			throw new UserExistsException("User with this id doesn't exists");
 
-		await _usersRepository.ChangeAdminActivation(request.Id, request.IsActive);
+		await _usersRepository.ChangeAdminActivation(request.Id, request.IsActive, cancellationToken);
 	}
 }

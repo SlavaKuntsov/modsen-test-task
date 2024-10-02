@@ -20,7 +20,7 @@ public class GetEventParticipantsQueryHandler(IEventsParticipantsRepository even
 
 	public async Task<IList<ParticipantModel>> Handle(GetEventParticipantsQuery request, CancellationToken cancellationToken)
 	{
-		var userModels = await _eventsParticipantsRepository.GetParticipantsByEvent(request.Id);
+		var userModels = await _eventsParticipantsRepository.GetParticipantsByEvent(request.Id, cancellationToken);
 
 		if (userModels == null || !userModels.Any())
 			throw new NotFoundException($"Particants not found");

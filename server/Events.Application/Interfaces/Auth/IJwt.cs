@@ -8,7 +8,7 @@ public interface IJwt
 
     public string GenerateRefreshToken();
 
-    public Task<Guid> ValidateRefreshToken(string refreshToken);
+    public Task<Guid> ValidateRefreshToken(string refreshToken, CancellationToken cancellationToken);
 
     public int GetRefreshTokenExpirationDays();
 }

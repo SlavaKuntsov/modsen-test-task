@@ -23,16 +23,16 @@ public class RefreshTokenCommandHandler(IUsersRepository usersRepository, IMappe
 
 	public async Task<UserDto> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
 	{
-		var userId = await _jwt.ValidateRefreshToken(request.RefreshToken);
+		var userId = await _jwt.ValidateRefreshToken(request.RefreshToken, cancellationToken);
 
 		if (userId == Guid.Empty)
 			throw new InvalidTokenException("Invalid refresh token");
 
-		UserModel? user = await _usersRepository.Get<ParticipantModel>(userId);
+		UserModel? user = await _usersRepository.Get<ParticipantModel>(userId, cancellationToken);
 
 		if (user == null)
 		{
-			user = await _usersRepository.Get<AdminModel>(userId);
+			user = await _usersRepository.Get<AdminModel>(userId, cancellationToken);
 
 			if (user == null)
 				throw new NotFoundException("User not found");

@@ -33,7 +33,7 @@ public class UpdateEventCommandHandler(IEventsRepository eventsRepository) : IRe
 
 	public async Task<Guid> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
 	{
-		if (!await _eventsRepository.IsExists(request.Id))
+		if (!await _eventsRepository.IsExists(request.Id, cancellationToken))
 			throw new RegistrationExistsException("Event with this id doesn't exists");
 
 		EventModel eventModel = new(
@@ -47,6 +47,6 @@ public class UpdateEventCommandHandler(IEventsRepository eventsRepository) : IRe
 			request.ParticipantsCount,
 			request.Image);
 
-		return await _eventsRepository.Create(eventModel);
+		return await _eventsRepository.Create(eventModel, cancellationToken);
 	}
 }

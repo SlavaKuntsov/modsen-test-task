@@ -34,13 +34,13 @@ public class GetEventsByFilterQueryHandler(IEventsRepository eventsRepository,
 		IList<Guid>? eventIds = null;
 
 		if (request.ParticipantId.HasValue)
-			eventIds = await _eventsRepository.GetIdsByParticipantId(request.ParticipantId.Value);
+			eventIds = await _eventsRepository.GetIdsByParticipantId(request.ParticipantId.Value, cancellationToken);
 		else if (!string.IsNullOrEmpty(request.Title))
-			eventIds = await _eventsRepository.GetIdsByTitle(request.Title);
+			eventIds = await _eventsRepository.GetIdsByTitle(request.Title, cancellationToken);
 		else if (!string.IsNullOrEmpty(request.Location))
-			eventIds = await _eventsRepository.GetIdsByLocation(request.Location);
+			eventIds = await _eventsRepository.GetIdsByLocation(request.Location, cancellationToken);
 		else if (!string.IsNullOrEmpty(request.Category))
-			eventIds = await _eventsRepository.GetIdsByCategory(request.Category);
+			eventIds = await _eventsRepository.GetIdsByCategory(request.Category, cancellationToken);
 
 		if (eventIds == null || eventIds.Count == 0)
 			throw new NotFoundException($"Event(s) not found");
@@ -48,10 +48,10 @@ public class GetEventsByFilterQueryHandler(IEventsRepository eventsRepository,
 		IList<EventModel> eventModels;
 
 		if (eventIds.Count > 1)
-			eventModels = await _redisCacheCheck.CheckImagesInCache(eventIds);
+			eventModels = await _redisCacheCheck.CheckImagesInCache(eventIds, cancellationToken);
 		else
 		{
-			var singleEventModel = await _redisCacheCheck.CheckImageInCache(eventIds[0]);
+			var singleEventModel = await _redisCacheCheck.CheckImageInCache(eventIds[0], cancellationToken);
 			eventModels = [singleEventModel];
 		}
 

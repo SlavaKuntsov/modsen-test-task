@@ -17,11 +17,11 @@ public class AddParticipantToEventCommandHandler(IEventsParticipantsRepository e
 
 	public async Task Handle(AddParticipantToEventCommand request, CancellationToken cancellationToken)
 	{
-		if (await _eventsParticipantsRepository.IsExists(request.EventId, request.ParticipantId))
+		if (await _eventsParticipantsRepository.IsExists(request.EventId, request.ParticipantId, cancellationToken))
 			throw new RegistrationExistsException("Same registration already exists");
 
 		DateTime dateTime = DateTime.Now;
 
-		await _eventsParticipantsRepository.AddEventParticipant(request.EventId, request.ParticipantId, dateTime);
+		await _eventsParticipantsRepository.AddEventParticipant(request.EventId, request.ParticipantId, dateTime, cancellationToken);
 	}
 }

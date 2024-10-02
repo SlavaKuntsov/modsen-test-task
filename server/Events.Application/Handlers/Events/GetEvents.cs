@@ -18,7 +18,7 @@ public class GetEventsQueryHandler(IEventsRepository eventsRepository, IMapper m
 
 	public async Task<IList<EventDto>> Handle(GetEventsQuery request, CancellationToken cancellationToken)
 	{
-		var eventModels = await _eventsRepository.GetWithoutImage();
+		var eventModels = await _eventsRepository.GetWithoutImage(cancellationToken);
 
 		if (eventModels == null || !eventModels.Any())
 			return [];

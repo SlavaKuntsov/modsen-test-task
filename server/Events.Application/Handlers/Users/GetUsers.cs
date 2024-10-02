@@ -19,9 +19,9 @@ public class GetUsersQueryHandler<T>(IUsersRepository usersRepository) : IReques
 		IList<T>? userModel = [];
 
 		if (typeof(T) == typeof(ParticipantModel))
-			userModel = await _usersRepository.Get<ParticipantModel>() as IList<T>;
+			userModel = await _usersRepository.Get<ParticipantModel>(cancellationToken) as IList<T>;
 		else if (typeof(T) == typeof(AdminModel))
-			userModel = await _usersRepository.Get<AdminModel>() as IList<T>;
+			userModel = await _usersRepository.Get<AdminModel>(cancellationToken) as IList<T>;
 
 		if (userModel == null || !userModel.Any())
 			return [];

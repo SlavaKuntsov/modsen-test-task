@@ -16,9 +16,9 @@ public class DeleteEventCommandHandler(IEventsRepository eventsRepository) : IRe
 
 	public async Task Handle(DeleteEventCommand request, CancellationToken cancellationToken)
 	{
-		if (!await _eventsRepository.IsExists(request.Id))
+		if (!await _eventsRepository.IsExists(request.Id, cancellationToken))
 			throw new RegistrationExistsException("Event with this id doesn't exists");
 
-		await _eventsRepository.Delete(request.Id);
+		await _eventsRepository.Delete(request.Id, cancellationToken);
 	}
 }

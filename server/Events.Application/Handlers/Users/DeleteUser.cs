@@ -20,18 +20,18 @@ public class DeleteUserCommandHandler<T>(IUsersRepository usersRepository,
 	{
 		if (typeof(T) == typeof(ParticipantModel))
 		{
-			var events = _eventsParticipantsRepository.GetEventsByParticipant(request.Id);
+			var events = _eventsParticipantsRepository.GetEventsByParticipant(request.Id, cancellationToken);
 
 			if (events.Result.Count == 0)
 				return;
 
-			await _eventsParticipantsRepository.RemoveParticipantFromEvents(request.Id, events.Result);
-			await _usersRepository.Delete<ParticipantModel>(request.Id);
+			await _eventsParticipantsRepository.RemoveParticipantFromEvents(request.Id, events.Result, cancellationToken);
+			await _usersRepository.Delete<ParticipantModel>(request.Id, cancellationToken);
 			return;
 		}
 		else if (typeof(T) == typeof(AdminModel))
 		{
-			await _usersRepository.Delete<AdminModel>(request.Id);
+			await _usersRepository.Delete<AdminModel>(request.Id, cancellationToken);
 			return;
 		}
 	}

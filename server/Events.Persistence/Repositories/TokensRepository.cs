@@ -20,12 +20,12 @@ public class TokensRepository : ITokensRepository
 		_mapper = mapper;
 	}
 
-	public async Task<RefreshTokenModel?> GetRefreshToken(string refreshToken)
+	public async Task<RefreshTokenModel?> GetRefreshToken(string refreshToken, CancellationToken cancellationToken)
 	{
 		var entity = await _context
 			.RefreshTokens
 			.AsNoTracking()
-			.FirstOrDefaultAsync(r => r.Token == refreshToken);
+			.FirstOrDefaultAsync(r => r.Token == refreshToken, cancellationToken);
 
 		if (entity == null)
 			return null;
@@ -34,28 +34,28 @@ public class TokensRepository : ITokensRepository
 	}
 
 	// TODO - его логика добавлена в Create метод UsersRepository
-	public async Task SaveRefreshToken(RefreshTokenModel refreshToken)
+	public async Task SaveRefreshToken(RefreshTokenModel refreshToken, CancellationToken cancellationToken)
 	{
 		var entity = _mapper.Map<RefreshTokenEntity>(refreshToken);
 
-		await _context.RefreshTokens.AddAsync(entity);
+		await _context.RefreshTokens.AddAsync(entity, cancellationToken);
 
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task UpdateRefreshToken(Guid userId, Role role, RefreshTokenModel newRefreshToken)
+	public async Task UpdateRefreshToken(Guid userId, Role role, RefreshTokenModel newRefreshToken, CancellationToken cancellationToken)
 	{
 		RefreshTokenEntity? existingToken = null;
 
 		if (role == Role.Admin)
 		{
 			existingToken = await _context.RefreshTokens
-				.FirstOrDefaultAsync(rt => rt.AdminId == userId);
+				.FirstOrDefaultAsync(rt => rt.AdminId == userId, cancellationToken);
 		}
 		else if (role == Role.User)
 		{
 			existingToken = await _context.RefreshTokens
-				.FirstOrDefaultAsync(rt => rt.UserId == userId);
+				.FirstOrDefaultAsync(rt => rt.UserId == userId, cancellationToken);
 		}
 
 		if (existingToken != null)
@@ -65,22 +65,22 @@ public class TokensRepository : ITokensRepository
 			existingToken.CreatedAt = newRefreshToken.CreatedAt;
 
 			_context.RefreshTokens.Update(existingToken);
-			await _context.SaveChangesAsync();
+			await _context.SaveChangesAsync(cancellationToken);
 		}
 		else
-			await SaveRefreshToken(newRefreshToken);
+			await SaveRefreshToken(newRefreshToken, cancellationToken);
 	}
 
-	public async Task DeleteRefreshToken(string refreshToken)
+	public async Task DeleteRefreshToken(string refreshToken, CancellationToken cancellationToken)
 	{
 		var token = await _context
 			.RefreshTokens
-			.FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+			.FirstOrDefaultAsync(rt => rt.Token == refreshToken, cancellationToken);
 
 		if (token != null)
 		{
 			_context.RefreshTokens.Remove(token);
-			await _context.SaveChangesAsync();
+			await _context.SaveChangesAsync(cancellationToken);
 		}
 	}
 }

@@ -20,9 +20,9 @@ namespace Events.Application.Handlers.Users
 			T? userModel = null;
 
 			if (request.UserId.HasValue)
-				userModel = await _usersRepository.Get<T>(request.UserId.Value);
+				userModel = await _usersRepository.Get<T>(request.UserId.Value, cancellationToken);
 			else if (!string.IsNullOrEmpty(request.Email))
-				userModel = await _usersRepository.Get<T>(request.Email);
+				userModel = await _usersRepository.Get<T>(request.Email, cancellationToken);
 
 			return userModel;
 		}

@@ -37,6 +37,6 @@ public class CreateEventCommandHandler(IEventsRepository eventsRepository) : IRe
 			request.MaxParticipants,
 			request.Image);
 
-		return await _eventsRepository.Create(eventModel);
+		return await _eventsRepository.Create(eventModel, cancellationToken);
 	}
 }

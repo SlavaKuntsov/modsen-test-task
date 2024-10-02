@@ -5,6 +5,6 @@ namespace Events.Application.Common.Cache;
 
 public interface IRedisCacheCheck
 {
-	public Task<IList<EventModel>> CheckImagesInCache(IList<Guid> ids);
-	public Task<EventModel?> CheckImageInCache(Guid id);
+	public Task<IList<EventModel>> CheckImagesInCache(IList<Guid> ids, CancellationToken cancellationToken);
+	public Task<EventModel?> CheckImageInCache(Guid id, CancellationToken cancellationToken);
 }

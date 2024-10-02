@@ -38,8 +38,8 @@ public class UserRegistrationCommandHandler<T>(IUsersRepository usersRepository,
 
 	public async Task<AuthDto> Handle(UserRegistrationCommand<T> request, CancellationToken cancellationToken)
 	{
-		var existParticipant = await _usersRepository.Get<ParticipantModel>(request.Email);
-		var existAdmin = await _usersRepository.Get<AdminModel>(request.Email);
+		var existParticipant = await _usersRepository.Get<ParticipantModel>(request.Email, cancellationToken);
+		var existAdmin = await _usersRepository.Get<AdminModel>(request.Email, cancellationToken);
 
 		if (existParticipant != null || existAdmin != null)
 			throw new UserExistsException(request.Email);
@@ -68,9 +68,9 @@ public class UserRegistrationCommandHandler<T>(IUsersRepository usersRepository,
 												   _jwt.GetRefreshTokenExpirationDays());
 
 		if (userModel is ParticipantModel participant)
-			await _usersRepository.Create(participant, refreshTokenModel.Value);
+			await _usersRepository.Create(participant, refreshTokenModel.Value, cancellationToken);
 		else if (userModel is AdminModel admin)
-			await _usersRepository.Create(admin, refreshTokenModel.Value);
+			await _usersRepository.Create(admin, refreshTokenModel.Value, cancellationToken);
 
 		return new AuthDto
 		{

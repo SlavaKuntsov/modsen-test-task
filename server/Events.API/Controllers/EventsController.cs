@@ -36,6 +36,15 @@ public class EventsController : ControllerBase
 		return Ok(eventDtos);
 	}
 
+	[HttpGet($"{nameof(GetEventsWithPagination)}")]
+	//[Authorize(Policy = "UserOrAdmin")]
+	public async Task<IActionResult> GetEventsWithPagination([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+	{
+		var eventDtos = await _mediator.Send(new GetEventsWithPaginationQuery(pageNumber, pageSize));
+
+		return Ok(eventDtos);
+	}
+
 	[HttpGet(nameof(GetEvent) + "/{id:Guid}")]
 	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> GetEvent(Guid id)

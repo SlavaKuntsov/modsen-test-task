@@ -22,27 +22,27 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 		_mapper = mapper;
 	}
 
-	public async Task<IList<ParticipantModel>> GetParticipantsByEvent(Guid eventId)
+	public async Task<IList<ParticipantModel>> GetParticipantsByEvent(Guid eventId, CancellationToken cancellationToken)
 	{
 		var participants = await _context.EventsParticipants
 			.Where(ep => ep.EventId == eventId)
 			.Select(ep => ep.Participant)
-			.ToListAsync();
+			.ToListAsync(cancellationToken);
 
 		return _mapper.Map<IList<ParticipantModel>>(participants);
 	}
 
-	public async Task<IList<EventModel>> GetEventsByParticipant(Guid participantId)
+	public async Task<IList<EventModel>> GetEventsByParticipant(Guid participantId, CancellationToken cancellationToken)
 	{
 		var events = await _context.EventsParticipants
 			.Where(ep => ep.ParticipantId == participantId)
 			.Select(ep => ep.Event)
-			.ToListAsync();
+			.ToListAsync(cancellationToken);
 
 		return _mapper.Map<IList<EventModel>>(events);
 	}
 
-	public async Task AddEventParticipant(Guid eventId, Guid participantId, DateTime date)
+	public async Task AddEventParticipant(Guid eventId, Guid participantId, DateTime date, CancellationToken cancellationToken)
 	{
 		date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
 
@@ -59,60 +59,58 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 
 			try
 			{
-				await _context.EventsParticipants.AddAsync(entity);
+				await _context.EventsParticipants.AddAsync(entity, cancellationToken);
 
-				var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId);
+				var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId, cancellationToken);
 				if (eventEntity!.ParticipantsCount < eventEntity.MaxParticipants)
 					eventEntity.ParticipantsCount++;
 
-				await _context.SaveChangesAsync();
+				await _context.SaveChangesAsync(cancellationToken);
 
 				transaction.Commit();
 			}
 			catch (Exception ex)
 			{
-				await transaction.RollbackAsync();
+				await transaction.RollbackAsync(cancellationToken);
 				throw new InvalidOperationException($"An error occurred while adding event for participant and saving token: {ex.Message}", ex);
 			}
 		}
 	}
 
-	public async Task RemoveEventParticipant(Guid eventId, Guid participantId)
+	public async Task RemoveEventParticipant(Guid eventId, Guid participantId, CancellationToken cancellationToken)
 	{
 		var entity = await _context
 			.EventsParticipants
-			.FirstOrDefaultAsync(e => e.EventId == eventId && e.ParticipantId == participantId);
+			.FirstOrDefaultAsync(e => e.EventId == eventId && e.ParticipantId == participantId, cancellationToken);
 
 		if (entity != null)
 		{
 			_context.EventsParticipants.Remove(entity);
 
-			var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId);
+			var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId, cancellationToken);
 			if (eventEntity!.ParticipantsCount != 0)
 				eventEntity!.ParticipantsCount--;
 
-			await _context.SaveChangesAsync();
+			await _context.SaveChangesAsync(cancellationToken);
 		}
 	}
 
-	public async Task RemoveParticipantFromEvents(Guid participantId, IList<EventModel> events)
+	public async Task RemoveParticipantFromEvents(Guid participantId, IList<EventModel> events, CancellationToken cancellationToken)
 	{
 		var eventIds = events.Select(e => e.Id).ToList();
 
 		var eventEntities = await _context.Events
-		.Where(e => eventIds.Contains(e.Id))
-		.ToListAsync();
+			.Where(e => eventIds.Contains(e.Id))
+			.ToListAsync(cancellationToken);
 
 		foreach (var eventEntity in eventEntities)
 		{
 			var participantEvent = await _context
 				.EventsParticipants
-				.FirstOrDefaultAsync(e => e.EventId == eventEntity.Id && e.ParticipantId == participantId);
+				.FirstOrDefaultAsync(e => e.EventId == eventEntity.Id && e.ParticipantId == participantId, cancellationToken);
 
 			if (participantEvent != null)
 			{
-				//_context.EventsParticipants.Remove(participantEvent);
-
 				if (eventEntity.ParticipantsCount > 0)
 				{
 					eventEntity.ParticipantsCount--;
@@ -120,13 +118,13 @@ public class EventsParticipantsRepository : IEventsParticipantsRepository
 			}
 		}
 
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync(cancellationToken);
 	}
 
 
-	public async Task<bool> IsExists(Guid eventId, Guid participantId)
+	public async Task<bool> IsExists(Guid eventId, Guid participantId, CancellationToken cancellationToken)
 	{
 		return await _context.EventsParticipants
-			.AnyAsync(ep => ep.EventId == eventId && ep.ParticipantId == participantId);
+			.AnyAsync(ep => ep.EventId == eventId && ep.ParticipantId == participantId, cancellationToken);
 	}
 }

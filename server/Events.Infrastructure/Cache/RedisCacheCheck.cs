@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Threading;
 
 using Events.Application.Common.Cache;
 using Events.Domain.Interfaces.Repositories;
@@ -17,7 +18,7 @@ public class RedisCacheCheck : IRedisCacheCheck
 		_redisCache = redisCache;
 	}
 
-	public async Task<IList<EventModel>> CheckImagesInCache(IList<Guid> ids)
+	public async Task<IList<EventModel>> CheckImagesInCache(IList<Guid> ids, CancellationToken cancellationToken)
 	{
 		IList<EventModel> result = [];
 
@@ -28,7 +29,7 @@ public class RedisCacheCheck : IRedisCacheCheck
 
 			if (cachedImage != null)
 			{
-				var modelWithoutImage = await _eventsRepository.GetByIdWithoutImage(eventModelId);
+				var modelWithoutImage = await _eventsRepository.GetByIdWithoutImage(eventModelId, cancellationToken);
 				if (modelWithoutImage == null)
 					break;
 
@@ -46,7 +47,7 @@ public class RedisCacheCheck : IRedisCacheCheck
 			}
 			else
 			{
-				eventModel = await _eventsRepository.GetById(eventModelId);
+				eventModel = await _eventsRepository.GetById(eventModelId, cancellationToken);
 				if (eventModel != null && eventModel.Image != null)
 				{
 					await _redisCache.SetImage(eventModelId.ToString(), eventModel.Image, TimeSpan.FromHours(1));
@@ -58,13 +59,13 @@ public class RedisCacheCheck : IRedisCacheCheck
 		}
 		return result;
 	}
-	public async Task<EventModel?> CheckImageInCache(Guid id)
+	public async Task<EventModel?> CheckImageInCache(Guid id, CancellationToken cancellationToken)
 	{
 		var cachedImage = await _redisCache.GetImage(id.ToString());
 		EventModel? eventModel;
 		if (cachedImage != null)
 		{
-			var modelWithoutImage = await _eventsRepository.GetByIdWithoutImage(id);
+			var modelWithoutImage = await _eventsRepository.GetByIdWithoutImage(id, cancellationToken);
 			if (modelWithoutImage == null)
 				return null;
 
@@ -82,7 +83,7 @@ public class RedisCacheCheck : IRedisCacheCheck
 		}
 		else
 		{
-			eventModel = await _eventsRepository.GetById(id);
+			eventModel = await _eventsRepository.GetById(id, cancellationToken);
 			if (eventModel != null && eventModel.Image != null)
 			{
 				await _redisCache.SetImage(id.ToString(), eventModel.Image, TimeSpan.FromHours(1));

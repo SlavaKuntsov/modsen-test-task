@@ -24,7 +24,7 @@ public class UpdateParticipantCommandHandler(IUsersRepository usersRepository, I
 
 	public async Task<ParticipantDto> Handle(UpdateParticipantCommand request, CancellationToken cancellationToken)
 	{
-		var existParticipant = await _usersRepository.Get<ParticipantModel>(request.Id);
+		var existParticipant = await _usersRepository.Get<ParticipantModel>(request.Id, cancellationToken);
 
 		if (existParticipant == null)
 			throw new UserExistsException("User with this id doesn't exists");
@@ -37,6 +37,6 @@ public class UpdateParticipantCommandHandler(IUsersRepository usersRepository, I
 										request.LastName,
 										request.DateOfBirth);
 
-		return _mapper.Map<ParticipantDto>(await _usersRepository.Update(particantModel));
+		return _mapper.Map<ParticipantDto>(await _usersRepository.Update(particantModel, cancellationToken));
 	}
 }
