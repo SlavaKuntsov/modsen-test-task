@@ -35,11 +35,12 @@ public class ActiveAdminHandler : AuthorizationHandler<ActiveAdminRequirement>
 		{
 			var admin = await _mediator.Send(new GetOrAuthorizeUserQuery<AdminModel>(userId));
 
-			if (admin != null || !admin!.IsActiveAdmin)
+			if (admin == null || !admin.IsActiveAdmin)
 			{
-				context.Fail(); // Администратор неактивен
+				context.Fail(); // Администратор не найден или неактивен
 				return;
 			}
+
 		}
 
 		context.Succeed(requirement);

@@ -103,12 +103,12 @@ public static class ApiExtensions
 				policy.RequireRole("Admin");
 				policy.AddRequirements(new ActiveAdminRequirement());
 			})
+			.AddPolicy("UserOnly", policy => policy.RequireRole("User"))
 			.AddPolicy("UserOrAdmin", policy =>
 			{
 				policy.RequireRole("User", "Admin");
 				policy.AddRequirements(new ActiveAdminRequirement());
-			})
-			.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+			});
 
 
 		services.AddScoped<IAuthorizationHandler, ActiveAdminHandler>();
