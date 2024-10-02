@@ -2,11 +2,10 @@
 
 namespace Events.API.Contracts.Events;
 
-public class CreateRegistrationOnEventRequest
-{
+public record CreateRegistrationOnEventRequest(
 	[Required]
-	public string EventId { get; set; } = string.Empty;
+	 string EventId,
+	[Required]
+	string ParticipantId
+	);
 
-	[Required]
-	public string ParticipantId { get; set; } = string.Empty;
-}

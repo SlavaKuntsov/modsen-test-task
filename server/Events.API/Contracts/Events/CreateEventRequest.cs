@@ -2,36 +2,20 @@
 
 namespace Events.API.Contracts.Events;
 
-public record CreateEventRequest
-{
+public record CreateEventRequest(
 	[Required]
-	public string Title { get; set; } = string.Empty;
-
+	string Title,
 	[Required]
-	public string Description { get; set; } = string.Empty;
-
+	string Description,
 	[Required]
-	public string EventDateTime { get; set; }
-
+	string EventDateTime,
 	[Required]
-	public string Location { get; set; } = string.Empty;
-
+	string Location,
 	[Required]
-	public string Category { get; set; } = string.Empty;
-
+	string Category,
 	[Required]
-	public int MaxParticipants { get; set; }
-
+	int MaxParticipants,
 	[Required]
-	public int ParticipantsCount { get; set; }
-
-	//[Required]
-	//public string ImageUrl { get; set; } = string.Empty;
-
-	//[Required]
-	//public byte[] ImageBytes { get; set; } = [];
-
-
+	int ParticipantsCount,
 	[Required]
-	public byte[] Image { get; set; }
-}
+	byte[] Image);

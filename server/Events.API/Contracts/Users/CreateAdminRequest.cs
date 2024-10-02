@@ -12,7 +12,7 @@ public class CreateAdminRequest
 	public string Password { get; set; }
 
 	[Required]
-	[Compare(nameof(Password))]
+	[Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
 	public string PasswordConfirmation { get; set; }
 
 	[Required]

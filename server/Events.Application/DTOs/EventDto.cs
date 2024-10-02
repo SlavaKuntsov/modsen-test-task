@@ -1,6 +1,6 @@
-﻿namespace Events.API.Contracts.Events;
+﻿namespace Events.Application.DTOs;
 
-public class GetEventResponse
+public class EventDto
 {
     public Guid Id { get; set; }
 
@@ -18,7 +18,5 @@ public class GetEventResponse
 
     public int ParticipantsCount { get; set; }
 
-	//public string ImageUrl { get; set; } = string.Empty;
-
-	public string Image { get; set; } = string.Empty;
+    public string Image { get; set; } = string.Empty;
 }
