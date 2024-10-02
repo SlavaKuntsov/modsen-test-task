@@ -63,3 +63,9 @@ export interface IRoute {
 }
 
 export type SortType = 'title' | 'date' | 'participantCount';
+
+export interface IError {
+	title: string;
+	statusCode: number;
+	detail: string;
+}

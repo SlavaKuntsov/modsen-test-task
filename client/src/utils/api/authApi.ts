@@ -4,36 +4,41 @@ import { getAccessToken, getRefreshToken } from '../tokens';
 import { IAuthResult, IUser } from '../types';
 
 export const checkAccessToken = async (): Promise<IUser | null> => {
-	console.log('access token');
-
+	
 	const accessToken = getAccessToken();
 	const refreshToken = getRefreshToken();
+	
+	console.log('access token' + accessToken);
 
 	if (accessToken) {
 		try {
+			console.log('before responce')
 			const response = await kyCore.get('Users/Authorize', {
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
 				},
 			});
 			if (response.ok) {
+				console.log('OK')
 				return await response.json<IUser>();
 			}
 		} catch (error: unknown) {
 			// Указываем, что error может быть неизвестного типа
 			if (error instanceof HTTPError && error.response) {
 				const errorMessage = await error.response.text();
-				console.error('Failed to reg admin:', errorMessage);
+				console.error('Failed to reg check access:', errorMessage);
 			}
 
 			console.error('Unexpected error:', error);
+			return null;
 		}
 	}
 
 	// undefined === наличие токена
 	if (refreshToken === undefined) {
 		console.log('refreshing token');
-		return await handleRefreshToken();
+		return handleRefreshToken();
 	} else {
 		return null;
 	}
@@ -51,7 +56,7 @@ export const handleRefreshToken = async (): Promise<IUser | null> => {
 
 			localStorage.setItem('accessToken', newAccessToken);
 
-			return await checkAccessToken(); // Проверяем access token снова
+			return checkAccessToken(); // Проверяем access token снова
 		}
 	} catch (error) {
 		console.error('Error refreshing token:', error);

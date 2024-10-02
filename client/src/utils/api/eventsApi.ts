@@ -1,7 +1,7 @@
 import { HTTPError } from 'ky';
 import kyCore from '../core/kyCore';
 import { getAccessToken } from '../tokens';
-import { IDelete, IEvent } from '../types';
+import { IDelete, IError, IEvent } from '../types';
 
 export const getEvents = async (): Promise<IEvent[]> => {
 	console.log('getEvents void');
@@ -80,9 +80,10 @@ export const eventRegistration = async ({
 		return false;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to registration on event:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);
@@ -106,9 +107,10 @@ export const eventUnregistration = async ({
 		return false;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to unregistration on event:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);
@@ -131,9 +133,10 @@ export const createEvent = async (event: IEvent): Promise<string> => {
 		return res;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to create event:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);
@@ -156,9 +159,10 @@ export const updateEvent = async (event: IEvent): Promise<string | boolean> => {
 		return true;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to update event:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);
@@ -180,9 +184,10 @@ export const deleteEvent = async (id: IDelete): Promise<boolean | string> => {
 		return true;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to delete:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);

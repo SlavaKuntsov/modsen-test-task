@@ -1,7 +1,14 @@
 import { HTTPError } from 'ky'; // Убедитесь, что HTTPError импортирован
 import kyCore from '../core/kyCore';
 import { getAccessToken } from '../tokens';
-import { IAdmin, IAuthResult, IDelete, IUser, IUserUpdate } from '../types';
+import {
+	IAdmin,
+	IAuthResult,
+	IDelete,
+	IError,
+	IUser,
+	IUserUpdate,
+} from '../types';
 
 export const login = async (userData: IUser): Promise<boolean | string> => {
 	console.log('login');
@@ -17,9 +24,10 @@ export const login = async (userData: IUser): Promise<boolean | string> => {
 		return true;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to reg admin:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);
@@ -42,9 +50,10 @@ export const registration = async (
 		return true;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to reg admin:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);
@@ -71,9 +80,10 @@ export const updateParticipant = async (
 		return response;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to update:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);
@@ -95,9 +105,10 @@ export const deleteUser = async (id: IDelete): Promise<boolean | string> => {
 		return true;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to delete:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);
@@ -137,9 +148,10 @@ export const activateAdmin = async (id: IDelete): Promise<boolean | string> => {
 		return true;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to get:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);
@@ -164,9 +176,10 @@ export const deactivateAdmin = async (
 		return true;
 	} catch (error: unknown) {
 		if (error instanceof HTTPError && error.response) {
-			const errorMessage = await error.response.text();
+			const errorText = await error.response.text();
+			const errorMessage: IError = JSON.parse(errorText);
 			console.error('Failed to get:', errorMessage);
-			return errorMessage;
+			return errorMessage.detail;
 		}
 
 		console.error('Unexpected error:', error);

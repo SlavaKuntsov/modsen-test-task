@@ -7,10 +7,10 @@ import { ErrorMessage, Field, FieldInputProps, Formik } from 'formik';
 import { useState } from 'react';
 import * as Yup from 'yup';
 import {
-	deleteEvent,
-	eventRegistration,
-	eventUnregistration,
-	updateEvent,
+    deleteEvent,
+    eventRegistration,
+    eventUnregistration,
+    updateEvent,
 } from '../../utils/api/eventsApi';
 import { eventStore } from '../../utils/store/eventsStore';
 import { userStore } from '../../utils/store/userStore';
@@ -20,7 +20,6 @@ import useCustomToast from '../Toast';
 
 dayjs.extend(customParseFormat);
 
-// Event validation schema using Yup
 const EventSchema = Yup.object().shape({
 	title: Yup.string().required('Title is required'),
 	description: Yup.string().required('Description is required'),
