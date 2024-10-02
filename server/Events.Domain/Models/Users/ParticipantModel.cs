@@ -1,15 +1,10 @@
-﻿using System.Globalization;
-
-using CSharpFunctionalExtensions;
-
+﻿using Events.Domain.Constants;
 using Events.Domain.Enums;
-using Events.Domain.Validators.Users;
 
 namespace Events.Domain.Models.Users;
 
 public class ParticipantModel : UserModel
 {
-	public const string DATE_FORMAT = "dd-MM-yyyy";
 	public const string DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm";
 
 	public string FirstName { get; private set; } = string.Empty;
@@ -24,7 +19,7 @@ public class ParticipantModel : UserModel
 
 	public ParticipantModel() { }
 
-	private ParticipantModel(Guid id, string email, string password, Role role, string firstName, string lastName, DateTime dateOfBirth) : base(id, email, password, role)
+	public ParticipantModel(Guid id, string email, string password, Role role, string firstName, string lastName, DateTime dateOfBirth) : base(id, email, password, role)
 	{
 		Id = id;
 		Email = email;
@@ -33,25 +28,5 @@ public class ParticipantModel : UserModel
 		FirstName = firstName;
 		LastName = lastName;
 		DateOfBirth = dateOfBirth;
-		//EventRegistrationDate = eventRegistration;
-	}
-
-	public static Result<ParticipantModel> Create(Guid id, string email, string password, Role role, string firstName, string lastName, string dateOfBirth)
-	{
-		DateTime dateOfBirthTime;
-		//DateTime eventRegistrationDateTime;
-
-		DateTime.TryParseExact(dateOfBirth, DATE_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateOfBirthTime);
-		//DateTime.TryParseExact(eventRegistrationDate, DATE_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out eventRegistrationDateTime);
-
-		ParticipantModel model = new(id, email, password, role, firstName, lastName, dateOfBirthTime);
-
-		var validator = new ParticipantModelValidator();
-		var validationResult = validator.Validate(model);
-
-		if (!validationResult.IsValid)
-			return Result.Failure<ParticipantModel>(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
-
-		return model;
 	}
 }

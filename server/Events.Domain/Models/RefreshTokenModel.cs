@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 
 using Events.Domain.Enums;
-using Events.Domain.Validators.Users;
 
 namespace Events.Domain.Models;
 
@@ -44,12 +43,6 @@ public class RefreshTokenModel
 			DateTime.UtcNow,
 			role == Role.Admin ? userId : null,
 			role == Role.User ? userId : null);
-
-		var validator = new RefreshTokenModelValidator();
-		var validationResult = validator.Validate(model);
-
-		if (!validationResult.IsValid)
-			return Result.Failure<RefreshTokenModel>(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
 
 		return model;
 	}
